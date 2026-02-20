@@ -1,11 +1,18 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "20"
 
-# SPA fallback: redirects all routes to index.html so React handles routing client-side
+# API proxy — must come BEFORE the SPA catch-all
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# SPA fallback: redirects all non-API routes to index.html so React handles routing
 [[redirects]]
   from = "/*"
   to = "/index.html"

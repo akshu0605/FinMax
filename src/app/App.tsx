@@ -100,8 +100,17 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="size-full flex items-center justify-center bg-[#0F172A]">
-        <div className="text-white text-xl">Loading...</div>
+      <div className="size-full flex items-center justify-center" style={{ background: '#000000' }}>
+        <div
+          className="text-xl animate-pulse"
+          style={{
+            color: '#00F2EA',
+            fontFamily: 'JetBrains Mono, "Courier New", monospace',
+            textShadow: '0 0 20px rgba(0,242,234,0.6)',
+          }}
+        >
+          Loading...
+        </div>
       </div>
     );
   }

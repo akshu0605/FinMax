@@ -1,82 +1,155 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import {
-  User,
-  Wallet,
-  Bell,
-  Palette,
-  Shield,
-  Database,
-  CreditCard,
-  ChevronRight,
-  Upload,
-  Lock,
-  Mail,
-  Phone,
-  Calendar,
-  Globe,
-  Download,
-  FileUp,
-  Trash2,
-  LogOut,
-  Check,
-  AlertTriangle,
-  Smartphone,
-  Monitor,
-  Eye,
-  Settings as SettingsIcon,
-  Save,
+  User, Wallet, Bell, Palette, Shield, Database, CreditCard, ChevronRight,
+  Upload, Lock, Mail, Phone, Calendar, Globe, Download, FileUp, Trash2,
+  LogOut, Check, AlertTriangle, Smartphone, Monitor, Settings as SettingsIcon, Save, ArrowLeft,
 } from 'lucide-react';
 import { Logo } from './Logo';
+import { StarField } from './StarField';
 
-interface SettingsProps {
-  userEmail: string;
-  onBack: () => void;
-  onLogout: () => void;
-  currency: string;
-  onCurrencyChange: (currency: string) => void;
+// ─── Design tokens ────────────────────────────────────────────────
+const TEAL = '#00F2EA';
+const headingFont: React.CSSProperties = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
+const monoFont: React.CSSProperties = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
+
+const glass = (): React.CSSProperties => ({
+  background: 'rgba(255,255,255,0.045)',
+  backdropFilter: 'blur(24px) saturate(200%) brightness(1.08)',
+  WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.08)',
+  border: '1px solid rgba(0,242,234,0.13)',
+  boxShadow: '0 12px 40px rgba(0,0,0,0.6), inset 0 1.5px 0 rgba(255,255,255,0.09)',
+  position: 'relative' as const,
+});
+
+const inputBase: React.CSSProperties = {
+  width: '100%', padding: '11px 14px',
+  background: 'rgba(255,255,255,0.05)',
+  backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+  border: '1px solid rgba(0,242,234,0.18)',
+  borderRadius: '10px', color: '#fff', outline: 'none', ...monoFont,
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)',
+  transition: 'border-color 0.2s, box-shadow 0.2s',
+};
+
+const sheen = (
+  <div className="absolute inset-0 pointer-events-none rounded-[inherit]"
+    style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)' }} />
+);
+
+// ─── Teal toggle switch ───────────────────────────────────────────
+function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  return (
+    <button onClick={onToggle}
+      className="relative w-14 h-8 rounded-full transition-all shrink-0"
+      style={on ? {
+        background: TEAL,
+        boxShadow: `0 0 14px rgba(0,242,234,0.4)`,
+      } : {
+        background: 'rgba(255,255,255,0.12)',
+        border: '1px solid rgba(255,255,255,0.1)',
+      }}
+    >
+      <motion.div
+        className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
+        animate={{ left: on ? '24px' : '4px' }}
+        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+        style={{ boxShadow: on ? '0 0 8px rgba(0,242,234,0.5)' : '0 2px 6px rgba(0,0,0,0.4)' }}
+      />
+    </button>
+  );
 }
 
-type SettingsSection = 
-  | 'profile' 
-  | 'financial' 
-  | 'notifications' 
-  | 'appearance' 
-  | 'security' 
-  | 'data' 
-  | 'subscription';
+// ─── Glass section card ───────────────────────────────────────────
+function GlassCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`p-6 rounded-2xl overflow-hidden ${className}`} style={glass()}>
+      {sheen}
+      <div className="relative z-10">{children}</div>
+    </div>
+  );
+}
+
+// ─── Row with toggle ──────────────────────────────────────────────
+function ToggleRow({ icon: Icon, iconColor, label, description, on, onToggle }: {
+  icon: any; iconColor: string; label: string; description: string; on: boolean; onToggle: () => void;
+}) {
+  return (
+    <div className="flex items-center justify-between py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="flex items-center gap-4">
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+          style={{
+            background: `rgba(${iconColor === TEAL ? '0,242,234' : iconColor === '#34D399' ? '52,211,153' : iconColor === '#F87171' ? '248,113,113' : iconColor === '#60A5FA' ? '96,165,250' : iconColor === '#FBBF24' ? '251,191,36' : '167,139,250'},0.1)`,
+            border: `1px solid ${iconColor}25`,
+          }}>
+          <Icon className="size-5" style={{ color: iconColor }} />
+        </div>
+        <div>
+          <div className="font-semibold text-white text-sm" style={headingFont}>{label}</div>
+          <div className="text-xs mt-0.5" style={{ color: '#A1A1A1', ...monoFont }}>{description}</div>
+        </div>
+      </div>
+      <Toggle on={on} onToggle={onToggle} />
+    </div>
+  );
+}
+
+// ─── Teal CTA button ──────────────────────────────────────────────
+function TealButton({ onClick, type = 'button', children, className = '' }:
+  { onClick?: () => void; type?: 'button' | 'submit'; children: React.ReactNode; className?: string }) {
+  return (
+    <motion.button type={type} onClick={onClick}
+      className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold ${className}`}
+      style={{ background: TEAL, color: '#000', ...headingFont, boxShadow: '0 0 18px rgba(0,242,234,0.32), inset 0 1.5px 0 rgba(255,255,255,0.3)' }}
+      whileHover={{ scale: 1.04, boxShadow: '0 0 36px rgba(0,242,234,0.6), inset 0 1.5px 0 rgba(255,255,255,0.3)' }}
+      whileTap={{ scale: 0.97 }}
+    >{children}</motion.button>
+  );
+}
+
+function GhostButton({ onClick, children, danger = false }: { onClick?: () => void; children: React.ReactNode; danger?: boolean }) {
+  return (
+    <motion.button onClick={onClick}
+      className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all"
+      style={danger ? {
+        background: 'rgba(248,113,113,0.08)', color: '#F87171',
+        border: '1px solid rgba(248,113,113,0.28)', ...headingFont,
+      } : {
+        background: 'rgba(255,255,255,0.06)', color: '#A1A1A1',
+        border: '1px solid rgba(255,255,255,0.1)', ...monoFont,
+        backdropFilter: 'blur(10px)',
+      }}
+      whileHover={danger
+        ? { background: 'rgba(248,113,113,0.14)', color: '#FCA5A5' }
+        : { background: 'rgba(255,255,255,0.1)', color: '#fff' }}
+      whileTap={{ scale: 0.97 }}
+    >{children}</motion.button>
+  );
+}
+
+// ─── Types ────────────────────────────────────────────────────────
+interface SettingsProps { userEmail: string; onBack: () => void; onLogout: () => void; currency: string; onCurrencyChange: (c: string) => void; }
+type SettingsSection = 'profile' | 'financial' | 'notifications' | 'appearance' | 'security' | 'data' | 'subscription';
 
 export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChange }: SettingsProps) {
   const [activeSection, setActiveSection] = useState<SettingsSection>('profile');
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  
-  // Profile states
   const [fullName, setFullName] = useState('John Doe');
   const [phone, setPhone] = useState('+91 98765 43210');
-  
-  // Financial preferences
   const [salaryCreditDate, setSalaryCreditDate] = useState('1');
   const [financialYear, setFinancialYear] = useState('April-March');
   const [budgetAlerts, setBudgetAlerts] = useState(true);
   const [overBudgetWarning, setOverBudgetWarning] = useState(true);
-  
-  // Notification settings
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [budgetAlertsNotif, setBudgetAlertsNotif] = useState(true);
   const [billReminders, setBillReminders] = useState(true);
   const [emiReminders, setEmiReminders] = useState(true);
   const [weeklySummary, setWeeklySummary] = useState(false);
-  
-  // Appearance settings
   const [darkMode, setDarkMode] = useState(true);
-  const [accentColor, setAccentColor] = useState('#6366F1');
   const [compactMode, setCompactMode] = useState(false);
   const [animationsEnabled, setAnimationsEnabled] = useState(true);
-  
-  // Security settings
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-  
-  // Active sessions
+
   const activeSessions = [
     { device: 'Chrome on Windows', location: 'Mumbai, India', lastActive: '5 minutes ago', current: true },
     { device: 'Safari on iPhone', location: 'Mumbai, India', lastActive: '2 hours ago', current: false },
@@ -84,13 +157,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+    if (file) { const r = new FileReader(); r.onloadend = () => setProfileImage(r.result as string); r.readAsDataURL(file); }
   };
 
   const menuItems = [
@@ -103,867 +170,515 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
     { id: 'subscription' as const, label: 'Subscription', icon: CreditCard },
   ];
 
+  const sectionTitles: Record<SettingsSection, { title: string; sub: string }> = {
+    profile: { title: 'Profile Settings', sub: 'Manage your personal information' },
+    financial: { title: 'Financial Preferences', sub: 'Customize your financial settings' },
+    notifications: { title: 'Notification Settings', sub: 'Manage how you receive notifications' },
+    appearance: { title: 'Appearance Settings', sub: 'Customize your interface' },
+    security: { title: 'Security Settings', sub: 'Manage your account security' },
+    data: { title: 'Data Management', sub: 'Manage your financial data' },
+    subscription: { title: 'Subscription & Billing', sub: 'Manage your subscription plan' },
+  };
+
+  const selectStyle: React.CSSProperties = {
+    ...inputBase,
+    appearance: 'none', cursor: 'pointer',
+    paddingLeft: '2.75rem',
+  };
+
   const renderContent = () => {
     switch (activeSection) {
       case 'profile':
         return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Profile Settings</h2>
-              <p className="text-white/60">Manage your personal information</p>
-            </div>
-
-            {/* Profile Image */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            {/* Avatar */}
+            <GlassCard>
               <div className="flex items-center gap-6">
-                <div className="relative group">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center overflow-hidden">
-                    {profileImage ? (
-                      <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="size-12 text-white" />
-                    )}
+                <div className="relative group shrink-0">
+                  <div className="w-24 h-24 rounded-full flex items-center justify-center overflow-hidden"
+                    style={{ background: 'rgba(0,242,234,0.1)', border: '2px solid rgba(0,242,234,0.3)', boxShadow: '0 0 20px rgba(0,242,234,0.15)' }}>
+                    {profileImage ? <img src={profileImage} alt="Profile" className="w-full h-full object-cover" /> : <User className="size-12" style={{ color: TEAL }} />}
                   </div>
-                  <label className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <label className="absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    style={{ background: 'rgba(0,0,0,0.65)' }}>
                     <Upload className="size-6 text-white" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                   </label>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-1">{fullName}</h3>
-                  <p className="text-white/60 mb-2">{userEmail}</p>
-                  <button className="text-sm text-[#6366F1] hover:text-[#8B5CF6] transition-colors">
-                    Upload new photo
-                  </button>
+                  <h3 className="text-xl font-bold text-white mb-1" style={headingFont}>{fullName}</h3>
+                  <p className="text-sm mb-3" style={{ color: '#A1A1A1', ...monoFont }}>{userEmail}</p>
+                  <button className="text-sm font-semibold transition-colors" style={{ color: TEAL, ...monoFont }}
+                    onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                    onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                  >Upload new photo</button>
                 </div>
               </div>
-            </div>
+            </GlassCard>
 
-            {/* Personal Information */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 space-y-4">
-              <h3 className="text-xl font-semibold mb-4">Personal Information</h3>
-              
-              <div>
-                <label className="block text-sm text-white/60 mb-2">Full Name</label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm text-white/60 mb-2">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-white/40" />
-                  <input
-                    type="email"
-                    value={userEmail}
-                    disabled
-                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 cursor-not-allowed"
-                  />
+            {/* Personal info */}
+            <GlassCard>
+              <h3 className="text-lg font-bold text-white mb-5" style={headingFont}>Personal Information</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Full Name</label>
+                  <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} style={inputBase}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = '0 0 14px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)'; e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.07)'; }} />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm text-white/60 mb-2">Phone Number</label>
-                <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-white/40" />
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all"
-                  />
+                <div>
+                  <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Email Address</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4" style={{ color: '#A1A1A1' }} />
+                    <input type="email" value={userEmail} disabled style={{ ...inputBase, paddingLeft: '2.75rem', color: '#A1A1A1', cursor: 'not-allowed' }} />
+                  </div>
                 </div>
+                <div>
+                  <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Phone Number</label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 size-4" style={{ color: '#A1A1A1' }} />
+                    <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} style={{ ...inputBase, paddingLeft: '2.75rem' }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = '0 0 14px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)'; }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)'; e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.07)'; }} />
+                  </div>
+                </div>
+                <div className="flex gap-3 pt-2"><TealButton><Save className="size-4" /> Save Changes</TealButton></div>
               </div>
+            </GlassCard>
 
-              <div className="flex gap-3 pt-4">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white font-semibold hover:shadow-lg hover:shadow-[#6366F1]/50 transition-all"
-                >
-                  <Save className="size-4" />
-                  Save Changes
+            {/* Security quick actions */}
+            <GlassCard>
+              <h3 className="text-lg font-bold text-white mb-4" style={headingFont}>Quick Security</h3>
+              <div className="space-y-3">
+                <motion.button className="w-full flex items-center justify-between px-4 py-3 rounded-xl group relative overflow-hidden"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(10px)' }}
+                  whileHover={{ borderColor: 'rgba(0,242,234,0.3)' }}>
+                  <div className="flex items-center gap-3">
+                    <Lock className="size-5" style={{ color: '#A1A1A1' }} />
+                    <span className="text-white text-sm" style={headingFont}>Change Password</span>
+                  </div>
+                  <ChevronRight className="size-4" style={{ color: '#A1A1A1' }} />
+                </motion.button>
+                <motion.button className="w-full flex items-center justify-between px-4 py-3 rounded-xl"
+                  style={{ background: 'rgba(248,113,113,0.07)', border: '1px solid rgba(248,113,113,0.22)', backdropFilter: 'blur(10px)' }}
+                  whileHover={{ background: 'rgba(248,113,113,0.12)' }}>
+                  <div className="flex items-center gap-3">
+                    <AlertTriangle className="size-5 text-red-400" />
+                    <span className="text-red-400 text-sm" style={headingFont}>Delete Account</span>
+                  </div>
+                  <ChevronRight className="size-4 text-red-400/60" />
                 </motion.button>
               </div>
-            </div>
-
-            {/* Security Actions */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 space-y-4">
-              <h3 className="text-xl font-semibold mb-4">Security</h3>
-              
-              <button className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#6366F1]/50 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Lock className="size-5 text-white/60 group-hover:text-[#6366F1] transition-colors" />
-                  <span>Change Password</span>
-                </div>
-                <ChevronRight className="size-5 text-white/40" />
-              </button>
-
-              <button className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 transition-all group">
-                <div className="flex items-center gap-3">
-                  <AlertTriangle className="size-5 text-red-400" />
-                  <span className="text-red-400">Delete Account</span>
-                </div>
-                <ChevronRight className="size-5 text-red-400/60" />
-              </button>
-            </div>
+            </GlassCard>
           </motion.div>
         );
 
       case 'financial':
         return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Financial Preferences</h2>
-              <p className="text-white/60">Customize your financial settings</p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 space-y-6">
-              <div>
-                <label className="block text-sm text-white/60 mb-2">Default Currency</label>
-                <div className="relative">
-                  <Globe className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-white/40" />
-                  <select
-                    value={currency}
-                    onChange={(e) => onCurrencyChange(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all appearance-none cursor-pointer"
-                  >
-                    <option value="INR">INR - Indian Rupee (₹)</option>
-                    <option value="USD">USD - US Dollar ($)</option>
-                    <option value="EUR">EUR - Euro (€)</option>
-                    <option value="GBP">GBP - British Pound (£)</option>
-                    <option value="JPY">JPY - Japanese Yen (¥)</option>
-                    <option value="AUD">AUD - Australian Dollar (A$)</option>
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            <GlassCard>
+              <h3 className="text-lg font-bold text-white mb-5" style={headingFont}>Financial Preferences</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Default Currency</label>
+                  <div className="relative">
+                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 size-4 z-10" style={{ color: TEAL }} />
+                    <select value={currency} onChange={(e) => onCurrencyChange(e.target.value)} style={selectStyle}>
+                      {['INR - Indian Rupee (₹)', 'USD - US Dollar ($)', 'EUR - Euro (€)', 'GBP - British Pound (£)', 'JPY - Japanese Yen (¥)', 'AUD - Australian Dollar (A$)'].map((o) => (
+                        <option key={o} value={o.split(' ')[0]} style={{ background: '#0A0A0A' }}>{o}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Salary Credit Date</label>
+                  <div className="relative">
+                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 size-4 z-10" style={{ color: TEAL }} />
+                    <select value={salaryCreditDate} onChange={(e) => setSalaryCreditDate(e.target.value)} style={selectStyle}>
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
+                        <option key={d} value={d} style={{ background: '#0A0A0A' }}>{d}{d === 1 ? 'st' : d === 2 ? 'nd' : d === 3 ? 'rd' : 'th'} of every month</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Financial Year</label>
+                  <select value={financialYear} onChange={(e) => setFinancialYear(e.target.value)} style={inputBase as any}>
+                    <option value="April-March" style={{ background: '#0A0A0A' }}>April – March (India)</option>
+                    <option value="January-December" style={{ background: '#0A0A0A' }}>January – December (Calendar Year)</option>
+                    <option value="July-June" style={{ background: '#0A0A0A' }}>July – June (Australia)</option>
                   </select>
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm text-white/60 mb-2">Salary Credit Date</label>
-                <div className="relative">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-white/40" />
-                  <select
-                    value={salaryCreditDate}
-                    onChange={(e) => setSalaryCreditDate(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all appearance-none cursor-pointer"
-                  >
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
-                      <option key={day} value={day}>{day}{day === 1 ? 'st' : day === 2 ? 'nd' : day === 3 ? 'rd' : 'th'} of every month</option>
-                    ))}
-                  </select>
-                </div>
+              <div className="mt-6 pt-4" style={{ borderTop: '1px solid rgba(0,242,234,0.08)' }}>
+                <ToggleRow icon={Bell} iconColor={TEAL} label="Enable Budget Alerts" description="Get notified when approaching budget limits" on={budgetAlerts} onToggle={() => setBudgetAlerts(!budgetAlerts)} />
+                <ToggleRow icon={AlertTriangle} iconColor="#FBBF24" label="Over-Budget Warning" description="Alert when expenses exceed budget" on={overBudgetWarning} onToggle={() => setOverBudgetWarning(!overBudgetWarning)} />
               </div>
-
-              <div>
-                <label className="block text-sm text-white/60 mb-2">Financial Year</label>
-                <select
-                  value={financialYear}
-                  onChange={(e) => setFinancialYear(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all appearance-none cursor-pointer"
-                >
-                  <option value="April-March">April - March (India)</option>
-                  <option value="January-December">January - December (Calendar Year)</option>
-                  <option value="July-June">July - June (Australia)</option>
-                </select>
-              </div>
-
-              <div className="pt-4 border-t border-white/10 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold">Enable Budget Alerts</div>
-                    <div className="text-sm text-white/60">Get notified when approaching budget limits</div>
-                  </div>
-                  <button
-                    onClick={() => setBudgetAlerts(!budgetAlerts)}
-                    className={`relative w-14 h-8 rounded-full transition-all ${
-                      budgetAlerts ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]' : 'bg-white/20'
-                    }`}
-                  >
-                    <motion.div
-                      className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                      animate={{ left: budgetAlerts ? '28px' : '4px' }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    />
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-semibold">Over-Budget Warning</div>
-                    <div className="text-sm text-white/60">Alert when expenses exceed budget</div>
-                  </div>
-                  <button
-                    onClick={() => setOverBudgetWarning(!overBudgetWarning)}
-                    className={`relative w-14 h-8 rounded-full transition-all ${
-                      overBudgetWarning ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]' : 'bg-white/20'
-                    }`}
-                  >
-                    <motion.div
-                      className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                      animate={{ left: overBudgetWarning ? '28px' : '4px' }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    />
-                  </button>
-                </div>
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white font-semibold hover:shadow-lg hover:shadow-[#6366F1]/50 transition-all"
-              >
-                Save Preferences
-              </motion.button>
-            </div>
+              <div className="mt-5"><TealButton className="w-full py-3">Save Preferences</TealButton></div>
+            </GlassCard>
           </motion.div>
         );
 
       case 'notifications':
         return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Notification Settings</h2>
-              <p className="text-white/60">Manage how you receive notifications</p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                    <Mail className="size-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-semibold">Email Notifications</div>
-                    <div className="text-sm text-white/60">Receive updates via email</div>
-                  </div>
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            <GlassCard>
+              <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Notification Settings</h3>
+              <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Manage how you receive notifications</p>
+              <div>
+                <ToggleRow icon={Mail} iconColor="#60A5FA" label="Email Notifications" description="Receive updates via email" on={emailNotifications} onToggle={() => setEmailNotifications(!emailNotifications)} />
+                <ToggleRow icon={AlertTriangle} iconColor="#FBBF24" label="Budget Alerts" description="Notify when approaching limits" on={budgetAlertsNotif} onToggle={() => setBudgetAlertsNotif(!budgetAlertsNotif)} />
+                <ToggleRow icon={Calendar} iconColor="#F87171" label="Bill Reminders" description="Get reminded before bill due dates" on={billReminders} onToggle={() => setBillReminders(!billReminders)} />
+                <ToggleRow icon={CreditCard} iconColor="#A78BFA" label="EMI Reminders" description="Loan payment notifications" on={emiReminders} onToggle={() => setEmiReminders(!emiReminders)} />
+                <div className="pt-0">
+                  <ToggleRow icon={Bell} iconColor="#34D399" label="Weekly Financial Summary" description="Weekly spending overview" on={weeklySummary} onToggle={() => setWeeklySummary(!weeklySummary)} />
                 </div>
-                <button
-                  onClick={() => setEmailNotifications(!emailNotifications)}
-                  className={`relative w-14 h-8 rounded-full transition-all ${
-                    emailNotifications ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]' : 'bg-white/20'
-                  }`}
-                >
-                  <motion.div
-                    className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                    animate={{ left: emailNotifications ? '28px' : '4px' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </button>
               </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
-                    <AlertTriangle className="size-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-semibold">Budget Alerts</div>
-                    <div className="text-sm text-white/60">Notify when approaching limits</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setBudgetAlertsNotif(!budgetAlertsNotif)}
-                  className={`relative w-14 h-8 rounded-full transition-all ${
-                    budgetAlertsNotif ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]' : 'bg-white/20'
-                  }`}
-                >
-                  <motion.div
-                    className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                    animate={{ left: budgetAlertsNotif ? '28px' : '4px' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
-                    <Calendar className="size-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-semibold">Bill Reminders</div>
-                    <div className="text-sm text-white/60">Get reminded before bill due dates</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setBillReminders(!billReminders)}
-                  className={`relative w-14 h-8 rounded-full transition-all ${
-                    billReminders ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]' : 'bg-white/20'
-                  }`}
-                >
-                  <motion.div
-                    className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                    animate={{ left: billReminders ? '28px' : '4px' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-                    <CreditCard className="size-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-semibold">EMI Reminders</div>
-                    <div className="text-sm text-white/60">Loan payment notifications</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setEmiReminders(!emiReminders)}
-                  className={`relative w-14 h-8 rounded-full transition-all ${
-                    emiReminders ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]' : 'bg-white/20'
-                  }`}
-                >
-                  <motion.div
-                    className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                    animate={{ left: emiReminders ? '28px' : '4px' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                    <Bell className="size-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-semibold">Weekly Financial Summary</div>
-                    <div className="text-sm text-white/60">Weekly spending overview</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setWeeklySummary(!weeklySummary)}
-                  className={`relative w-14 h-8 rounded-full transition-all ${
-                    weeklySummary ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]' : 'bg-white/20'
-                  }`}
-                >
-                  <motion.div
-                    className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                    animate={{ left: weeklySummary ? '28px' : '4px' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </button>
-              </div>
-            </div>
+            </GlassCard>
           </motion.div>
         );
 
       case 'appearance':
         return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Appearance Settings</h2>
-              <p className="text-white/60">Customize your interface</p>
-            </div>
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            <GlassCard>
+              <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Appearance Settings</h3>
+              <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Customize your interface</p>
+              <ToggleRow icon={Palette} iconColor={TEAL} label="Dark Mode" description="Use dark theme across the app" on={darkMode} onToggle={() => setDarkMode(!darkMode)} />
+              <ToggleRow icon={Monitor} iconColor="#60A5FA" label="Compact Mode" description="Reduce spacing for more content" on={compactMode} onToggle={() => setCompactMode(!compactMode)} />
+              <ToggleRow icon={Smartphone} iconColor="#34D399" label="Enable Animations" description="Smooth transitions and effects" on={animationsEnabled} onToggle={() => setAnimationsEnabled(!animationsEnabled)} />
 
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center">
-                    <Palette className="size-6 text-white" />
-                  </div>
-                  <div>
-                    <div className="font-semibold">Dark Mode</div>
-                    <div className="text-sm text-white/60">Use dark theme across the app</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setDarkMode(!darkMode)}
-                  className={`relative w-14 h-8 rounded-full transition-all ${
-                    darkMode ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]' : 'bg-white/20'
-                  }`}
-                >
-                  <motion.div
-                    className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                    animate={{ left: darkMode ? '28px' : '4px' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </button>
-              </div>
-
-              <div>
-                <label className="block text-sm text-white/60 mb-3">Accent Color</label>
-                <div className="flex gap-3">
-                  {['#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#3B82F6'].map(color => (
-                    <button
-                      key={color}
-                      onClick={() => setAccentColor(color)}
-                      className={`w-12 h-12 rounded-xl transition-all ${
-                        accentColor === color ? 'ring-2 ring-white ring-offset-2 ring-offset-[#0F172A] scale-110' : 'hover:scale-105'
-                      }`}
-                      style={{ backgroundColor: color }}
+              {/* Accent color picker */}
+              <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(0,242,234,0.08)' }}>
+                <label className="block text-xs mb-4" style={{ color: '#A1A1A1', ...monoFont }}>Accent Color</label>
+                <div className="flex gap-3 flex-wrap">
+                  {[TEAL, '#34D399', '#60A5FA', '#A78BFA', '#F87171', '#FBBF24'].map(color => (
+                    <button key={color} onClick={() => { }}
+                      className="w-12 h-12 rounded-xl transition-all relative overflow-hidden"
+                      style={{ backgroundColor: color, boxShadow: color === TEAL ? `0 0 16px ${TEAL}60` : 'none', outline: color === TEAL ? `2px solid rgba(255,255,255,0.5)` : 'none', outlineOffset: '3px' }}
                     >
-                      {accentColor === color && <Check className="size-6 text-white m-auto" />}
+                      {color === TEAL && <Check className="size-6 text-black m-auto" />}
                     </button>
                   ))}
                 </div>
               </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-semibold">Compact Mode</div>
-                  <div className="text-sm text-white/60">Reduce spacing for more content</div>
-                </div>
-                <button
-                  onClick={() => setCompactMode(!compactMode)}
-                  className={`relative w-14 h-8 rounded-full transition-all ${
-                    compactMode ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]' : 'bg-white/20'
-                  }`}
-                >
-                  <motion.div
-                    className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                    animate={{ left: compactMode ? '28px' : '4px' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-semibold">Enable Animations</div>
-                  <div className="text-sm text-white/60">Smooth transitions and effects</div>
-                </div>
-                <button
-                  onClick={() => setAnimationsEnabled(!animationsEnabled)}
-                  className={`relative w-14 h-8 rounded-full transition-all ${
-                    animationsEnabled ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]' : 'bg-white/20'
-                  }`}
-                >
-                  <motion.div
-                    className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                    animate={{ left: animationsEnabled ? '28px' : '4px' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </button>
-              </div>
-            </div>
+            </GlassCard>
           </motion.div>
         );
 
       case 'security':
         return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Security Settings</h2>
-              <p className="text-white/60">Manage your account security</p>
-            </div>
-
-            {/* Security Status */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/30">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
-                  <Shield className="size-6 text-green-400" />
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            {/* Status banner */}
+            <div className="p-5 rounded-2xl overflow-hidden relative"
+              style={{ background: 'rgba(52,211,153,0.07)', border: '1px solid rgba(52,211,153,0.25)', backdropFilter: 'blur(20px)' }}>
+              {sheen}
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center"
+                  style={{ background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)' }}>
+                  <Shield className="size-6" style={{ color: '#34D399' }} />
                 </div>
                 <div>
-                  <div className="font-semibold text-green-400">Account Secure</div>
-                  <div className="text-sm text-white/60">Your account security is strong</div>
+                  <div className="font-semibold" style={{ color: '#34D399', ...headingFont }}>Account Secure</div>
+                  <div className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Your account security is strong</div>
                 </div>
               </div>
             </div>
 
-            {/* Security Options */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 space-y-4">
-              <button className="w-full flex items-center justify-between px-4 py-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#6366F1]/50 transition-all group">
-                <div className="flex items-center gap-3">
-                  <Lock className="size-5 text-white/60 group-hover:text-[#6366F1] transition-colors" />
-                  <div className="text-left">
-                    <div className="font-semibold">Change Password</div>
-                    <div className="text-sm text-white/60">Update your password</div>
-                  </div>
-                </div>
-                <ChevronRight className="size-5 text-white/40" />
-              </button>
-
-              <div className="flex items-center justify-between px-4 py-4 rounded-xl bg-white/5 border border-white/10">
-                <div className="flex items-center gap-3">
-                  <Shield className="size-5 text-white/60" />
-                  <div>
-                    <div className="font-semibold">Two-Factor Authentication</div>
-                    <div className="text-sm text-white/60">Add extra security layer</div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
-                  className={`relative w-14 h-8 rounded-full transition-all ${
-                    twoFactorEnabled ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6]' : 'bg-white/20'
-                  }`}
-                >
-                  <motion.div
-                    className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-lg"
-                    animate={{ left: twoFactorEnabled ? '28px' : '4px' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                </button>
-              </div>
-            </div>
-
-            {/* Active Sessions */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10">
-              <h3 className="text-xl font-semibold mb-4">Active Login Sessions</h3>
+            <GlassCard>
+              <h3 className="text-lg font-bold text-white mb-4" style={headingFont}>Security Options</h3>
               <div className="space-y-3">
-                {activeSessions.map((session, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
+                <motion.button className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(10px)' }}
+                  whileHover={{ borderColor: `rgba(0,242,234,0.3)`, x: 2 }}>
+                  <div className="flex items-center gap-3">
+                    <Lock className="size-5" style={{ color: '#A1A1A1' }} />
+                    <div className="text-left">
+                      <div className="font-semibold text-white text-sm" style={headingFont}>Change Password</div>
+                      <div className="text-xs" style={{ color: '#A1A1A1', ...monoFont }}>Update your password</div>
+                    </div>
+                  </div>
+                  <ChevronRight className="size-4" style={{ color: '#A1A1A1' }} />
+                </motion.button>
+
+                <div className="flex items-center justify-between px-4 py-3.5 rounded-xl"
+                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(10px)' }}>
+                  <div className="flex items-center gap-3">
+                    <Shield className="size-5" style={{ color: '#A1A1A1' }} />
+                    <div>
+                      <div className="font-semibold text-white text-sm" style={headingFont}>Two-Factor Authentication</div>
+                      <div className="text-xs" style={{ color: '#A1A1A1', ...monoFont }}>Add extra security layer</div>
+                    </div>
+                  </div>
+                  <Toggle on={twoFactorEnabled} onToggle={() => setTwoFactorEnabled(!twoFactorEnabled)} />
+                </div>
+              </div>
+            </GlassCard>
+
+            <GlassCard>
+              <h3 className="text-lg font-bold text-white mb-4" style={headingFont}>Active Sessions</h3>
+              <div className="space-y-3">
+                {activeSessions.map((s, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 rounded-xl"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
                     <div className="flex items-center gap-3">
-                      {session.device.includes('Windows') || session.device.includes('Chrome') ? (
-                        <Monitor className="size-5 text-white/60" />
-                      ) : (
-                        <Smartphone className="size-5 text-white/60" />
-                      )}
+                      {s.device.includes('Windows') ? <Monitor className="size-5" style={{ color: '#A1A1A1' }} /> : <Smartphone className="size-5" style={{ color: '#A1A1A1' }} />}
                       <div>
-                        <div className="font-semibold flex items-center gap-2">
-                          {session.device}
-                          {session.current && (
-                            <span className="px-2 py-0.5 text-xs rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
-                              Current
-                            </span>
-                          )}
+                        <div className="font-semibold text-sm flex items-center gap-2" style={{ color: '#fff', ...headingFont }}>
+                          {s.device}
+                          {s.current && <span className="px-2 py-0.5 text-xs rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399', border: '1px solid rgba(52,211,153,0.3)', ...monoFont }}>Current</span>}
                         </div>
-                        <div className="text-sm text-white/60">{session.location} • {session.lastActive}</div>
+                        <div className="text-xs" style={{ color: '#A1A1A1', ...monoFont }}>{s.location} · {s.lastActive}</div>
                       </div>
                     </div>
-                    {!session.current && (
-                      <button className="text-sm text-red-400 hover:text-red-300 transition-colors">
-                        Revoke
-                      </button>
+                    {!s.current && (
+                      <button className="text-sm font-semibold transition-colors"
+                        style={{ color: '#F87171', ...monoFont }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = '#FCA5A5')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = '#F87171')}
+                      >Revoke</button>
                     )}
                   </div>
                 ))}
               </div>
-              
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full mt-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-semibold hover:bg-red-500/20 transition-all"
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <LogOut className="size-4" />
-                  Logout from All Devices
-                </div>
-              </motion.button>
-            </div>
+              <div className="mt-4"><GhostButton danger><LogOut className="size-4" /> Logout from All Devices</GhostButton></div>
+            </GlassCard>
           </motion.div>
         );
 
       case 'data':
         return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Data Management</h2>
-              <p className="text-white/60">Manage your financial data</p>
-            </div>
-
-            {/* Export Data */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10">
-              <h3 className="text-xl font-semibold mb-4">Export Data</h3>
-              <p className="text-white/60 mb-4">Download your financial data in various formats</p>
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            <GlassCard>
+              <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Export Data</h3>
+              <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Download your financial data in various formats</p>
               <div className="grid grid-cols-2 gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white font-semibold hover:shadow-lg hover:shadow-[#6366F1]/50 transition-all"
-                >
-                  <Download className="size-4" />
-                  Export as CSV
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 transition-all"
-                >
-                  <Download className="size-4" />
-                  Export as PDF
-                </motion.button>
+                <TealButton><Download className="size-4" /> Export as CSV</TealButton>
+                <GhostButton><Download className="size-4" /> Export as PDF</GhostButton>
               </div>
-            </div>
+            </GlassCard>
 
-            {/* Import Data */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10">
-              <h3 className="text-xl font-semibold mb-4">Import Data</h3>
-              <p className="text-white/60 mb-4">Import financial data from external sources</p>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 transition-all"
-              >
-                <FileUp className="size-4" />
-                Import CSV File
-              </motion.button>
-            </div>
+            <GlassCard>
+              <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Import Data</h3>
+              <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Import financial data from external sources</p>
+              <GhostButton><FileUp className="size-4" /> Import CSV File</GhostButton>
+            </GlassCard>
 
-            {/* Backup & Restore */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10">
-              <h3 className="text-xl font-semibold mb-4">Backup & Restore</h3>
-              <p className="text-white/60 mb-4">Create a backup or restore from previous backup</p>
+            <GlassCard>
+              <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Backup & Restore</h3>
+              <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Create a backup or restore from previous backup</p>
               <div className="grid grid-cols-2 gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold hover:shadow-lg hover:shadow-green-500/50 transition-all"
-                >
-                  <Database className="size-4" />
-                  Create Backup
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-semibold hover:bg-white/10 transition-all"
-                >
-                  <Upload className="size-4" />
-                  Restore Backup
-                </motion.button>
+                <TealButton><Database className="size-4" /> Create Backup</TealButton>
+                <GhostButton><Upload className="size-4" /> Restore Backup</GhostButton>
               </div>
-            </div>
+            </GlassCard>
 
-            {/* Danger Zone */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-red-500/10 to-red-600/10 border border-red-500/30">
-              <div className="flex items-start gap-3 mb-4">
-                <AlertTriangle className="size-5 text-red-400 mt-0.5" />
-                <div>
-                  <h3 className="text-xl font-semibold text-red-400 mb-1">Danger Zone</h3>
-                  <p className="text-white/60 text-sm">These actions cannot be undone</p>
+            {/* Danger zone */}
+            <div className="p-6 rounded-2xl relative overflow-hidden"
+              style={{ background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.22)', backdropFilter: 'blur(20px)' }}>
+              {sheen}
+              <div className="relative z-10">
+                <div className="flex items-start gap-3 mb-4">
+                  <AlertTriangle className="size-5 text-red-400 mt-0.5 shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-bold mb-1" style={{ color: '#F87171', ...headingFont }}>Danger Zone</h3>
+                    <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>These actions cannot be undone</p>
+                  </div>
                 </div>
+                <GhostButton danger><Trash2 className="size-4" /> Reset All Financial Data</GhostButton>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/20 border border-red-500/40 text-red-400 font-semibold hover:bg-red-500/30 transition-all"
-              >
-                <Trash2 className="size-4" />
-                Reset All Financial Data
-              </motion.button>
             </div>
           </motion.div>
         );
 
       case 'subscription':
         return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Subscription & Billing</h2>
-              <p className="text-white/60">Manage your subscription plan</p>
-            </div>
-
-            {/* Current Plan */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-[#6366F1]/10 to-[#8B5CF6]/10 border border-[#6366F1]/30">
-              <div className="flex items-start justify-between mb-6">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            {/* Plan card */}
+            <div className="p-6 rounded-2xl relative overflow-hidden"
+              style={{ background: 'rgba(0,242,234,0.05)', border: '1px solid rgba(0,242,234,0.22)', backdropFilter: 'blur(24px)', boxShadow: '0 0 40px rgba(0,242,234,0.06), inset 0 1.5px 0 rgba(0,242,234,0.2)' }}>
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background: 'linear-gradient(135deg, rgba(0,242,234,0.08) 0%, transparent 60%)' }} />
+              <div className="absolute top-0 left-0 right-0 h-px"
+                style={{ background: 'linear-gradient(90deg, transparent, rgba(0,242,234,0.6), transparent)' }} />
+              <div className="flex items-start justify-between mb-6 relative z-10">
                 <div>
-                  <div className="text-sm text-white/60 mb-1">Current Plan</div>
-                  <h3 className="text-3xl font-bold mb-2">Pro Plan</h3>
-                  <p className="text-white/60">Full access to all features</p>
+                  <div className="text-xs mb-1 uppercase tracking-widest" style={{ color: '#A1A1A1', ...monoFont }}>Current Plan</div>
+                  <h3 className="text-3xl font-bold text-white mb-1" style={headingFont}>Pro Plan</h3>
+                  <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Full access to all features</p>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold">₹499</div>
-                  <div className="text-sm text-white/60">/month</div>
+                  <div className="text-3xl font-bold" style={{ color: TEAL, ...headingFont, textShadow: `0 0 20px rgba(0,242,234,0.4)` }}>₹499</div>
+                  <div className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>/month</div>
                 </div>
               </div>
-              
-              <div className="space-y-2 mb-6">
-                <div className="flex items-center gap-2 text-sm text-white/80">
-                  <Check className="size-4 text-green-400" />
-                  Unlimited expense tracking
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white/80">
-                  <Check className="size-4 text-green-400" />
-                  Advanced financial calculators
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white/80">
-                  <Check className="size-4 text-green-400" />
-                  AI-powered insights
-                </div>
-                <div className="flex items-center gap-2 text-sm text-white/80">
-                  <Check className="size-4 text-green-400" />
-                  Priority support
-                </div>
+              <div className="space-y-2 mb-6 relative z-10">
+                {['Unlimited expense tracking', 'Advanced financial calculators', 'AI-powered insights', 'Priority support'].map(f => (
+                  <div key={f} className="flex items-center gap-2 text-sm" style={{ color: '#A1A1A1', ...monoFont }}>
+                    <Check className="size-4 shrink-0" style={{ color: TEAL }} /> {f}
+                  </div>
+                ))}
               </div>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white font-semibold hover:shadow-lg hover:shadow-[#6366F1]/50 transition-all"
-              >
-                Upgrade to Premium
-              </motion.button>
+              <TealButton className="w-full py-3 relative z-10">Upgrade to Premium</TealButton>
             </div>
 
-            {/* Payment Method */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10">
-              <h3 className="text-xl font-semibold mb-4">Payment Method</h3>
-              <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
+            {/* Payment */}
+            <GlassCard>
+              <h3 className="text-lg font-bold text-white mb-4" style={headingFont}>Payment Method</h3>
+              <div className="flex items-center justify-between p-4 rounded-xl"
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-8 rounded bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
-                    <CreditCard className="size-5 text-white" />
+                  <div className="w-12 h-8 rounded flex items-center justify-center"
+                    style={{ background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.25)' }}>
+                    <CreditCard className="size-5" style={{ color: TEAL }} />
                   </div>
                   <div>
-                    <div className="font-semibold">•••• •••• •••• 4242</div>
-                    <div className="text-sm text-white/60">Expires 12/2026</div>
+                    <div className="font-semibold text-white text-sm" style={monoFont}>•••• •••• •••• 4242</div>
+                    <div className="text-xs" style={{ color: '#A1A1A1', ...monoFont }}>Expires 12/2026</div>
                   </div>
                 </div>
-                <button className="text-sm text-[#6366F1] hover:text-[#8B5CF6] transition-colors">
-                  Edit
-                </button>
+                <button className="text-sm font-semibold" style={{ color: TEAL, ...monoFont }}
+                  onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                  onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                >Edit</button>
               </div>
-            </div>
+            </GlassCard>
 
-            {/* Billing History */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10">
-              <h3 className="text-xl font-semibold mb-4">Billing History</h3>
+            {/* Billing history */}
+            <GlassCard>
+              <h3 className="text-lg font-bold text-white mb-4" style={headingFont}>Billing History</h3>
               <div className="space-y-3">
-                {[
-                  { date: 'Feb 1, 2026', amount: '₹499', status: 'Paid' },
-                  { date: 'Jan 1, 2026', amount: '₹499', status: 'Paid' },
-                  { date: 'Dec 1, 2025', amount: '₹499', status: 'Paid' },
-                ].map((invoice, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
+                {[{ date: 'Feb 1, 2026', amount: '₹499' }, { date: 'Jan 1, 2026', amount: '₹499' }, { date: 'Dec 1, 2025', amount: '₹499' }].map((inv, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 rounded-xl"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
                     <div className="flex items-center gap-3">
-                      <Calendar className="size-5 text-white/60" />
+                      <Calendar className="size-5" style={{ color: '#A1A1A1' }} />
                       <div>
-                        <div className="font-semibold">{invoice.date}</div>
-                        <div className="text-sm text-white/60">{invoice.amount}</div>
+                        <div className="font-semibold text-white text-sm" style={headingFont}>{inv.date}</div>
+                        <div className="text-xs" style={{ color: '#A1A1A1', ...monoFont }}>{inv.amount}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 text-xs rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
-                        {invoice.status}
-                      </span>
-                      <button className="text-sm text-[#6366F1] hover:text-[#8B5CF6] transition-colors">
-                        Download
-                      </button>
+                      <span className="px-3 py-1 text-xs rounded-full" style={{ background: 'rgba(52,211,153,0.12)', color: '#34D399', border: '1px solid rgba(52,211,153,0.3)', ...monoFont }}>Paid</span>
+                      <button className="text-sm font-semibold" style={{ color: TEAL, ...monoFont }}
+                        onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                        onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+                      >Download</button>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </GlassCard>
           </motion.div>
         );
 
-      default:
-        return null;
+      default: return null;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-white" style={{ fontFamily: 'Inter, sans-serif' }}>
-      {/* Floating decorative icon */}
-      <motion.div
-        className="fixed top-8 right-8 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#6366F1]/20 to-[#8B5CF6]/20 border border-[#6366F1]/30 flex items-center justify-center z-10"
-        animate={{
-          y: [0, -10, 0],
-          rotate: [0, 5, -5, 0],
+    <div className="min-h-screen text-white" style={{ background: '#000000', ...monoFont }}>
+      <StarField count={160} />
+
+      {/* Floating settings icon */}
+      <motion.div className="fixed top-8 right-8 w-14 h-14 rounded-2xl flex items-center justify-center z-20"
+        style={{
+          background: 'rgba(0,242,234,0.08)', border: '1px solid rgba(0,242,234,0.28)',
+          backdropFilter: 'blur(16px)', boxShadow: '0 0 24px rgba(0,242,234,0.12)',
         }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
+        animate={{ y: [0, -8, 0], rotate: [0, 5, -5, 0] }}
+        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <SettingsIcon className="size-8 text-[#6366F1]" />
+        <SettingsIcon className="size-7" style={{ color: TEAL, filter: 'drop-shadow(0 0 7px #00F2EA)' }} />
       </motion.div>
 
       {/* Header */}
-      <div className="border-b border-white/10 px-8 py-6">
+      <div className="relative z-10 px-8 py-5"
+        style={{
+          background: 'rgba(0,0,0,0.38)',
+          backdropFilter: 'blur(28px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(28px) saturate(200%)',
+          borderBottom: '1px solid rgba(0,242,234,0.1)',
+          boxShadow: 'inset 0 -1px 0 rgba(255,255,255,0.04)',
+        }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button
-              onClick={onBack}
-              className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-all"
-            >
-              <ChevronRight className="size-5 rotate-180" />
-            </button>
+            <motion.button onClick={onBack}
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(0,242,234,0.18)', backdropFilter: 'blur(12px)', color: '#A1A1A1' }}
+              whileHover={{ borderColor: TEAL, color: TEAL, boxShadow: '0 0 14px rgba(0,242,234,0.2)' }}
+            ><ArrowLeft className="size-5" /></motion.button>
             <Logo />
           </div>
-          <button
-            onClick={onLogout}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
-          >
-            <LogOut className="size-4" />
-            <span>Logout</span>
-          </button>
+          <motion.button onClick={onLogout}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)', color: '#A1A1A1', backdropFilter: 'blur(12px)', ...monoFont }}
+            whileHover={{ color: '#F87171', borderColor: 'rgba(248,113,113,0.3)', background: 'rgba(248,113,113,0.07)' }}
+          ><LogOut className="size-4" /> Logout</motion.button>
         </div>
       </div>
 
-      <div className="flex">
-        {/* Left Navigation */}
+      <div className="flex relative z-10">
+        {/* ── Sidebar ── */}
         <motion.aside
-          className="w-80 min-h-[calc(100vh-89px)] border-r border-white/10 p-6"
-          initial={{ x: -20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          className="w-72 min-h-[calc(100vh-69px)] p-6 flex flex-col"
+          style={{
+            background: 'rgba(0,0,0,0.35)',
+            backdropFilter: 'blur(28px) saturate(200%)',
+            WebkitBackdropFilter: 'blur(28px) saturate(200%)',
+            borderRight: '1px solid rgba(0,242,234,0.1)',
+            boxShadow: 'inset -1px 0 0 rgba(255,255,255,0.03)',
+          }}
+          initial={{ x: -24, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.45 }}
         >
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-1">Settings</h1>
-            <p className="text-white/60 text-sm">Manage your account preferences</p>
+          {/* Sidebar sheen */}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 35%)' }} />
+
+          <div className="mb-6 relative z-10">
+            <h1 className="text-2xl font-bold text-white mb-1" style={headingFont}>Settings</h1>
+            <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Manage your account preferences</p>
           </div>
 
-          <nav className="space-y-2">
-            {menuItems.map((item) => (
-              <motion.button
-                key={item.id}
-                onClick={() => setActiveSection(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                  activeSection === item.id
-                    ? 'bg-gradient-to-r from-[#6366F1]/20 to-[#8B5CF6]/20 border border-[#6366F1]/50 text-white shadow-lg shadow-[#6366F1]/20'
-                    : 'text-white/60 hover:text-white hover:bg-white/5 border border-transparent'
-                }`}
-                whileHover={{ x: activeSection === item.id ? 0 : 4 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <item.icon className={`size-5 ${activeSection === item.id ? 'text-[#6366F1]' : ''}`} />
-                <span className="font-medium">{item.label}</span>
-                {activeSection === item.id && (
-                  <motion.div
-                    layoutId="activeIndicator"
-                    className="ml-auto w-2 h-2 rounded-full bg-[#6366F1]"
-                  />
-                )}
-              </motion.button>
-            ))}
+          <nav className="space-y-1 relative z-10">
+            {menuItems.map(({ id, label, icon: Icon }) => {
+              const active = activeSection === id;
+              return (
+                <motion.button key={id} onClick={() => setActiveSection(id)}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative overflow-hidden"
+                  style={active ? {
+                    background: 'rgba(0,242,234,0.1)',
+                    border: '1px solid rgba(0,242,234,0.28)',
+                    color: TEAL,
+                    boxShadow: '0 0 18px rgba(0,242,234,0.08), inset 0 1px 0 rgba(0,242,234,0.18)',
+                    ...monoFont,
+                  } : { border: '1px solid transparent', color: '#A1A1A1', ...monoFont }}
+                  whileHover={active ? {} : { x: 4, color: '#fff', background: 'rgba(255,255,255,0.04)' }}
+                >
+                  {active && <div className="absolute left-0 top-0 bottom-0 w-0.5 rounded-full"
+                    style={{ background: TEAL, boxShadow: `0 0 8px ${TEAL}` }} />}
+                  <Icon className="size-5 shrink-0" style={active ? { color: TEAL, filter: `drop-shadow(0 0 4px ${TEAL})` } : {}} />
+                  <span className="text-sm font-medium">{label}</span>
+                  {active && (
+                    <motion.div layoutId="settingsDot" className="ml-auto w-2 h-2 rounded-full"
+                      style={{ background: TEAL, boxShadow: `0 0 6px ${TEAL}` }} />
+                  )}
+                </motion.button>
+              );
+            })}
           </nav>
         </motion.aside>
 
-        {/* Main Content */}
+        {/* ── Main content ── */}
         <main className="flex-1 p-8">
-          <div className="max-w-4xl">
-            {renderContent()}
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
+            className="mb-8"
+          >
+            <h2 className="text-3xl font-bold text-white mb-1" style={headingFont}>{sectionTitles[activeSection].title}</h2>
+            <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>{sectionTitles[activeSection].sub}</p>
+          </motion.div>
+          <div className="max-w-2xl">{renderContent()}</div>
         </main>
       </div>
     </div>

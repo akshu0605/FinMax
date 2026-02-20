@@ -1,24 +1,46 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import {
-  Mail,
-  Phone,
-  MapPin,
-  User,
-  Send,
-  Github,
-  Linkedin,
-  Twitter,
-  Heart,
-  ArrowLeft,
-  MessageSquare,
-  Code,
-} from 'lucide-react';
+import { Mail, Phone, MapPin, User, Send, Github, Linkedin, Twitter, Heart, ArrowLeft, MessageSquare, Code } from 'lucide-react';
 import { Logo } from './Logo';
+import { StarField } from './StarField';
 
-interface ContactDeveloperProps {
-  onBack: () => void;
-}
+// ─── Design tokens ────────────────────────────────────────────────
+const TEAL = '#00F2EA';
+const headingFont: React.CSSProperties = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
+const monoFont: React.CSSProperties = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
+
+const glass = (): React.CSSProperties => ({
+  background: 'rgba(255,255,255,0.045)',
+  backdropFilter: 'blur(24px) saturate(200%) brightness(1.08)',
+  WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.08)',
+  border: '1px solid rgba(0,242,234,0.13)',
+  boxShadow: '0 12px 40px rgba(0,0,0,0.6), inset 0 1.5px 0 rgba(255,255,255,0.1)',
+});
+
+const inputBase: React.CSSProperties = {
+  width: '100%',
+  padding: '12px 16px',
+  background: 'rgba(255,255,255,0.05)',
+  backdropFilter: 'blur(12px)',
+  WebkitBackdropFilter: 'blur(12px)',
+  border: '1px solid rgba(0,242,234,0.18)',
+  borderRadius: '12px',
+  color: '#fff',
+  outline: 'none',
+  ...monoFont,
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)',
+};
+
+const focusInput = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  e.currentTarget.style.borderColor = TEAL;
+  e.currentTarget.style.boxShadow = `0 0 16px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)`;
+};
+const blurInput = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)';
+  e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.07)';
+};
+
+interface ContactDeveloperProps { onBack: () => void; }
 
 export function ContactDeveloper({ onBack }: ContactDeveloperProps) {
   const [name, setName] = useState('');
@@ -28,312 +50,256 @@ export function ContactDeveloper({ onBack }: ContactDeveloperProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Show success toast
     setShowSuccess(true);
-    
-    // Reset form
-    setName('');
-    setEmail('');
-    setMessage('');
-    
-    // Hide toast after 3 seconds
+    setName(''); setEmail(''); setMessage('');
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
   const socialLinks = [
-    {
-      name: 'GitHub',
-      icon: Github,
-      url: 'https://github.com/akshu0605',
-      color: 'from-gray-500 to-gray-700',
-    },
-    {
-      name: 'LinkedIn',
-      icon: Linkedin,
-      url: 'https://in.linkedin.com/in/akshit-jaswal-7554172b7',
-      color: 'from-blue-500 to-blue-700',
-    },
-    {
-      name: 'X (Twitter)',
-      icon: Twitter,
-      url: 'https://x.com/im__akshit',
-      color: 'from-sky-500 to-sky-700',
-    },
-    {
-      name: 'Email',
-      icon: Mail,
-      url: 'mailto:replyakshit@gmail.com',
-      color: 'from-purple-500 to-purple-700',
-    },
+    { name: 'GitHub', icon: Github, url: 'https://github.com/akshu0605', border: 'rgba(255,255,255,0.18)' },
+    { name: 'LinkedIn', icon: Linkedin, url: 'https://in.linkedin.com/in/akshit-jaswal-7554172b7', border: 'rgba(0,119,181,0.5)' },
+    { name: 'X (Twitter)', icon: Twitter, url: 'https://x.com/im__akshit', border: 'rgba(29,161,242,0.5)' },
+    { name: 'Email', icon: Mail, url: 'mailto:replyakshit@gmail.com', border: 'rgba(0,242,234,0.4)' },
+  ];
+
+  const infoCards = [
+    { icon: Mail, label: 'Email', value: 'replyakshit@gmail.com', href: 'mailto:replyakshit@gmail.com', color: TEAL },
+    { icon: Phone, label: 'Phone', value: '+91 6230585298', href: 'tel:+916230585298', color: '#34D399' },
+    { icon: MapPin, label: 'Location', value: 'Una, Himachal Pradesh, India', href: undefined, color: '#60A5FA' },
   ];
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-white" style={{ fontFamily: 'Inter, sans-serif' }}>
-      {/* Background gradients */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-[#6366F1] rounded-full filter blur-[150px] opacity-10" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#8B5CF6] rounded-full filter blur-[150px] opacity-10" />
-      </div>
+    <div className="min-h-screen text-white" style={{ background: '#000000', ...monoFont }}>
+      <StarField count={160} />
 
-      {/* Success Toast */}
+      {/* Success toast */}
       {showSuccess && (
         <motion.div
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -50 }}
-          className="fixed top-8 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl bg-gradient-to-r from-green-500 to-green-600 shadow-lg shadow-green-500/50"
+          initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -50 }}
+          className="fixed top-8 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl flex items-center gap-3"
+          style={{
+            background: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(24px) saturate(200%)',
+            border: '1px solid rgba(52,211,153,0.4)',
+            boxShadow: '0 0 30px rgba(52,211,153,0.25), inset 0 1px 0 rgba(52,211,153,0.25)',
+            ...headingFont,
+          }}
         >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-              <Send className="size-4 text-white" />
-            </div>
-            <span className="font-semibold">Message sent successfully 🎉</span>
+          <div className="w-8 h-8 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.4)' }}>
+            <Send className="size-4" style={{ color: '#34D399' }} />
           </div>
+          <span className="font-semibold text-white">Message sent successfully 🎉</span>
         </motion.div>
       )}
 
       {/* Header */}
-      <div className="relative border-b border-white/10 px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onBack}
-              className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-all group"
-            >
-              <ArrowLeft className="size-5 group-hover:-translate-x-0.5 transition-transform" />
-            </button>
-            <Logo />
-          </div>
+      <div className="relative z-10 px-8 py-5" style={{ borderBottom: '1px solid rgba(0,242,234,0.1)', ...glass() }}>
+        <div className="flex items-center gap-4">
+          <motion.button onClick={onBack}
+            className="w-10 h-10 rounded-xl flex items-center justify-center group transition-all"
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(0,242,234,0.18)',
+              backdropFilter: 'blur(12px)',
+              color: '#A1A1A1',
+            }}
+            whileHover={{ borderColor: TEAL, color: TEAL, boxShadow: `0 0 14px rgba(0,242,234,0.2)` }}
+          >
+            <ArrowLeft className="size-5" />
+          </motion.button>
+          <Logo />
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="relative max-w-7xl mx-auto px-8 py-12">
-        {/* Page Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
-            Get in Touch
+      {/* Main content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-8 py-12">
+        {/* Page header */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+          className="text-center mb-12">
+          <h1 className="text-5xl font-bold mb-4 text-white" style={headingFont}>
+            Get in{' '}
+            <span style={{ color: TEAL, textShadow: `0 0 30px rgba(0,242,234,0.4)` }}>Touch</span>
           </h1>
-          <p className="text-xl text-white/60 max-w-2xl mx-auto">
+          <p className="text-xl max-w-2xl mx-auto" style={{ color: '#A1A1A1', ...monoFont }}>
             Facing issues, bugs, or have suggestions? Let's improve FinMax together 🚀
           </p>
         </motion.div>
 
-        {/* Main Grid */}
+        {/* Grid */}
         <div className="grid grid-cols-12 gap-8 mb-12">
-          {/* Left Side - Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="col-span-12 lg:col-span-7"
-          >
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center">
-                  <MessageSquare className="size-6 text-white" />
+          {/* LEFT: Form */}
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
+            className="col-span-12 lg:col-span-7">
+            <div className="p-8 rounded-2xl relative overflow-hidden" style={{ ...glass() }}>
+              {/* Sheen */}
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)' }} />
+              {/* Top glow line */}
+              <div className="absolute top-0 left-0 right-0 h-px"
+                style={{ background: 'linear-gradient(90deg, transparent, rgba(0,242,234,0.5), transparent)' }} />
+
+              <div className="flex items-center gap-3 mb-7 relative z-10">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style={{
+                    background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.25)',
+                    boxShadow: '0 0 20px rgba(0,242,234,0.12), inset 0 1px 0 rgba(0,242,234,0.2)',
+                  }}>
+                  <MessageSquare className="size-6" style={{ color: TEAL, filter: 'drop-shadow(0 0 6px #00F2EA)' }} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">Send a Message</h2>
-                  <p className="text-white/60 text-sm">I'll get back to you soon</p>
+                  <h2 className="text-2xl font-bold text-white" style={headingFont}>Send a Message</h2>
+                  <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>I'll get back to you soon</p>
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Your Name
-                  </label>
+                  <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Your Name</label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-white/40" />
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                      placeholder="John Doe"
-                      className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all"
-                    />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 size-4" style={{ color: '#A1A1A1' }} />
+                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="John Doe"
+                      style={{ ...inputBase, paddingLeft: '2.75rem' }} onFocus={focusInput} onBlur={blurInput} />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Your Email
-                  </label>
+                  <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Your Email</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-white/40" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      placeholder="john@example.com"
-                      className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all"
-                    />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4" style={{ color: '#A1A1A1' }} />
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="john@example.com"
+                      style={{ ...inputBase, paddingLeft: '2.75rem' }} onFocus={focusInput} onBlur={blurInput} />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Your Message
-                  </label>
-                  <textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    required
-                    rows={6}
+                  <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Your Message</label>
+                  <textarea value={message} onChange={(e) => setMessage(e.target.value)} required rows={6}
                     placeholder="Tell me about your experience, report a bug, or suggest a feature..."
-                    className="w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-[#6366F1] focus:ring-2 focus:ring-[#6366F1]/20 transition-all resize-none"
-                  />
+                    style={{ ...inputBase, resize: 'none' }}
+                    onFocus={focusInput as any} onBlur={blurInput as any} />
                 </div>
 
-                <motion.button
-                  type="submit"
-                  whileHover={{ scale: 1.02 }}
+                <motion.button type="submit"
+                  className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2"
+                  style={{
+                    background: TEAL, color: '#000', ...headingFont,
+                    boxShadow: '0 0 22px rgba(0,242,234,0.4), inset 0 1.5px 0 rgba(255,255,255,0.3)',
+                  }}
+                  whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(0,242,234,0.65), inset 0 1.5px 0 rgba(255,255,255,0.3)' }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full py-4 rounded-xl bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white font-semibold hover:shadow-lg hover:shadow-[#6366F1]/50 transition-all flex items-center justify-center gap-2"
                 >
                   <span>Send Message</span>
-                  <span>🚀</span>
+                  <Send className="size-5" />
                 </motion.button>
               </form>
             </div>
           </motion.div>
 
-          {/* Right Side - Contact Information */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="col-span-12 lg:col-span-5 space-y-6"
-          >
-            {/* Developer Card */}
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-[#6366F1]/50 transition-all group">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center">
-                  <Code className="size-8 text-white" />
+          {/* RIGHT: Info */}
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
+            className="col-span-12 lg:col-span-5 space-y-5">
+            {/* Developer card */}
+            <div className="p-6 rounded-2xl relative overflow-hidden" style={{ ...glass() }}>
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)' }} />
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center"
+                  style={{
+                    background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.3)',
+                    boxShadow: '0 0 24px rgba(0,242,234,0.15), inset 0 1px 0 rgba(0,242,234,0.2)',
+                  }}>
+                  <Code className="size-8" style={{ color: TEAL, filter: 'drop-shadow(0 0 7px #00F2EA)' }} />
                 </div>
                 <div>
-                  <div className="text-sm text-white/60">Developer</div>
-                  <div className="text-2xl font-bold">Akshit Jaswal</div>
+                  <div className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Developer</div>
+                  <div className="text-2xl font-bold text-white" style={headingFont}>Akshit Jaswal</div>
                 </div>
               </div>
             </div>
 
-            {/* Contact Info Cards */}
-            <div className="space-y-4">
-              <motion.div
-                whileHover={{ y: -4 }}
-                className="p-5 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-[#6366F1]/30 hover:shadow-lg hover:shadow-[#6366F1]/10 transition-all"
+            {/* Contact info cards */}
+            {infoCards.map(({ icon: Icon, label, value, href, color }, i) => (
+              <motion.div key={label} className="p-5 rounded-xl relative overflow-hidden"
+                style={{ ...glass() }}
+                initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 + i * 0.1 }}
+                whileHover={{ scale: 1.02, borderColor: `${color}40`, boxShadow: `0 12px 40px rgba(0,0,0,0.65), 0 0 20px ${color}15, inset 0 1.5px 0 rgba(255,255,255,0.1)` }}
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-600/20 flex items-center justify-center">
-                    <Mail className="size-6 text-purple-400" />
+                <div className="absolute inset-0 pointer-events-none"
+                  style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)' }} />
+                <div className="flex items-center gap-4 relative z-10">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{
+                      background: `rgba(${color === TEAL ? '0,242,234' : color === '#34D399' ? '52,211,153' : '96,165,250'},0.1)`,
+                      border: `1px solid ${color}30`,
+                      boxShadow: `0 4px 14px ${color}12`,
+                    }}>
+                    <Icon className="size-6" style={{ color, filter: `drop-shadow(0 0 5px ${color})` }} />
                   </div>
                   <div>
-                    <div className="text-sm text-white/60 mb-1">Email</div>
-                    <a
-                      href="mailto:replyakshit@gmail.com"
-                      className="font-semibold hover:text-[#6366F1] transition-colors"
-                    >
-                      replyakshit@gmail.com
-                    </a>
+                    <div className="text-xs mb-1" style={{ color: '#A1A1A1', ...monoFont }}>{label}</div>
+                    {href ? (
+                      <a href={href} className="font-semibold text-white transition-colors"
+                        style={{ ...headingFont }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = color)}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = '#fff')}
+                      >{value}</a>
+                    ) : (
+                      <div className="font-semibold text-white" style={headingFont}>{value}</div>
+                    )}
                   </div>
                 </div>
               </motion.div>
-
-              <motion.div
-                whileHover={{ y: -4 }}
-                className="p-5 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-[#6366F1]/30 hover:shadow-lg hover:shadow-[#6366F1]/10 transition-all"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/20 flex items-center justify-center">
-                    <Phone className="size-6 text-green-400" />
-                  </div>
-                  <div>
-                    <div className="text-sm text-white/60 mb-1">Phone</div>
-                    <a
-                      href="tel:+916230585298"
-                      className="font-semibold hover:text-[#6366F1] transition-colors"
-                    >
-                      +91 6230585298
-                    </a>
-                  </div>
-                </div>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ y: -4 }}
-                className="p-5 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 hover:border-[#6366F1]/30 hover:shadow-lg hover:shadow-[#6366F1]/10 transition-all"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/20 flex items-center justify-center">
-                    <MapPin className="size-6 text-blue-400" />
-                  </div>
-                  <div>
-                    <div className="text-sm text-white/60 mb-1">Location</div>
-                    <div className="font-semibold">Una, Himachal Pradesh, India</div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
+            ))}
           </motion.div>
         </div>
 
-        {/* Connect With Me Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="p-8 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10"
-        >
-          <h2 className="text-2xl font-bold mb-6 text-center">Connect With Me 🌐</h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {socialLinks.map((link, index) => (
-              <motion.a
-                key={link.name}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
-                whileHover={{ y: -4, scale: 1.02 }}
-                className={`p-5 rounded-xl bg-gradient-to-br ${link.color} bg-opacity-10 border border-white/10 hover:border-white/30 hover:shadow-lg transition-all group`}
+        {/* Social links */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}
+          className="p-8 rounded-2xl relative overflow-hidden" style={{ ...glass() }}>
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 60%)' }} />
+          <div className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(0,242,234,0.4), transparent)' }} />
+
+          <h2 className="text-2xl font-bold mb-7 text-center text-white relative z-10" style={headingFont}>
+            Connect With Me <span style={{ color: TEAL }}>🌐</span>
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
+            {socialLinks.map(({ name, icon: Icon, url, border }, i) => (
+              <motion.a key={name} href={url} target="_blank" rel="noopener noreferrer"
+                className="p-5 rounded-xl flex flex-col items-center gap-3 relative overflow-hidden group"
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  backdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)',
+                }}
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 + i * 0.08 }}
+                whileHover={{ y: -5, scale: 1.04, borderColor: border, boxShadow: `0 0 24px rgba(0,242,234,0.12), inset 0 1px 0 rgba(255,255,255,0.1)` }}
               >
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <link.icon className="size-6 text-white" />
-                  </div>
-                  <span className="font-semibold">{link.name}</span>
+                <div className="absolute inset-0 rounded-[inherit] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.09) 0%, transparent 60%)' }} />
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center relative"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)' }}>
+                  <Icon className="size-6 text-white group-hover:scale-110 transition-transform" />
                 </div>
+                <span className="font-semibold text-white" style={headingFont}>{name}</span>
               </motion.a>
             ))}
           </div>
         </motion.div>
 
         {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="mt-12 text-center"
-        >
-          <p className="text-white/60 flex items-center justify-center gap-2">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }}
+          className="mt-12 text-center">
+          <p className="flex items-center justify-center gap-2 text-sm" style={{ color: '#A1A1A1', ...monoFont }}>
             <span>Made with</span>
             <Heart className="size-4 text-red-500 fill-red-500 animate-pulse" />
             <span>by</span>
-            <span className="font-semibold bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] bg-clip-text text-transparent">
-              Akshit Jaswal
-            </span>
+            <span className="font-semibold" style={{ color: TEAL, ...headingFont }}>Akshit Jaswal</span>
+            <span>🚀</span>
           </p>
         </motion.div>
       </div>

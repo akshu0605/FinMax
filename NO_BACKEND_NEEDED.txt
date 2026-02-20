@@ -1,17 +1,17 @@
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
-║                   ✅  NO BACKEND NEEDED  ✅                    ║
+║                   ✅  NO BACKEND NEEDED  ✅                  ║
 ║                                                               ║
-║  This application is 100% client-side JavaScript             ║
+║  This application is 100% client-side JavaScript              ║
 ║                                                               ║
-║  ✓ No Supabase                                               ║
+║  ✓ No Supabase                                                ║
 ║  ✓ No database                                               ║
 ║  ✓ No server                                                 ║
-║  ✓ No API endpoints                                          ║
-║  ✓ No environment variables                                  ║
+║  ✓ No API endpoints                                           ║
+║  ✓ No environment variables                                   ║
 ║                                                               ║
-║  All data stored in browser localStorage                     ║
+║  All data stored in browser localStorage                       
 ║                                                               ║
-║  Deploy dist/ folder to ANY static hosting                   ║
+║  Deploy dist/ folder to ANY static hosting                    ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
