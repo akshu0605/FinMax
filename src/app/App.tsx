@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Toaster, toast } from 'sonner';
 import { LandingPage } from './components/LandingPage';
 import { AuthModal } from './components/AuthModal';
 import { Dashboard } from './components/Dashboard';
@@ -6,6 +7,7 @@ import { auth } from './utils/localStorage-auth';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userId, setUserId] = useState('');
   const [accessToken, setAccessToken] = useState('');
@@ -13,19 +15,20 @@ export default function App() {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [loading, setLoading] = useState(true);
 
-  // Check for existing session on mount
+  // ── Restore session on mount (token verified server-side) ──────────────
   useEffect(() => {
     const checkSession = async () => {
       try {
         const { session } = await auth.getSession();
         if (session) {
+          setUserName(session.user.name || '');
           setUserEmail(session.user.email || '');
           setUserId(session.user.id);
           setAccessToken(session.access_token);
           setIsAuthenticated(true);
         }
       } catch {
-        // session check failed silently
+        // Session check failed silently — stays on landing page
       } finally {
         setLoading(false);
       }
@@ -34,70 +37,52 @@ export default function App() {
     checkSession();
   }, []);
 
-  const handleGetStarted = () => {
-    setAuthMode('signup');
-    setShowAuthModal(true);
+  const applySession = (session: { user: { name: string; email: string; id: string }; access_token: string }) => {
+    setUserName(session.user.name || '');
+    setUserEmail(session.user.email || '');
+    setUserId(session.user.id);
+    setAccessToken(session.access_token);
+    setIsAuthenticated(true);
+    setShowAuthModal(false);
   };
 
+  // ── Login ───────────────────────────────────────────────────────────────
   const handleLogin = async (email: string, password: string) => {
-    try {
-      const { session, error } = await auth.signIn(email, password);
-
-      if (error) {
-        alert('Login failed: ' + error);
-        return;
-      }
-
-      if (session) {
-        setUserEmail(session.user.email || '');
-        setUserId(session.user.id);
-        setAccessToken(session.access_token);
-        setIsAuthenticated(true);
-        setShowAuthModal(false);
-      }
-    } catch {
-      alert('Login failed. Please try again.');
+    const { session, error } = await auth.signIn(email, password);
+    if (error || !session) {
+      toast.error(error || 'Login failed. Please try again.');
+      return;
     }
+    applySession(session);
+    toast.success('Welcome back!');
   };
 
+  // ── Sign up ─────────────────────────────────────────────────────────────
   const handleSignup = async (email: string, password: string, name: string) => {
-    try {
-      const { session, error } = await auth.signUp(email, password, name);
-
-      if (error) {
-        alert('Signup failed: ' + error);
-        return;
-      }
-
-      if (session) {
-        setUserEmail(session.user.email || '');
-        setUserId(session.user.id);
-        setAccessToken(session.access_token);
-        setIsAuthenticated(true);
-        setShowAuthModal(false);
-      }
-    } catch {
-      alert('Signup failed. Please try again.');
+    const { session, error } = await auth.signUp(email, password, name);
+    if (error || !session) {
+      toast.error(error || 'Registration failed. Please try again.');
+      return;
     }
+    applySession(session);
+    toast.success('Account created! Welcome to FinMax 🚀');
   };
 
-  const handleOpenLogin = () => {
-    setAuthMode('signin');
-    setShowAuthModal(true);
-  };
-
+  // ── Logout: clears all session data from localStorage ──────────────────
   const handleLogout = async () => {
-    try {
-      await auth.signOut();
-      setIsAuthenticated(false);
-      setUserEmail('');
-      setUserId('');
-      setAccessToken('');
-    } catch {
-      // logout failed silently
-    }
+    await auth.signOut();
+    setIsAuthenticated(false);
+    setUserName('');
+    setUserEmail('');
+    setUserId('');
+    setAccessToken('');
+    toast.success('Signed out successfully.');
   };
 
+  const handleGetStarted = () => { setAuthMode('signup'); setShowAuthModal(true); };
+  const handleOpenLogin = () => { setAuthMode('signin'); setShowAuthModal(true); };
+
+  // ── Loading splash ───────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="size-full flex items-center justify-center" style={{ background: '#000000' }}>
@@ -117,13 +102,25 @@ export default function App() {
 
   return (
     <div className="size-full">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: 'rgba(10,10,10,0.95)',
+            border: '1px solid rgba(0,242,234,0.25)',
+            color: '#fff',
+            fontFamily: 'JetBrains Mono, "Courier New", monospace',
+            backdropFilter: 'blur(20px)',
+          },
+        }}
+        richColors
+      />
+
       {!isAuthenticated ? (
-        <LandingPage
-          onGetStarted={handleGetStarted}
-          onLogin={handleOpenLogin}
-        />
+        <LandingPage onGetStarted={handleGetStarted} onLogin={handleOpenLogin} />
       ) : (
         <Dashboard
+          userName={userName}
           userEmail={userEmail}
           userId={userId}
           accessToken={accessToken}

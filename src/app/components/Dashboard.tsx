@@ -3,7 +3,7 @@ import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import {
   Wallet, TrendingDown, TrendingUp, PiggyBank, Plus, Bell, Settings,
   LogOut, DollarSign, Calendar, Target, CheckCircle2, Circle, Trash2,
-  Globe, Calculator, HeadphonesIcon, Heart, X,
+  Globe, Calculator, HeadphonesIcon, Heart, X, Menu, Search, Loader2,
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { Logo } from './Logo';
@@ -11,6 +11,8 @@ import { StarField } from './StarField';
 import { LoanCalculator } from './LoanCalculator';
 import { Settings as SettingsPage } from './Settings';
 import { ContactDeveloper } from './ContactDeveloper';
+import { api } from '../utils/api';
+import { toast } from 'sonner';
 
 // ─── Design tokens ────────────────────────────────────────────────
 const TEAL = '#00F2EA';
@@ -30,10 +32,10 @@ const glass = (tealTint = false, blurPx = 24): React.CSSProperties => ({
 const PIE_COLORS = [TEAL, '#00b8b3', '#007a78', '#004d4b', '#10B981', '#3B82F6'];
 
 // ─── Interfaces ───────────────────────────────────────────────────
-interface DashboardProps { userEmail: string; userId: string; accessToken: string; onLogout: () => void; }
-interface Expense { id: string; category: string; amount: number; date: string; description: string; }
-interface Reminder { id: string; title: string; dueDate: string; completed: boolean; }
-interface Budget { id: string; category: string; limit: number; spent: number; }
+interface DashboardProps { userName: string; userEmail: string; userId: string; accessToken: string; onLogout: () => void; }
+interface Expense { id: string; category: string; amount: number; date: string; title: string; note?: string; }
+interface Reminder { id: string; title: string; dueDate: string; status: 'pending' | 'completed'; amount?: number; }
+interface Budget { id: string; category: string; allocatedAmount: number; month: number; year: number; }
 type Currency = 'INR' | 'USD' | 'EUR' | 'GBP' | 'JPY' | 'AUD';
 const CURRENCY_SYMBOLS: Record<Currency, string> = { INR: '₹', USD: '$', EUR: '€', GBP: '£', JPY: '¥', AUD: 'A$' };
 
@@ -172,10 +174,28 @@ function StatCard({ icon: Icon, iconColor, label, value, delay, onEdit }:
 }
 
 // ─── Dashboard ────────────────────────────────────────────────────
-export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
+export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  // Track whether we are on a desktop viewport (≥1024px) to show sidebar by default
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 1024 : true,
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      const desktop = window.innerWidth >= 1024;
+      setIsDesktop(desktop);
+      // Auto-close mobile sidebar when resizing to desktop
+      if (desktop) setSidebarOpen(false);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [activeView, setActiveView] = useState<'dashboard' | 'budgets' | 'expenses' | 'reminders'>('dashboard');
   const [currency, setCurrency] = useState<Currency>('INR');
-  const [salary, setSalary] = useState(50000);
+  const [salary, setSalary] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [showAddReminder, setShowAddReminder] = useState(false);
   const [showEditSalary, setShowEditSalary] = useState(false);
@@ -185,55 +205,79 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
   const [showContactDeveloper, setShowContactDeveloper] = useState(false);
   const [showAddBudget, setShowAddBudget] = useState(false);
 
-  const [expenses, setExpenses] = useState<Expense[]>([
-    { id: '1', category: 'Food & Dining', amount: 4500, date: '2026-02-15', description: 'Groceries' },
-    { id: '2', category: 'Transportation', amount: 1200, date: '2026-02-14', description: 'Gas' },
-    { id: '3', category: 'Entertainment', amount: 800, date: '2026-02-13', description: 'Movies' },
-    { id: '4', category: 'Shopping', amount: 2000, date: '2026-02-12', description: 'Clothes' },
-    { id: '5', category: 'Bills', amount: 3500, date: '2026-02-10', description: 'Electricity' },
-  ]);
-  const [reminders, setReminders] = useState<Reminder[]>([
-    { id: '1', title: 'Pay credit card bill', dueDate: '2026-02-25', completed: false },
-    { id: '2', title: 'Review monthly budget', dueDate: '2026-02-28', completed: false },
-    { id: '3', title: 'Renew insurance', dueDate: '2026-03-01', completed: false },
-  ]);
-  const [budgets, setBudgets] = useState<Budget[]>([
-    { id: '1', category: 'Food & Dining', limit: 8000, spent: 0 },
-    { id: '2', category: 'Transportation', limit: 3000, spent: 0 },
-    { id: '3', category: 'Entertainment', limit: 2000, spent: 0 },
-    { id: '4', category: 'Shopping', limit: 5000, spent: 0 },
-  ]);
-  const [newExpense, setNewExpense] = useState({ category: 'Food & Dining', amount: '', description: '', date: new Date().toISOString().split('T')[0] });
-  const [newReminder, setNewReminder] = useState({ title: '', dueDate: '' });
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
+
+  const [newExpense, setNewExpense] = useState({ category: 'Food & Dining', amount: '', title: '', date: new Date().toISOString().split('T')[0], note: '' });
+  const [newReminder, setNewReminder] = useState({ title: '', dueDate: '', amount: '' });
   const [newBudget, setNewBudget] = useState({ category: 'Food & Dining', limit: '' });
 
-  useEffect(() => {
-    const saved = localStorage.getItem(`finmax_${userId}`);
-    if (saved) {
-      try {
-        const d = JSON.parse(saved);
-        if (d.expenses) setExpenses(d.expenses);
-        if (d.reminders) setReminders(d.reminders);
-        if (d.budgets) setBudgets(d.budgets);
-        if (d.salary) setSalary(d.salary);
-        if (d.currency) setCurrency(d.currency);
-      } catch { /* silent */ }
+  const fetchData = async () => {
+    setLoading(true);
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+
+    try {
+      const [incRes, expRes, budRes, remRes] = await Promise.all([
+        api.getIncomes(month, year),
+        api.getExpenses(),
+        api.getBudgets(month, year),
+        api.getReminders()
+      ]);
+
+      if (incRes.data?.incomes?.length) {
+        // Aggregate income for the month
+        const totalInc = incRes.data.incomes.reduce((s, i) => s + i.amount, 0);
+        setSalary(totalInc);
+      } else {
+        setSalary(0);
+      }
+
+      if (expRes.data) setExpenses(expRes.data.expenses.map(e => ({
+        id: e._id,
+        category: e.category,
+        amount: e.amount,
+        date: e.date,
+        title: e.title,
+        note: e.note
+      })));
+
+      if (budRes.data) setBudgets(budRes.data.budgets.map(b => ({
+        id: b._id,
+        category: b.category,
+        allocatedAmount: b.allocatedAmount,
+        month: b.month,
+        year: b.year
+      })));
+
+      if (remRes.data) setReminders(remRes.data.reminders.map(r => ({
+        id: r._id,
+        title: r.title,
+        dueDate: r.dueDate,
+        status: r.status,
+        amount: r.amount
+      })));
+    } catch (err) {
+      console.error('Fetch error:', err);
+      toast.error('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
     }
-  }, [userId]);
+  };
 
   useEffect(() => {
-    localStorage.setItem(`finmax_${userId}`, JSON.stringify({ expenses, reminders, budgets, salary, currency }));
-  }, [expenses, reminders, budgets, salary, currency, userId]);
+    fetchData();
+  }, []);
 
   useEffect(() => {
-    setBudgets(prev => prev.map(b => ({
-      ...b, spent: expenses.filter(e => e.category === b.category).reduce((s, e) => s + e.amount, 0),
-    })));
+    // budgets[].spent is calculated dynamically in the render logic or a useMemo
   }, [expenses]); // eslint-disable-line
 
   const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
   const savings = salary - totalExpenses;
-  const savingsRate = ((savings / salary) * 100).toFixed(1);
+  const savingsRate = salary > 0 ? ((savings / salary) * 100).toFixed(1) : '0.0';
   const sym = CURRENCY_SYMBOLS[currency];
 
   const categoryData = expenses.reduce((acc, e) => {
@@ -242,28 +286,73 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
     return acc;
   }, [] as { name: string; value: number }[]);
 
-  const useCounter = (end: number) => {
-    const [count, setCount] = useState(0);
-    useEffect(() => {
-      let start: number; let id: number;
-      const animate = (t: number) => { if (!start) start = t; const p = Math.min((t - start) / 1000, 1); setCount(Math.floor(p * end)); if (p < 1) id = requestAnimationFrame(animate); };
-      id = requestAnimationFrame(animate);
-      return () => cancelAnimationFrame(id);
-    }, [end]);
-    return count;
+  const handleAddExpense = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { data, error } = await api.addExpense({
+      title: newExpense.title,
+      amount: parseFloat(newExpense.amount),
+      category: newExpense.category,
+      date: new Date(newExpense.date).toISOString()
+    });
+    if (error) return toast.error(error);
+    toast.success('Expense added');
+    setNewExpense({ category: 'Food & Dining', amount: '', title: '', date: new Date().toISOString().split('T')[0], note: '' });
+    setShowAddExpense(false);
+    fetchData();
   };
 
-  const animSalary = useCounter(salary);
-  const animExpenses = useCounter(totalExpenses);
-  const animSavings = useCounter(savings);
+  const handleAddReminder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { data, error } = await api.addReminder({
+      title: newReminder.title,
+      dueDate: new Date(newReminder.dueDate).toISOString()
+    });
+    if (error) return toast.error(error);
+    toast.success('Reminder added');
+    setNewReminder({ title: '', dueDate: '', amount: '' });
+    setShowAddReminder(false);
+    fetchData();
+  };
 
-  const handleAddExpense = (e: React.FormEvent) => { e.preventDefault(); setExpenses([{ id: Date.now().toString(), ...newExpense, amount: parseFloat(newExpense.amount) }, ...expenses]); setNewExpense({ category: 'Food & Dining', amount: '', description: '', date: new Date().toISOString().split('T')[0] }); setShowAddExpense(false); };
-  const handleAddReminder = (e: React.FormEvent) => { e.preventDefault(); setReminders([...reminders, { id: Date.now().toString(), ...newReminder, completed: false }]); setNewReminder({ title: '', dueDate: '' }); setShowAddReminder(false); };
-  const handleAddBudget = (e: React.FormEvent) => { e.preventDefault(); setBudgets([...budgets, { id: Date.now().toString(), category: newBudget.category, limit: parseFloat(newBudget.limit), spent: 0 }]); setNewBudget({ category: 'Food & Dining', limit: '' }); setShowAddBudget(false); };
-  const toggleReminder = (id: string) => setReminders(reminders.map(r => r.id === id ? { ...r, completed: !r.completed } : r));
-  const deleteReminder = (id: string) => setReminders(reminders.filter(r => r.id !== id));
-  const deleteExpense = (id: string) => setExpenses(expenses.filter(e => e.id !== id));
-  const deleteBudget = (id: string) => setBudgets(budgets.filter(b => b.id !== id));
+  const handleAddBudget = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const now = new Date();
+    const { data, error } = await api.addBudget({
+      category: newBudget.category,
+      allocatedAmount: parseFloat(newBudget.limit),
+      month: now.getMonth() + 1,
+      year: now.getFullYear()
+    });
+    if (error) return toast.error(error);
+    toast.success('Budget added');
+    setNewBudget({ category: 'Food & Dining', limit: '' });
+    setShowAddBudget(false);
+    fetchData();
+  };
+
+  const toggleReminder = async (id: string) => {
+    const { error } = await api.toggleReminder(id);
+    if (error) return toast.error(error);
+    fetchData();
+  };
+
+  const deleteReminder = async (id: string) => {
+    const { error } = await api.deleteReminder(id);
+    if (error) return toast.error(error);
+    fetchData();
+  };
+
+  const deleteExpense = async (id: string) => {
+    const { error } = await api.deleteExpense(id);
+    if (error) return toast.error(error);
+    fetchData();
+  };
+
+  const deleteBudget = async (id: string) => {
+    const { error } = await api.deleteBudget(id);
+    if (error) return toast.error(error);
+    fetchData();
+  };
 
   if (showSettings) return <SettingsPage userEmail={userEmail} onBack={() => setShowSettings(false)} onLogout={onLogout} currency={currency} onCurrencyChange={(c) => setCurrency(c as Currency)} />;
   if (showContactDeveloper) return <ContactDeveloper onBack={() => setShowContactDeveloper(false)} />;
@@ -281,9 +370,19 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
     <div className="min-h-screen text-white" style={{ background: '#000000', ...monoFont }}>
       <StarField count={200} />
 
+      {/* ─── MOBILE SIDEBAR BACKDROP ─── */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-20 lg:hidden"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* ─── LIQUID GLASS SIDEBAR ─── */}
-      <motion.aside
-        className="fixed left-0 top-0 bottom-0 w-64 flex flex-col z-20"
+      {/* Desktop: always visible (lg:translate-x-0). Mobile: slides in from left. */}
+      <aside
+        className="fixed left-0 top-0 bottom-0 w-64 flex flex-col z-30 transition-transform duration-300 ease-in-out"
         style={{
           background: 'rgba(0,0,0,0.4)',
           backdropFilter: 'blur(32px) saturate(200%) brightness(1.06)',
@@ -291,12 +390,24 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
           borderRight: '1px solid rgba(0,242,234,0.12)',
           boxShadow: 'inset -1px 0 0 rgba(255,255,255,0.04)',
           padding: '24px 16px',
+          // Desktop: always visible. Mobile: visible only when open.
+          transform: (isDesktop || sidebarOpen) ? 'translateX(0)' : 'translateX(-100%)',
         }}
-        initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.5 }}
       >
         {/* inner sheen */}
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 40%)' }} />
+
+        {/* Mobile close button */}
+        <button
+          className="absolute top-4 right-4 lg:hidden z-10"
+          style={{ color: 'rgba(255,255,255,0.4)' }}
+          onClick={() => setSidebarOpen(false)}
+          onMouseEnter={(e) => (e.currentTarget.style.color = TEAL)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
+        >
+          <X className="size-5" />
+        </button>
 
         <div className="mb-10 px-2 relative z-10"><Logo /></div>
 
@@ -304,7 +415,7 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
           {navItems.map(({ id, label, icon: Icon }) => {
             const active = activeView === id;
             return (
-              <motion.button key={id} onClick={() => setActiveView(id)}
+              <motion.button key={id} onClick={() => { setActiveView(id); setSidebarOpen(false); }}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 relative overflow-hidden"
                 style={active ? {
                   background: 'rgba(0,242,234,0.1)',
@@ -323,7 +434,7 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
             );
           })}
 
-          <motion.button onClick={() => setShowLoanCalculator(true)}
+          <motion.button onClick={() => { setShowLoanCalculator(true); setSidebarOpen(false); }}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl mt-2 relative overflow-hidden"
             style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.22)', color: '#FBBF24', backdropFilter: 'blur(12px)', ...monoFont, boxShadow: 'inset 0 1px 0 rgba(234,179,8,0.12)' }}
             whileHover={{ scale: 1.02, background: 'rgba(234,179,8,0.13)' }} whileTap={{ scale: 0.98 }}
@@ -335,8 +446,8 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
 
         <div className="space-y-1 pt-4 relative z-10" style={{ borderTop: '1px solid rgba(0,242,234,0.1)' }}>
           {[
-            { label: 'Contact Developer', icon: HeadphonesIcon, onClick: () => setShowContactDeveloper(true) },
-            { label: 'Settings', icon: Settings, onClick: () => setShowSettings(true) },
+            { label: 'Contact Developer', icon: HeadphonesIcon, onClick: () => { setShowContactDeveloper(true); setSidebarOpen(false); } },
+            { label: 'Settings', icon: Settings, onClick: () => { setShowSettings(true); setSidebarOpen(false); } },
             { label: 'Logout', icon: LogOut, onClick: onLogout },
           ].map(({ label, icon: Icon, onClick }) => (
             <motion.button key={label} onClick={onClick}
@@ -348,17 +459,28 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
             </motion.button>
           ))}
         </div>
-      </motion.aside>
+      </aside>
 
       {/* ─── MAIN CONTENT ─── */}
-      <div className="ml-64 p-8 relative z-10">
+      {/* On mobile: no left margin (sidebar is hidden). On lg: ml-64. Extra bottom padding for mobile bottom nav. */}
+      <div className="lg:ml-64 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 relative z-10">
         {/* Header */}
-        <motion.div className="mb-8 flex items-start justify-between"
+        <motion.div className="mb-8 flex items-start justify-between gap-3"
           initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <div>
-            <h1 className="text-4xl font-bold mb-2 text-white" style={headingFont}>Financial Dashboard</h1>
-            <p style={{ color: '#A1A1A1', ...monoFont }}>Welcome back, <span style={{ color: TEAL }}>{userEmail}</span></p>
+          <div className="flex items-center gap-3">
+            {/* Hamburger — mobile only */}
+            <button
+              className="lg:hidden flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: 'rgba(0,242,234,0.08)', border: '1px solid rgba(0,242,234,0.2)', color: TEAL }}
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="size-5" />
+            </button>
+            <div>
+              <h1 className="text-2xl sm:text-4xl font-bold mb-1 text-white" style={headingFont}>Financial Dashboard</h1>
+              <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Welcome back, <span style={{ color: TEAL }}>{userName || userEmail}</span></p>
+            </div>
           </div>
 
           {/* Currency selector */}
@@ -405,9 +527,9 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
 
         {/* ─── STAT CARDS ─── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard icon={DollarSign} iconColor={TEAL} label="Monthly Income" value={`${sym}${animSalary.toLocaleString()}`} delay={0.3} onEdit={() => setShowEditSalary(true)} />
-          <StatCard icon={TrendingDown} iconColor="#F87171" label="Total Expenses" value={`${sym}${animExpenses.toLocaleString()}`} delay={0.4} />
-          <StatCard icon={PiggyBank} iconColor="#34D399" label="Total Savings" value={`${sym}${animSavings.toLocaleString()}`} delay={0.5} />
+          <StatCard icon={DollarSign} iconColor={TEAL} label="Monthly Income" value={`${sym}${salary.toLocaleString()}`} delay={0.3} onEdit={() => setShowEditSalary(true)} />
+          <StatCard icon={TrendingDown} iconColor="#F87171" label="Total Expenses" value={`${sym}${totalExpenses.toLocaleString()}`} delay={0.4} />
+          <StatCard icon={PiggyBank} iconColor="#34D399" label="Total Savings" value={`${sym}${savings.toLocaleString()}`} delay={0.5} />
           <StatCard icon={TrendingUp} iconColor="#60A5FA" label="Savings Rate" value={`${savingsRate}%`} delay={0.6} />
         </div>
 
@@ -415,19 +537,26 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
         {activeView === 'dashboard' && (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <TiltCard teal className="p-6 rounded-2xl">
+              <TiltCard teal className="p-6 rounded-2xl min-h-[400px] flex flex-col">
                 <h2 className="text-2xl font-bold mb-6 text-white" style={headingFont}>Spending by Category</h2>
-                <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie data={categoryData} cx="50%" cy="50%" labelLine={false} outerRadius={100} dataKey="value" animationBegin={0} animationDuration={1000}>
-                        {categoryData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-                      </Pie>
-                      <Tooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,242,234,0.25)', borderRadius: '10px', color: '#fff', ...monoFont }} />
-                      <Legend wrapperStyle={{ color: '#A1A1A1', ...monoFont }} iconType="circle" />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
+                {expenses.length === 0 ? (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
+                    <PieChart className="size-12 mb-4 opacity-20" style={{ color: TEAL }} />
+                    <p className="text-sm opacity-50" style={monoFont}>No expense data available for the pie chart.</p>
+                  </div>
+                ) : (
+                  <div className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie data={categoryData} cx="50%" cy="50%" labelLine={false} outerRadius={100} dataKey="value" animationBegin={0} animationDuration={1000}>
+                          {categoryData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                        </Pie>
+                        <Tooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,242,234,0.25)', borderRadius: '10px', color: '#fff', ...monoFont }} />
+                        <Legend wrapperStyle={{ color: '#A1A1A1', ...monoFont }} iconType="circle" />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
               </TiltCard>
 
               <TiltCard teal className="p-6 rounded-2xl">
@@ -436,7 +565,12 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
                   <TealButton onClick={() => setShowAddExpense(true)}><Plus className="size-4" /> Add</TealButton>
                 </div>
                 <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
-                  {expenses.slice(0, 5).map((expense, i) => (
+                  {expenses.length === 0 ? (
+                    <div className="py-12 text-center opacity-30" style={monoFont}>
+                      <TrendingDown className="size-8 mx-auto mb-2" />
+                      <p>No expenses found</p>
+                    </div>
+                  ) : expenses.slice(0, 5).map((expense, i) => (
                     <motion.div key={expense.id}
                       className="flex items-center justify-between p-4 rounded-xl group relative overflow-hidden"
                       style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.07)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)' }}
@@ -451,7 +585,7 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
                           <DollarSign className="size-5" style={{ color: TEAL, filter: 'drop-shadow(0 0 5px #00F2EA)' }} />
                         </div>
                         <div>
-                          <div className="font-semibold text-white text-sm" style={headingFont}>{expense.description}</div>
+                          <div className="font-semibold text-white text-sm" style={headingFont}>{expense.title}</div>
                           <div className="text-xs" style={{ color: '#A1A1A1', ...monoFont }}>{expense.category}</div>
                         </div>
                       </div>
@@ -475,27 +609,35 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
                 <TealButton onClick={() => setShowAddReminder(true)}><Plus className="size-4" /> Add Reminder</TealButton>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {reminders.map((r, i) => (
-                  <motion.div key={r.id} className="p-4 rounded-xl group relative overflow-hidden"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,242,234,0.08)', backdropFilter: 'blur(12px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)' }}
-                    initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.1 }}
-                    whileHover={{ scale: 1.02, borderColor: 'rgba(0,242,234,0.22)' }}
-                  >
-                    <div className="absolute inset-0 rounded-[inherit] pointer-events-none"
-                      style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)' }} />
-                    <div className="flex items-start gap-3 relative">
-                      <button onClick={() => toggleReminder(r.id)} style={{ color: r.completed ? TEAL : '#A1A1A1', marginTop: 2 }}
-                        onMouseEnter={(e) => (e.currentTarget.style.color = TEAL)}
-                        onMouseLeave={(e) => (e.currentTarget.style.color = r.completed ? TEAL : '#A1A1A1')}
-                      >{r.completed ? <CheckCircle2 className="size-5" /> : <Circle className="size-5" />}</button>
-                      <div className="flex-1">
-                        <div className="font-semibold mb-1 text-sm" style={{ color: r.completed ? '#A1A1A1' : '#fff', textDecoration: r.completed ? 'line-through' : 'none', ...headingFont }}>{r.title}</div>
-                        <div className="flex items-center gap-2 text-xs" style={{ color: '#A1A1A1', ...monoFont }}><Calendar className="size-3" />{new Date(r.dueDate).toLocaleDateString()}</div>
+                {reminders.length === 0 ? (
+                  <div className="col-span-full py-12 text-center glass rounded-xl opacity-30" style={monoFont}>
+                    <Bell className="size-8 mx-auto mb-2" />
+                    <p>No reminders set</p>
+                  </div>
+                ) : reminders.map((r, i) => {
+                  const completed = r.status === 'completed';
+                  return (
+                    <motion.div key={r.id} className="p-4 rounded-xl group relative overflow-hidden"
+                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,242,234,0.08)', backdropFilter: 'blur(12px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)' }}
+                      initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.1 }}
+                      whileHover={{ scale: 1.02, borderColor: 'rgba(0,242,234,0.22)' }}
+                    >
+                      <div className="absolute inset-0 rounded-[inherit] pointer-events-none"
+                        style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)' }} />
+                      <div className="flex items-start gap-3 relative">
+                        <button onClick={() => toggleReminder(r.id)} style={{ color: completed ? TEAL : '#A1A1A1', marginTop: 2 }}
+                          onMouseEnter={(e) => (e.currentTarget.style.color = TEAL)}
+                          onMouseLeave={(e) => (e.currentTarget.style.color = completed ? TEAL : '#A1A1A1')}
+                        >{completed ? <CheckCircle2 className="size-5" /> : <Circle className="size-5" />}</button>
+                        <div className="flex-1">
+                          <div className="font-semibold mb-1 text-sm" style={{ color: completed ? '#A1A1A1' : '#fff', textDecoration: completed ? 'line-through' : 'none', ...headingFont }}>{r.title}</div>
+                          <div className="flex items-center gap-2 text-xs" style={{ color: '#A1A1A1', ...monoFont }}><Calendar className="size-3" />{new Date(r.dueDate).toLocaleDateString()}</div>
+                        </div>
+                        <button onClick={() => deleteReminder(r.id)} className="opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:text-red-300"><Trash2 className="size-4" /></button>
                       </div>
-                      <button onClick={() => deleteReminder(r.id)} className="opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:text-red-300"><Trash2 className="size-4" /></button>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </div>
             </TiltCard>
           </>
@@ -509,8 +651,14 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
               <TealButton onClick={() => setShowAddBudget(true)}><Plus className="size-4" /> Add Budget</TealButton>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {budgets.map((b, i) => {
-                const pct = (b.spent / b.limit) * 100;
+              {budgets.length === 0 ? (
+                <div className="col-span-full py-20 text-center opacity-30" style={monoFont}>
+                  <Target className="size-12 mx-auto mb-4" />
+                  <p>No budgets created yet</p>
+                </div>
+              ) : budgets.map((b, i) => {
+                const spent = expenses.filter(e => e.category === b.category).reduce((s, e) => s + e.amount, 0);
+                const pct = b.allocatedAmount > 0 ? (spent / b.allocatedAmount) * 100 : 0;
                 const over = pct > 100;
                 const barColor = over ? '#F87171' : pct > 80 ? '#FBBF24' : TEAL;
                 return (
@@ -524,7 +672,7 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
                     <div className="flex items-start justify-between mb-4 relative">
                       <div>
                         <h3 className="font-semibold text-lg text-white" style={headingFont}>{b.category}</h3>
-                        <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>{sym}{b.spent} / {sym}{b.limit}</p>
+                        <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>{sym}{spent} / {sym}{b.allocatedAmount}</p>
                       </div>
                       <button onClick={() => deleteBudget(b.id)} className="opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:text-red-300"><Trash2 className="size-4" /></button>
                     </div>
@@ -543,36 +691,41 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
 
         {/* ─── EXPENSES VIEW ─── */}
         {activeView === 'expenses' && (
-          <TiltCard teal className="p-6 rounded-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-bold text-white" style={headingFont}>All Expenses</h2>
-              <TealButton onClick={() => setShowAddExpense(true)}><Plus className="size-4" /> Add Expense</TealButton>
+          <TiltCard teal className="p-8 rounded-2xl min-h-[500px]">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-white" style={headingFont}>Expense Archive</h2>
+              <TealButton onClick={() => setShowAddExpense(true)}><Plus className="size-5" /> Add Expense</TealButton>
             </div>
-            <div className="space-y-3">
-              {expenses.map((e, i) => (
-                <motion.div key={e.id} className="flex items-center justify-between p-5 rounded-xl group relative overflow-hidden"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(12px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)' }}
+            <div className="space-y-4">
+              {expenses.length === 0 ? (
+                <div className="py-20 text-center opacity-30" style={monoFont}>
+                  <TrendingDown className="size-12 mx-auto mb-4" />
+                  <p>No expenses recorded</p>
+                </div>
+              ) : expenses.map((expense, i) => (
+                <motion.div key={expense.id}
+                  className="flex items-center justify-between p-5 rounded-2xl group relative overflow-hidden"
+                  style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.07)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)' }}
                   initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                   whileHover={{ scale: 1.01, borderColor: 'rgba(0,242,234,0.2)' }}
                 >
                   <div className="absolute inset-0 rounded-[inherit] pointer-events-none"
                     style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)' }} />
-                  <div className="flex items-center gap-4 flex-1 relative">
+                  <div className="flex items-center gap-4 relative">
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-                      style={{ background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.2)', boxShadow: '0 4px 16px rgba(0,242,234,0.1), inset 0 1px 0 rgba(0,242,234,0.2)' }}>
-                      <DollarSign className="size-6" style={{ color: TEAL, filter: 'drop-shadow(0 0 6px #00F2EA)' }} />
+                      style={{ background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.2)', boxShadow: '0 4px 15px rgba(0,242,234,0.1)' }}>
+                      <DollarSign className="size-6" style={{ color: TEAL }} />
                     </div>
                     <div>
-                      <div className="font-semibold text-lg text-white" style={headingFont}>{e.description}</div>
-                      <div className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>{e.category}</div>
+                      <div className="font-bold text-white text-lg" style={headingFont}>{expense.title}</div>
+                      <div className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>{expense.category} • {new Date(expense.date).toLocaleDateString()}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 relative">
+                  <div className="flex items-center gap-6 relative">
                     <div className="text-right">
-                      <div className="font-bold text-xl text-red-400" style={monoFont}>-{sym}{e.amount}</div>
-                      <div className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>{new Date(e.date).toLocaleDateString()}</div>
+                      <div className="text-xl font-bold text-red-400" style={monoFont}>-{sym}{expense.amount.toLocaleString()}</div>
                     </div>
-                    <button onClick={() => deleteExpense(e.id)} className="opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:text-red-300"><Trash2 className="size-5" /></button>
+                    <button onClick={() => deleteExpense(expense.id)} className="p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:bg-red-400/10"><Trash2 className="size-5" /></button>
                   </div>
                 </motion.div>
               ))}
@@ -582,33 +735,39 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
 
         {/* ─── REMINDERS VIEW ─── */}
         {activeView === 'reminders' && (
-          <TiltCard teal className="p-6 rounded-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-bold text-white" style={headingFont}>Financial Reminders</h2>
-              <TealButton onClick={() => setShowAddReminder(true)}><Plus className="size-4" /> Add Reminder</TealButton>
+          <TiltCard teal className="p-8 rounded-2xl min-h-[500px]">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-white" style={headingFont}>Reminders & Bills</h2>
+              <TealButton onClick={() => setShowAddReminder(true)}><Plus className="size-5" /> New Reminder</TealButton>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {reminders.map((r, i) => (
-                <motion.div key={r.id} className="p-5 rounded-xl group relative overflow-hidden"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,242,234,0.08)', backdropFilter: 'blur(12px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)' }}
-                  initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.1 }}
-                  whileHover={{ scale: 1.03, borderColor: 'rgba(0,242,234,0.22)' }}
-                >
-                  <div className="absolute inset-0 rounded-[inherit] pointer-events-none"
-                    style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 60%)' }} />
-                  <div className="flex items-start gap-3 relative">
-                    <button onClick={() => toggleReminder(r.id)} style={{ color: r.completed ? TEAL : '#A1A1A1', marginTop: 3 }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = TEAL)}
-                      onMouseLeave={(e) => (e.currentTarget.style.color = r.completed ? TEAL : '#A1A1A1')}
-                    >{r.completed ? <CheckCircle2 className="size-6" /> : <Circle className="size-6" />}</button>
-                    <div className="flex-1">
-                      <div className="font-semibold text-lg mb-2" style={{ color: r.completed ? '#A1A1A1' : '#fff', textDecoration: r.completed ? 'line-through' : 'none', ...headingFont }}>{r.title}</div>
-                      <div className="flex items-center gap-2 text-sm" style={{ color: '#A1A1A1', ...monoFont }}><Calendar className="size-4" />{new Date(r.dueDate).toLocaleDateString()}</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {reminders.length === 0 ? (
+                <div className="col-span-full py-20 text-center opacity-30" style={monoFont}>
+                  <Bell className="size-12 mx-auto mb-4" />
+                  <p>No reminders found</p>
+                </div>
+              ) : reminders.map((r, i) => {
+                const completed = r.status === 'completed';
+                return (
+                  <motion.div key={r.id}
+                    className="p-6 rounded-2xl group relative overflow-hidden"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,242,234,0.08)', backdropFilter: 'blur(12px)' }}
+                    initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}
+                    whileHover={{ scale: 1.02, borderColor: 'rgba(0,242,234,0.3)' }}
+                  >
+                    <div className="flex items-start gap-4 relative">
+                      <button onClick={() => toggleReminder(r.id)} style={{ color: completed ? TEAL : '#A1A1A1', marginTop: 4 }}>
+                        {completed ? <CheckCircle2 className="size-6" /> : <Circle className="size-6" />}
+                      </button>
+                      <div className="flex-1">
+                        <div className="text-lg font-bold mb-1" style={{ color: completed ? '#A1A1A1' : '#fff', textDecoration: completed ? 'line-through' : 'none', ...headingFont }}>{r.title}</div>
+                        <div className="flex items-center gap-2 text-sm" style={{ color: '#A1A1A1', ...monoFont }}><Calendar className="size-4" />Due: {new Date(r.dueDate).toLocaleDateString()}</div>
+                      </div>
+                      <button onClick={() => deleteReminder(r.id)} className="opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:text-red-300 p-2"><Trash2 className="size-5" /></button>
                     </div>
-                    <button onClick={() => deleteReminder(r.id)} className="opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:text-red-300"><Trash2 className="size-5" /></button>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           </TiltCard>
         )}
@@ -627,6 +786,92 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
         </motion.div>
       </div>
 
+      {/* ─── INCOME SETUP OVERLAY ─── */}
+      {!loading && salary === 0 && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)' }}>
+          <TiltCard teal className="w-full max-w-md p-8 rounded-3xl text-center">
+            <div className="w-20 h-20 rounded-2xl mx-auto mb-6 flex items-center justify-center"
+              style={{ background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.2)' }}>
+              <Wallet className="size-10" style={{ color: TEAL }} />
+            </div>
+            <h2 className="text-3xl font-bold mb-3 text-white" style={headingFont}>Welcome to FinMax!</h2>
+            <p className="mb-8 opacity-60 text-sm" style={monoFont}>To get started, please enter your total monthly income. This will help us calculate your savings and budgets.</p>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const val = (e.currentTarget.elements.namedItem('income') as HTMLInputElement).value;
+              const now = new Date();
+              const { error } = await api.addIncome({
+                amount: parseFloat(val),
+                month: now.getMonth() + 1,
+                year: now.getFullYear(),
+                source: 'Initial Setup'
+              });
+              if (error) return toast.error(error);
+              toast.success('Income set successfully');
+              fetchData();
+            }}>
+              <div className="mb-6">
+                <input name="income" type="number" step="0.01" required placeholder="Enter Monthly Income" autoFocus
+                  className="w-full text-center text-2xl font-bold bg-transparent border-b-2 py-4 focus:outline-none"
+                  style={{ borderColor: 'rgba(0,242,234,0.3)', color: TEAL, ...monoFont }}
+                />
+              </div>
+              <TealButton type="submit" className="w-full py-4 text-lg">Start Managing Finances</TealButton>
+            </form>
+          </TiltCard>
+        </div>
+      )}
+
+      {/* ─── LOADING SPINNER ─── */}
+      {loading && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)' }}>
+          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
+            <Loader2 className="size-12" style={{ color: TEAL }} />
+          </motion.div>
+        </div>
+      )}
+
+      {/* ─── MOBILE BOTTOM NAV ─── */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-20 lg:hidden"
+        style={{
+          background: 'rgba(0,0,0,0.85)',
+          backdropFilter: 'blur(24px) saturate(200%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(200%)',
+          borderTop: '1px solid rgba(0,242,234,0.15)',
+          boxShadow: '0 -8px 32px rgba(0,0,0,0.6)',
+        }}
+      >
+        <div className="flex items-center justify-around py-2 px-2">
+          {navItems.map(({ id, label, icon: Icon }) => {
+            const active = activeView === id;
+            return (
+              <button
+                key={id}
+                onClick={() => setActiveView(id)}
+                className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200"
+                style={active
+                  ? { color: TEAL, background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.2)' }
+                  : { color: '#A1A1A1', border: '1px solid transparent' }
+                }
+              >
+                <Icon className="size-5" style={active ? { filter: `drop-shadow(0 0 5px ${TEAL})` } : {}} />
+                <span className="text-xs" style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: active ? 600 : 400 }}>{label}</span>
+              </button>
+            );
+          })}
+          {/* Logout shortcut on mobile bottom nav */}
+          <button
+            onClick={onLogout}
+            className="flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200"
+            style={{ color: '#A1A1A1', border: '1px solid transparent' }}
+          >
+            <LogOut className="size-5" />
+            <span className="text-xs" style={{ fontFamily: 'JetBrains Mono, monospace' }}>Logout</span>
+          </button>
+        </div>
+      </div>
+
       {/* ─── MODALS ─── */}
       {showAddExpense && (
         <ModalCard title="Add Expense" onClose={() => setShowAddExpense(false)}>
@@ -640,8 +885,8 @@ export function Dashboard({ userEmail, userId, onLogout }: DashboardProps) {
                 onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = `0 0 14px rgba(0,242,234,0.15), inset 0 1px 0 rgba(255,255,255,0.08)`; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)'; e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.08)'; }}
               /></div>
-            <div><label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Description</label>
-              <input type="text" value={newExpense.description} onChange={(e) => setNewExpense({ ...newExpense, description: e.target.value })} required style={{ ...inputStyle }}
+            <div><label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Title</label>
+              <input type="text" value={newExpense.title} onChange={(e) => setNewExpense({ ...newExpense, title: e.target.value })} required style={{ ...inputStyle }}
                 onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = `0 0 14px rgba(0,242,234,0.15), inset 0 1px 0 rgba(255,255,255,0.08)`; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)'; e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.08)'; }}
               /></div>

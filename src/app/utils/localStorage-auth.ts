@@ -1,121 +1,153 @@
-// Simple localStorage-based authentication
+// ─── FinMax API-backed Auth ────────────────────────────────────────────────
+// Uses Netlify Functions via /api/* proxy for real bcrypt + JWT auth.
+// JWT stored in localStorage under "finmax_token".
+// Passwords are NEVER stored client-side.
+
+const TOKEN_KEY = 'finmax_token';
+const USER_KEY = 'finmax_user';
+
+// Base URL: relative /api/* works both on Netlify and with `npx netlify dev`
+const API = '/api';
+
 interface User {
   id: string;
   email: string;
   name: string;
-  password: string;
 }
 
 interface Session {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-  };
+  user: User;
   access_token: string;
 }
 
-const USERS_KEY = 'finmax_users';
-const SESSION_KEY = 'finmax_session';
+// ── Helpers ────────────────────────────────────────────────────────────────
 
-// Get all users from localStorage
-const getUsers = (): User[] => {
-  const users = localStorage.getItem(USERS_KEY);
-  return users ? JSON.parse(users) : [];
-};
+function saveSession(token: string, user: User): void {
+  localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
 
-// Save users to localStorage
-const saveUsers = (users: User[]) => {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-};
+function clearSession(): void {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+  // Also clear any old-format keys from previous mock auth
+  localStorage.removeItem('finmax_session');
+  localStorage.removeItem('finmax_users');
+}
 
-// Generate unique ID
-const generateId = () => {
-  return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-};
+function getStoredToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
+}
 
-// Generate access token
-const generateToken = () => {
-  return 'token_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-};
+function getStoredUser(): User | null {
+  const raw = localStorage.getItem(USER_KEY);
+  if (!raw) return null;
+  try { return JSON.parse(raw) as User; } catch { return null; }
+}
+
+// ── API caller ─────────────────────────────────────────────────────────────
+
+async function apiPost(path: string, body: object): Promise<{ data: any; error: string | null }> {
+  try {
+    const res = await fetch(`${API}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+    if (!json.success) return { data: null, error: json.error || 'Request failed' };
+    return { data: json.data, error: null };
+  } catch {
+    return { data: null, error: 'Network error. Check your connection.' };
+  }
+}
+
+async function apiGet(path: string, token: string): Promise<{ data: any; error: string | null }> {
+  try {
+    const res = await fetch(`${API}${path}`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const json = await res.json();
+    if (!json.success) return { data: null, error: json.error || 'Request failed' };
+    return { data: json.data, error: null };
+  } catch {
+    return { data: null, error: 'Network error. Check your connection.' };
+  }
+}
+
+// ── Public Auth API ────────────────────────────────────────────────────────
 
 export const auth = {
-  // Sign up new user
-  signUp: async (email: string, password: string, name: string): Promise<{ session: Session | null; error: string | null }> => {
-    const users = getUsers();
-    
-    // Check if user already exists
-    if (users.find(u => u.email === email)) {
-      return { session: null, error: 'User already exists' };
-    }
 
-    // Create new user
-    const newUser: User = {
-      id: generateId(),
-      email,
-      name,
-      password, // In production, this should be hashed
+  /** Register a new user. Returns session or error. */
+  signUp: async (
+    email: string,
+    password: string,
+    name: string,
+  ): Promise<{ session: Session | null; error: string | null }> => {
+    const { data, error } = await apiPost('/register', { name, email, password });
+    if (error || !data) return { session: null, error };
+
+    const { token, user } = data;
+    saveSession(token, user);
+    return {
+      session: { user: { id: user.id, email: user.email, name: user.name }, access_token: token },
+      error: null,
     };
-
-    users.push(newUser);
-    saveUsers(users);
-
-    // Create session
-    const session: Session = {
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-      },
-      access_token: generateToken(),
-    };
-
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-
-    return { session, error: null };
   },
 
-  // Sign in existing user
-  signIn: async (email: string, password: string): Promise<{ session: Session | null; error: string | null }> => {
-    const users = getUsers();
-    const user = users.find(u => u.email === email && u.password === password);
+  /** Sign in an existing user. Returns session or error. */
+  signIn: async (
+    email: string,
+    password: string,
+  ): Promise<{ session: Session | null; error: string | null }> => {
+    const { data, error } = await apiPost('/login', { email, password });
+    if (error || !data) return { session: null, error };
 
-    if (!user) {
-      return { session: null, error: 'Invalid email or password' };
-    }
-
-    // Create session
-    const session: Session = {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-      },
-      access_token: generateToken(),
+    const { token, user } = data;
+    saveSession(token, user);
+    return {
+      session: { user: { id: user.id, email: user.email, name: user.name }, access_token: token },
+      error: null,
     };
-
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-
-    return { session, error: null };
   },
 
-  // Get current session
+  /**
+   * Restore session on page load.
+   * Reads token from localStorage, then verifies it server-side.
+   * Returns null session (gracefully) if token is missing, expired, or invalid.
+   */
   getSession: async (): Promise<{ session: Session | null; error: string | null }> => {
-    const sessionData = localStorage.getItem(SESSION_KEY);
-    if (!sessionData) {
+    const token = getStoredToken();
+    if (!token) return { session: null, error: null };
+
+    // Fast-path: if we have a cached user object, optimistically return it,
+    // then allow the caller to also do a background verify if needed.
+    // For strict validation, always hit the server.
+    const { data, error } = await apiGet('/verify-token', token);
+
+    if (error || !data) {
+      // Token invalid or expired — clean up
+      clearSession();
       return { session: null, error: null };
     }
 
-    try {
-      const session = JSON.parse(sessionData);
-      return { session, error: null };
-    } catch {
-      return { session: null, error: 'Invalid session' };
-    }
+    const user: User = { id: data.user.id, email: data.user.email, name: data.user.name };
+    // Refresh cached user (name etc might have changed)
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+
+    return {
+      session: { user, access_token: token },
+      error: null,
+    };
   },
 
-  // Sign out
+  /** Fully sign out: removes token and all session data from localStorage. */
   signOut: async (): Promise<void> => {
-    localStorage.removeItem(SESSION_KEY);
+    clearSession();
   },
+
+  /** Returns the current stored JWT token (for passing to API calls). */
+  getToken: (): string | null => getStoredToken(),
 };

@@ -71,9 +71,9 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
       />
 
       {/* Modal container */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <motion.div
-          className="relative w-full max-w-md"
+          className="relative w-full max-w-sm sm:max-w-md my-auto"
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -113,7 +113,7 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
               style={{ background: `linear-gradient(90deg, transparent, ${TEAL}, transparent)`, opacity: 0.5 }}
             />
 
-            <div className="relative p-8">
+            <div className="relative p-5 sm:p-8">
               {/* Close button */}
               <button
                 onClick={onClose}
@@ -141,7 +141,7 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
               </p>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {mode === 'signup' && (
                   <div className="relative">
                     <input
@@ -295,7 +295,7 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
                 <motion.button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 rounded-xl font-semibold transition-all"
+                  className="w-full py-4 rounded-xl font-semibold text-base transition-all"
                   style={{
                     background: loading ? 'rgba(0,242,234,0.5)' : TEAL,
                     color: '#000',
