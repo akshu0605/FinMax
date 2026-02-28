@@ -1,8 +1,5 @@
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import { useRef } from 'react';
-import { Logo } from './Logo';
-import { FloatingElements } from './FloatingElements';
-import { StarField } from './StarField';
 import {
   Wallet,
   TrendingUp,
@@ -15,87 +12,77 @@ import {
   ArrowRight,
   Menu,
   X,
+  ChevronRight,
 } from 'lucide-react';
 import { useState } from 'react';
+import { Logo } from './Logo';
+import { FloatingElements } from './FloatingElements';
+import { StarField } from './StarField';
+import { GlassCard } from './ui/GlassCard';
 
-// ─── Design tokens ────────────────────────────────────────────────
-const TEAL = '#00F2EA';
-const TEAL_GLOW = '0 0 20px rgba(0,242,234,0.4)';
-const headingFont = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
-const monoFont = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
+// ─── Design Tokens ────────────────────────────────────────────────────────────
+const CYAN = '#00f2ff';
+const EMERALD = '#10b981';
+const headingFont: React.CSSProperties = {
+  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+  letterSpacing: '-0.02em',
+};
+const bodyFont: React.CSSProperties = {
+  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+};
+const monoFont: React.CSSProperties = {
+  fontFamily: 'JetBrains Mono, "Courier New", monospace',
+};
 
-// ─── Liquid Glass style helper ─────────────────────────────────────
-const glass = (tintStrength = 0.05, blurPx = 24): React.CSSProperties => ({
-  background: `rgba(255,255,255,${tintStrength})`,
-  backdropFilter: `blur(${blurPx}px) saturate(200%) brightness(1.08)`,
-  WebkitBackdropFilter: `blur(${blurPx}px) saturate(200%) brightness(1.08)`,
-  border: '1px solid rgba(255,255,255,0.10)',
-  boxShadow:
-    '0 8px 32px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.15)',
+// ─── Glassmorphism helpers (spec-compliant) ──────────────────────────────────
+// Outer frame glass (nav, overlays)
+const glassFrame = (): React.CSSProperties => ({
+  background: 'rgba(255, 255, 255, 0.03)',
+  backdropFilter: 'blur(15px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(15px) saturate(180%)',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
 });
 
-const glassCard = (teal = false): React.CSSProperties => ({
-  background: teal
-    ? 'rgba(0,242,234,0.05)'
-    : 'rgba(255,255,255,0.045)',
-  backdropFilter: 'blur(28px) saturate(220%) brightness(1.06)',
-  WebkitBackdropFilter: 'blur(28px) saturate(220%) brightness(1.06)',
-  border: teal
-    ? '1px solid rgba(0,242,234,0.18)'
-    : '1px solid rgba(255,255,255,0.09)',
-  boxShadow:
-    '0 12px 40px rgba(0,0,0,0.6), inset 0 1.5px 0 rgba(255,255,255,0.13), inset 0 -1px 0 rgba(0,0,0,0.18)',
+// Card glass — slightly more presence
+const glassCard = (accent = false): React.CSSProperties => ({
+  background: accent ? 'rgba(0, 242, 255, 0.04)' : 'rgba(255, 255, 255, 0.03)',
+  backdropFilter: 'blur(15px) saturate(180%)',
+  WebkitBackdropFilter: 'blur(15px) saturate(180%)',
+  border: accent
+    ? '1px solid rgba(0, 242, 255, 0.15)'
+    : '1px solid rgba(255, 255, 255, 0.1)',
+  boxShadow: accent
+    ? '0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 242, 255, 0.08)'
+    : '0 8px 32px rgba(0, 0, 0, 0.6)',
 });
 
-// ─── 3D tilt card ─────────────────────────────────────────────────
-function TiltCard({ children, className = '', style = {}, teal = false }: {
-  children: React.ReactNode; className?: string; style?: React.CSSProperties; teal?: boolean;
+// ─── Tilt Animation Card Wrapper has been removed; using GlassCard globally.
+// ─── Section wrapper with scroll-reveal ──────────────────────────────────────
+function Section({
+  children,
+  className = '',
+  id,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  id?: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotX = useSpring(useTransform(y, [-0.5, 0.5], [8, -8]), { stiffness: 300, damping: 30 });
-  const rotY = useSpring(useTransform(x, [-0.5, 0.5], [-8, 8]), { stiffness: 300, damping: 30 });
-
-  const handleMouse = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    x.set((e.clientX - rect.left) / rect.width - 0.5);
-    y.set((e.clientY - rect.top) / rect.height - 0.5);
-  };
-  const handleLeave = () => { x.set(0); y.set(0); };
-
   return (
-    <motion.div
-      ref={ref}
-      className={className}
-      style={{
-        ...glassCard(teal),
-        ...style,
-        transformStyle: 'preserve-3d',
-        perspective: 1000,
-        rotateX: rotX,
-        rotateY: rotY,
-        willChange: 'transform',
-      }}
-      onMouseMove={handleMouse}
-      onMouseLeave={handleLeave}
-      whileHover={{ scale: 1.03, z: 30 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+    <motion.section
+      id={id}
+      className={`relative z-10 max-w-[1280px] mx-auto px-6 ${className}`}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
     >
-      {/* Glass reflection sheen */}
-      <div
-        className="absolute inset-0 rounded-[inherit] pointer-events-none"
-        style={{
-          background:
-            'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 50%, rgba(0,242,234,0.04) 100%)',
-        }}
-      />
-      <div style={{ position: 'relative', zIndex: 1 }}>{children}</div>
-    </motion.div>
+      {children}
+    </motion.section>
   );
 }
 
+// ─── Props ────────────────────────────────────────────────────────────────────
 interface LandingPageProps {
   onGetStarted: () => void;
   onLogin: () => void;
@@ -107,367 +94,756 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
   return (
     <div
       className="min-h-screen text-white overflow-hidden relative"
-      style={{ background: '#000000', ...monoFont, perspective: 1200 }}
+      style={{ background: '#000000', ...bodyFont }}
     >
-      {/* Radial hero glow */}
+      {/* ── Ambient radial glow — very low opacity ── */}
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse 70% 35% at 50% 0%, rgba(0,242,234,0.09) 0%, transparent 70%)',
+            'radial-gradient(ellipse 60% 30% at 50% 0%, rgba(0, 242, 255, 0.06) 0%, transparent 70%)',
         }}
       />
-      {/* Noise */}
+      {/* ── Subtle noise texture ── */}
       <div
-        className="fixed inset-0 opacity-[0.025] pointer-events-none"
+        className="fixed inset-0 opacity-[0.018] pointer-events-none"
         style={{
           backgroundImage:
             'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' /%3E%3C/svg%3E")',
         }}
       />
 
-      <StarField count={180} />
+      <StarField count={140} />
       <FloatingElements />
 
-      {/* ─── NAVIGATION — liquid glass ─── */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ NAVIGATION ━━━━━━━━━━━━━━━━ */}
       <motion.nav
         className="sticky top-0 z-50 w-full"
         style={{
-          ...glass(0.04, 20),
+          ...glassFrame(),
+          borderRadius: 0,
           borderTop: 'none',
           borderLeft: 'none',
           borderRight: 'none',
-          borderBottom: '1px solid rgba(0,242,234,0.12)',
         }}
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
       >
-        {/* top shimmer line */}
-        <div className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent, rgba(0,242,234,0.4), transparent)' }} />
+        {/* Top shimmer line */}
+        <div
+          className="absolute top-0 left-0 right-0 h-px"
+          style={{
+            background:
+              'linear-gradient(90deg, transparent 0%, rgba(0, 242, 255, 0.3) 50%, transparent 100%)',
+          }}
+        />
 
         <div className="max-w-[1280px] mx-auto px-6 py-4 flex justify-between items-center">
           <Logo />
+
+          {/* Desktop nav links */}
           <div className="hidden md:flex gap-10 items-center">
             {['Overview', 'Features', 'Pricing'].map((link) => (
-              <a key={link} href={`#${link.toLowerCase()}`}
+              <a
+                key={link}
+                href={`#${link.toLowerCase()}`}
                 className="text-sm transition-colors duration-200"
-                style={{ color: '#A1A1A1', ...monoFont }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = TEAL)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = '#A1A1A1')}
-              >{link}</a>
+                style={{ color: '#a1a1aa', ...bodyFont }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#ffffff')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#a1a1aa')}
+              >
+                {link}
+              </a>
             ))}
           </div>
+
+          {/* Desktop action buttons */}
           <div className="hidden md:flex gap-3 items-center">
-            <button onClick={onLogin}
+            <button
+              onClick={onLogin}
               className="px-5 py-2 rounded-lg text-sm transition-all duration-200"
-              style={{ color: '#A1A1A1', ...monoFont, background: 'transparent' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#A1A1A1'; e.currentTarget.style.background = 'transparent'; }}
-            >Login</button>
-            <motion.button onClick={onGetStarted}
+              style={{ color: '#a1a1aa', background: 'transparent', ...bodyFont }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#ffffff';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#a1a1aa';
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              Login
+            </button>
+            <motion.button
+              onClick={onGetStarted}
               className="px-5 py-2 rounded-lg text-sm font-semibold"
-              style={{ background: TEAL, color: '#000', ...headingFont, boxShadow: '0 0 20px rgba(0,242,234,0.35), inset 0 1px 0 rgba(255,255,255,0.3)' }}
-              whileHover={{ scale: 1.06, boxShadow: '0 0 35px rgba(0,242,234,0.6), inset 0 1px 0 rgba(255,255,255,0.3)' }}
+              style={{
+                background: CYAN,
+                color: '#000000',
+                ...headingFont,
+                boxShadow: '0 0 20px rgba(0, 242, 255, 0.3)',
+              }}
+              whileHover={{
+                scale: 1.04,
+                boxShadow: '0 0 32px rgba(0, 242, 255, 0.5)',
+              }}
               whileTap={{ scale: 0.97 }}
-            >Get Started</motion.button>
+            >
+              Get Started
+            </motion.button>
           </div>
-          <button className="md:hidden text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden text-white"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
             {mobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
           </button>
         </div>
 
+        {/* Mobile menu */}
         {mobileMenuOpen && (
-          <motion.div className="md:hidden px-6 pb-4 flex flex-col gap-4"
-            style={{ background: 'rgba(0,0,0,0.92)' }}
-            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+          <motion.div
+            className="md:hidden px-6 pb-6 flex flex-col gap-4"
+            style={{ background: 'rgba(0, 0, 0, 0.96)' }}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
           >
             {['Overview', 'Features', 'Pricing'].map((link) => (
-              <a key={link} href={`#${link.toLowerCase()}`} className="text-sm"
-                style={{ color: '#A1A1A1', ...monoFont }} onClick={() => setMobileMenuOpen(false)}>{link}</a>
+              <a
+                key={link}
+                href={`#${link.toLowerCase()}`}
+                className="text-sm py-1"
+                style={{ color: '#a1a1aa', ...bodyFont }}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {link}
+              </a>
             ))}
-            <button onClick={() => { setMobileMenuOpen(false); onLogin(); }} className="text-sm text-left" style={{ color: '#A1A1A1', ...monoFont }}>Login</button>
-            <button onClick={() => { setMobileMenuOpen(false); onGetStarted(); }}
-              className="px-5 py-2 rounded-lg text-sm font-semibold text-left"
-              style={{ background: TEAL, color: '#000', ...headingFont }}>Get Started</button>
+            <button
+              onClick={() => { setMobileMenuOpen(false); onLogin(); }}
+              className="text-sm text-left py-1"
+              style={{ color: '#a1a1aa', ...bodyFont }}
+            >
+              Login
+            </button>
+            <button
+              onClick={() => { setMobileMenuOpen(false); onGetStarted(); }}
+              className="px-5 py-3 rounded-xl text-sm font-semibold text-center"
+              style={{ background: CYAN, color: '#000000', ...headingFont }}
+            >
+              Get Started
+            </button>
           </motion.div>
         )}
       </motion.nav>
 
-      {/* ─── HERO ─── */}
-      <section id="overview" className="relative z-10 max-w-[1280px] mx-auto px-6 py-[120px] text-center">
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ HERO ━━━━━━━━━━━━━━━━━━ */}
+      <section
+        id="overview"
+        className="relative z-10 max-w-[1280px] mx-auto px-6"
+        style={{ paddingTop: '120px', paddingBottom: '80px' }}
+      >
         <motion.div
-          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.2 }}
+          className="text-center"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
         >
+          {/* Status badge */}
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs mb-8"
-            style={{ ...glass(0.06, 16), color: TEAL, ...monoFont }}
-            initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs mb-10"
+            style={{ ...glassFrame(), color: CYAN, ...bodyFont }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.35, duration: 0.5 }}
           >
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: TEAL }} />
-            AI-Powered Finance Platform
+            <span
+              className="w-1.5 h-1.5 rounded-full animate-pulse"
+              style={{ background: CYAN }}
+            />
+            AI-Powered Finance Platform — 2026
           </motion.div>
 
-          <h1 className="text-6xl md:text-7xl font-extrabold mb-6 leading-tight text-white" style={headingFont}>
-            Take Control of Your
+          {/* Primary heading */}
+          <h1
+            className="font-black mb-8 text-white tracking-tighter"
+            style={{
+              ...headingFont,
+              fontSize: 'clamp(3rem, 10vw, 6.5rem)',
+              lineHeight: 0.9,
+              letterSpacing: '-0.05em',
+            }}
+          >
+            THE FUTURE OF
             <br />
-            <span style={{
-              color: TEAL,
-              textShadow: '0 0 40px rgba(0,242,234,0.5), 0 0 80px rgba(0,242,234,0.2)',
-              WebkitTextStroke: '0.5px rgba(0,242,234,0.3)',
-            }}>
-              Money with FinMax
+            <span
+              style={{
+                color: CYAN,
+                textShadow: '0 0 40px rgba(0, 242, 255, 0.45)',
+              }}
+            >
+              FINANCE.
             </span>
           </h1>
-          <p className="text-xl mb-12 max-w-[600px] mx-auto" style={{ color: '#A1A1A1', ...monoFont }}>
-            Smart AI-powered budgeting and expense tracking platform.
+
+          {/* Subtitle */}
+          <p
+            className="text-lg mb-12 max-w-[520px] mx-auto"
+            style={{ color: '#a1a1aa', lineHeight: 1.7, ...bodyFont }}
+          >
+            Intelligent budgeting, real-time expense tracking, and AI-powered insights — all in one calm, powerful platform.
           </p>
-          <div className="flex gap-6 justify-center flex-wrap">
-            <motion.button onClick={onGetStarted}
-              className="px-8 py-4 rounded-xl text-lg font-semibold flex items-center gap-2"
+
+          {/* CTA buttons */}
+          <div className="flex gap-4 justify-center flex-wrap mb-20">
+            <motion.button
+              onClick={onGetStarted}
+              className="px-8 py-4 rounded-xl text-base font-semibold flex items-center gap-2"
               style={{
-                background: TEAL, color: '#000', ...headingFont,
-                boxShadow: '0 0 40px rgba(0,242,234,0.4), 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.35)',
+                background: CYAN,
+                color: '#000000',
+                ...headingFont,
+                boxShadow: '0 0 32px rgba(0, 242, 255, 0.35)',
               }}
-              whileHover={{ scale: 1.07, boxShadow: '0 0 60px rgba(0,242,234,0.65), 0 25px 70px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.35)' }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={{
+                scale: 1.05,
+                boxShadow: '0 0 48px rgba(0, 242, 255, 0.55)',
+              }}
+              whileTap={{ scale: 0.97 }}
             >
-              Get Started <ArrowRight className="size-5" />
+              Get Started Free
+              <ArrowRight className="size-4" />
             </motion.button>
-            <motion.button onClick={onLogin}
-              className="px-8 py-4 rounded-xl text-lg font-semibold"
-              style={{ ...glass(0.05, 18), color: TEAL, ...headingFont }}
-              whileHover={{ scale: 1.04, boxShadow: '0 0 30px rgba(0,242,234,0.2), 0 12px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15)' }}
+            <motion.button
+              onClick={onLogin}
+              className="px-8 py-4 rounded-xl text-base font-semibold"
+              style={{ ...glassCard(), color: '#ffffff', ...headingFont }}
+              whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
               Login
             </motion.button>
           </div>
         </motion.div>
+
+        {/* ── Hero Visual — Generated 3D Abstract ── */}
+        <motion.div
+          className="relative w-full rounded-[40px] overflow-hidden"
+          style={{
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            boxShadow: '0 40px 100px rgba(0, 0, 0, 0.9)',
+            maxHeight: '600px',
+          }}
+          initial={{ opacity: 0, scale: 0.9, y: 40 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 1.2, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <img
+            src="/hero-city.png"
+            alt="Premium finance visualization"
+            className="w-full object-cover object-center"
+            style={{ height: '600px', display: 'block' }}
+          />
+          {/* Gradient overlay — blends image into page */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 30%, rgba(0,0,0,0.9) 100%)',
+            }}
+          />
+          {/* Floating stats overlay */}
+          <div className="absolute bottom-8 left-8 right-8 flex gap-6 flex-wrap">
+            {[
+              { label: 'Active Users', value: '24K+' },
+              { label: 'Avg Savings', value: '₹8,400/mo' },
+              { label: 'Transactions', value: '1.2M+' },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                className="flex flex-col"
+                style={glassFrame()}
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.6 + i * 0.1 }}
+              >
+                <div
+                  style={{
+                    ...glassFrame(),
+                    padding: '12px 20px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <span
+                    className="text-2xl font-bold"
+                    style={{ color: CYAN, ...headingFont, textShadow: '0 0 16px rgba(0, 242, 255, 0.4)' }}
+                  >
+                    {stat.value}
+                  </span>
+                  <span className="text-xs" style={{ color: '#a1a1aa', ...bodyFont }}>
+                    {stat.label}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </section>
 
-      {/* ─── FEATURES — 3D tilt glass cards ─── */}
-      <section id="features" className="relative z-10 max-w-[1280px] mx-auto px-6 py-[80px]">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
-          <h2 className="text-4xl font-bold text-center mb-4 text-white" style={headingFont}>Powerful Features</h2>
-          <p className="text-center mb-16 max-w-[600px] mx-auto" style={{ color: '#A1A1A1', ...monoFont }}>
-            Everything you need to manage your finances in one place
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FEATURES ━━━━━━━━━━━━━━━━━━ */}
+      <Section id="features" className="py-32">
+        <div className="text-center mb-20">
+          <h2 className="font-bold text-white mb-4" style={{ ...headingFont, fontSize: '2.25rem' }}>
+            Everything you need
+          </h2>
+          <p style={{ color: '#a1a1aa', ...bodyFont, maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
+            A complete financial toolkit designed for clarity, speed, and control.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" style={{ perspective: 1200 }}>
-            {[
-              { icon: Wallet, title: 'Smart Budget Planner', desc: 'Set intelligent budgets based on your income and spending patterns.' },
-              { icon: TrendingUp, title: 'Real-time Expense Tracking', desc: 'Track every expense automatically and see where your money goes.' },
-              { icon: Zap, title: 'AI Spending Insights', desc: 'Get personalized insights powered by advanced AI algorithms.' },
-              { icon: PieChart, title: 'Animated Pie Chart Analytics', desc: 'Visualize your spending with beautiful, interactive charts.' },
-              { icon: Bell, title: 'Financial Reminders', desc: 'Never miss a bill or payment with smart notifications.' },
-              { icon: Shield, title: 'Bank-Level Security', desc: 'Your financial data is protected with enterprise-grade encryption.' },
-            ].map((f, i) => (
-              <motion.div key={i}
-                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[
+            { icon: Wallet, title: 'Smart Budget Planner', desc: 'Surgical precision in budgeting. Set limits that actually work for you.', accent: false },
+            { icon: TrendingUp, title: 'Real-time Tracking', desc: 'Instant gratification for your financial discipline. See growth as it happens.', accent: false },
+            { icon: Zap, title: 'CRED-Level Insights', desc: 'Advanced algorithms decoding your spending DNA for smarter decisions.', accent: true },
+            { icon: PieChart, title: 'Visual Analytics', desc: 'Understanding money shouldn\'t be hard. Beautiful, intuitive data storytelling.', accent: false },
+            { icon: Bell, title: 'Smart Reminders', desc: 'Your financial guardian angel. Never miss a beat or a bill.', accent: false },
+            { icon: Shield, title: 'Fort Knox Security', desc: 'AES-256 encryption. Your privacy is our absolute priority.', accent: false },
+          ].map((f, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.1 }}
+            >
+              <GlassCard
+                rounded="apple"
+                className="p-8 h-full relative overflow-hidden group border-white/5 transition-all duration-500"
+                active={f.accent}
+                interactive={true}
+                spacing="lg"
               >
-                <TiltCard className="p-8 rounded-2xl h-full relative overflow-hidden group">
-                  {/* Teal corner glow on hover */}
-                  <motion.div
-                    className="absolute -top-10 -right-10 w-32 h-32 rounded-full pointer-events-none"
-                    style={{ background: 'rgba(0,242,234,0)', filter: 'blur(30px)' }}
-                    whileHover={{ background: 'rgba(0,242,234,0.12)' }}
-                  />
-                  <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110"
-                    style={{
-                      background: 'rgba(0,242,234,0.10)',
-                      border: '1px solid rgba(0,242,234,0.25)',
-                      boxShadow: '0 4px 20px rgba(0,242,234,0.15), inset 0 1px 0 rgba(255,255,255,0.1)',
-                    }}>
-                    <f.icon className="size-7" style={{ color: TEAL, filter: 'drop-shadow(0 0 8px rgba(0,242,234,0.8))' }} />
+                {/* Icon */}
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
+                  style={{
+                    background: f.accent ? 'rgba(0, 242, 255, 0.12)' : 'rgba(255, 255, 255, 0.04)',
+                    border: f.accent ? '1px solid rgba(0, 242, 255, 0.25)' : '1px solid rgba(255, 255, 255, 0.08)',
+                    boxShadow: f.accent ? '0 0 20px rgba(0, 242, 255, 0.15)' : 'none',
+                  }}
+                >
+                  <f.icon className="size-7" style={{ color: f.accent ? CYAN : 'rgba(255,255,255,0.45)' }} />
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-white tracking-tight" style={headingFont}>
+                  {f.title}
+                </h3>
+                <p className="text-sm leading-relaxed opacity-50 group-hover:opacity-100 transition-opacity duration-500" style={{ ...bodyFont }}>
+                  {f.desc}
+                </p>
+                {/* Subtle hover indicator */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform duration-700"
+                  style={{ background: `linear-gradient(90deg, transparent, ${f.accent ? CYAN : 'rgba(255,255,255,0.4)'}, transparent)` }}
+                />
+              </GlassCard>
+            </motion.div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ SPLIT KRO PREMIUM ━━━━━━━━━━━━ */}
+      <Section className="py-32">
+        <GlassCard rounded="apple" className="overflow-hidden" spacing="lg" style={{ boxShadow: '0 60px 120px -20px rgba(0,0,0,0.9)' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div className="p-4 lg:p-12">
+              <div className="text-xs font-bold mb-6 tracking-[0.2em] uppercase" style={{ color: CYAN }}>Split Kro ✨</div>
+              <h2 className="text-4xl lg:text-6xl font-black mb-8 tracking-tighter leading-[0.95]" style={headingFont}>
+                GROUP DYNAMICS<br />
+                <span className="opacity-40">REDEFINED.</span>
+              </h2>
+              <p className="text-lg mb-10 opacity-60 leading-relaxed" style={bodyFont}>
+                The ultimate companion for trips, flatmates, and group dinners. Split Kro handles the math, so you can handle the memories.
+              </p>
+              <div className="space-y-6">
+                {[
+                  { title: 'Fair Splitting', desc: 'Settle up with confidence. No more awkward "who owes what" conversations.' },
+                  { title: 'One-Tap Settlement', desc: 'Clear debts instantly with integrated payment flow simulations.' },
+                  { title: 'Group Harmony', desc: 'Real-time sync. Everyone stays on the same page, always.' },
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-4">
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1" style={{ background: `${CYAN}20`, border: `1px solid ${CYAN}40` }}>
+                      <Check className="size-3" style={{ color: CYAN }} />
+                    </div>
+                    <div>
+                      <div className="font-bold text-white mb-1" style={headingFont}>{item.title}</div>
+                      <div className="text-sm opacity-40" style={bodyFont}>{item.desc}</div>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-white" style={headingFont}>{f.title}</h3>
-                  <p style={{ color: '#A1A1A1', ...monoFont }}>{f.desc}</p>
-                </TiltCard>
-              </motion.div>
-            ))}
+                ))}
+              </div>
+            </div>
+            <div className="relative aspect-square lg:aspect-video rounded-[32px] overflow-hidden border border-white/10 group">
+              <img
+                src="/split-kro.png"
+                alt="Split Kro interface"
+                className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000 scale-110 group-hover:scale-100"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+              <div className="absolute bottom-8 left-8 right-8">
+                <GlassCard rounded="apple" spacing="md" className="border-white/20">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs opacity-50 mb-1 uppercase tracking-widest" style={monoFont}>Goa Trip 2025</div>
+                      <div className="text-xl font-bold" style={headingFont}>You are Owed ₹4,200</div>
+                    </div>
+                    <div className="w-12 h-12 rounded-full border-2 border-dashed border-cyan-500/50 flex items-center justify-center animate-spin-slow">
+                      <Star className="size-5 text-cyan-500" />
+                    </div>
+                  </div>
+                </GlassCard>
+              </div>
+            </div>
           </div>
-        </motion.div>
-      </section>
+        </GlassCard>
+      </Section>
 
-      {/* ─── HOW IT WORKS ─── */}
-      <section className="relative z-10 max-w-[1280px] mx-auto px-6 py-[80px]">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
-          <h2 className="text-4xl font-bold text-center mb-4 text-white" style={headingFont}>How It Works</h2>
-          <p className="text-center mb-16 max-w-[600px] mx-auto" style={{ color: '#A1A1A1', ...monoFont }}>Get started in three simple steps</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto" style={{ perspective: 1200 }}>
-            {[
-              { step: '01', title: 'Enter your salary', desc: 'Start by adding your monthly income to set up your budget baseline.' },
-              { step: '02', title: 'Track your spending', desc: 'Add expenses as they happen or connect your accounts for automatic tracking.' },
-              { step: '03', title: 'Analyze & grow', desc: 'Review insights, adjust budgets, and watch your savings grow over time.' },
-            ].map((item, i) => (
-              <motion.div key={i}
-                className="text-center p-8 rounded-2xl relative"
-                style={glassCard(true)}
-                initial={{ opacity: 0, scale: 0.88 }} whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.2 }}
-                whileHover={{ scale: 1.04, translateY: -8 }}
-              >
-                {/* Shimmer */}
-                <div className="absolute inset-0 rounded-2xl pointer-events-none"
-                  style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,242,234,0.04) 50%, transparent 100%)' }} />
-                <motion.div className="text-7xl font-bold mb-6 block relative"
-                  style={{ color: TEAL, ...headingFont }}
-                  animate={{ textShadow: ['0 0 20px rgba(0,242,234,0.3)', '0 0 50px rgba(0,242,234,0.7)', '0 0 20px rgba(0,242,234,0.3)'] }}
-                  transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
-                >{item.step}</motion.div>
-                <h3 className="text-2xl font-semibold mb-4 text-white" style={headingFont}>{item.title}</h3>
-                <p style={{ color: '#A1A1A1', ...monoFont }}>{item.desc}</p>
-              </motion.div>
-            ))}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ HOW IT WORKS ━━━━━━━━━━━━━━━━ */}
+      <Section className="py-32">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+          {/* Text side */}
+          <div>
+            <div className="text-xs font-bold mb-6 tracking-[0.2em] uppercase" style={{ color: CYAN }}>Process</div>
+            <h2 className="font-black text-white mb-10 tracking-tighter leading-[0.95]" style={{ ...headingFont, fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
+              EFFORTLESS<br />
+              <span className="opacity-40">INTELLIGENCE.</span>
+            </h2>
+            <p className="text-lg mb-12 opacity-60 leading-relaxed max-w-md" style={bodyFont}>
+              FinMax strips away the complexity of traditional banking apps, leaving only what matters.
+            </p>
+
+            <div className="space-y-12">
+              {[
+                { step: '01', title: 'Connect & Capture', desc: 'Securely sync your income streams and financial baselines.' },
+                { step: '02', title: 'Track & Categorize', desc: 'Watch as AI deciphers your spending patterns in real-time.' },
+                { step: '03', title: 'Optimize & Prosper', desc: 'Receive actionable insights to accelerate your path to freedom.' },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  className="flex gap-8 items-start group"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: i * 0.2 }}
+                >
+                  <div
+                    className="w-14 h-14 rounded-[20px] flex items-center justify-center shrink-0 text-lg font-black transition-all duration-500 group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-black"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: CYAN,
+                      ...headingFont,
+                    }}
+                  >
+                    {item.step}
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-white mb-2 tracking-tight" style={headingFont}>{item.title}</div>
+                    <div className="text-base leading-relaxed opacity-40 group-hover:opacity-70 transition-opacity" style={bodyFont}>{item.desc}</div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </motion.div>
-      </section>
 
-      {/* ─── TESTIMONIALS ─── */}
-      <section className="relative z-10 max-w-[1280px] mx-auto px-6 py-[80px]">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
-          <h2 className="text-4xl font-bold text-center mb-4 text-white" style={headingFont}>Trusted by Thousands</h2>
-          <p className="text-center mb-16 max-w-[600px] mx-auto" style={{ color: '#A1A1A1', ...monoFont }}>See what our users have to say about FinMax</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8" style={{ perspective: 1200 }}>
-            {[
-              { name: 'Sarah Johnson', role: 'Freelance Designer', content: 'FinMax transformed how I manage my finances. The AI insights are incredibly accurate!', rating: 5 },
-              { name: 'Michael Chen', role: 'Software Engineer', content: "Best budgeting app I've ever used. Clean interface, powerful features, and great analytics.", rating: 5 },
-              { name: 'Emily Rodriguez', role: 'Marketing Manager', content: "Finally, a finance app that makes sense! I've saved over $2,000 in just 3 months.", rating: 5 },
-            ].map((t, i) => (
-              <TiltCard key={i} className="p-8 rounded-2xl relative">
-                <div className="flex gap-1 mb-4">
+          {/* Visual side — hand image */}
+          <motion.div
+            className="relative rounded-[40px] overflow-hidden"
+            style={{
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              boxShadow: '0 40px 80px rgba(0, 0, 0, 0.8)',
+              aspectRatio: '1/1',
+            }}
+            initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+            whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <img
+              src="/local-images/hero-hand.jpg"
+              alt="Control your finances with FinMax"
+              className="w-full h-full object-cover object-center"
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background: 'linear-gradient(135deg, rgba(0, 242, 255, 0.06) 0%, transparent 50%)',
+              }}
+            />
+            {/* Floating card overlay */}
+            <motion.div
+              className="absolute bottom-6 left-6 right-6 p-4 rounded-xl"
+              style={{ ...glassFrame() }}
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.2)' }}
+                >
+                  <TrendingUp className="size-4" style={{ color: EMERALD }} />
+                </div>
+                <div>
+                  <div className="text-xs font-semibold text-white" style={headingFont}>Savings Rate</div>
+                  <div className="text-xs" style={{ color: EMERALD }}>+23% this month</div>
+                </div>
+                <div className="ml-auto text-lg font-bold" style={{ color: EMERALD, ...headingFont }}>↑</div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </Section>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ APP PREVIEW ━━━━━━━━━━━━━━━━ */}
+      <Section className="py-32">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          {/* Visual — phone image */}
+          <motion.div
+            className="relative rounded-[40px] overflow-hidden order-2 lg:order-1"
+            style={{
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              boxShadow: '0 40px 80px rgba(0, 0, 0, 0.8)',
+              aspectRatio: '4/5',
+            }}
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <img
+              src="/local-images/hero-phone.jpg"
+              alt="FinMax mobile experience"
+              className="w-full h-full object-cover object-center grayscale hover:grayscale-0 transition-all duration-700"
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background: 'linear-gradient(225deg, rgba(0, 242, 255, 0.05) 0%, transparent 60%)',
+              }}
+            />
+          </motion.div>
+
+          {/* Text side */}
+          <div className="order-1 lg:order-2">
+            <div className="text-xs font-bold mb-6 tracking-[0.2em] uppercase" style={{ color: CYAN }}>Design</div>
+            <h2 className="font-black text-white mb-8 tracking-tighter leading-[0.95]" style={{ ...headingFont, fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}>
+              ZEN-LIKE<br />
+              <span className="opacity-40">CONTROL.</span>
+            </h2>
+            <p className="text-lg mb-10 opacity-60 leading-relaxed" style={bodyFont}>
+              Whether you're tracking daily expenses or planning long-term goals, FinMax adapts to how you think about money — quietly, powerfully, always in control.
+            </p>
+
+            <div className="space-y-6 mb-12">
+              {[
+                'Expense tracking with smart categorization',
+                'Budget planning with real-time alerts',
+                'Split expenses with friends via Split Kro',
+                'AI-powered savings recommendations',
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4 group">
+                  <div className="w-2 h-2 rounded-full transition-all duration-300 group-hover:scale-150 group-hover:bg-cyan-500" style={{ background: 'rgba(255,255,255,0.2)' }} />
+                  <span className="text-lg opacity-40 group-hover:opacity-100 transition-opacity" style={bodyFont}>{item}</span>
+                </div>
+              ))}
+            </div>
+
+            <motion.button
+              onClick={onGetStarted}
+              className="flex items-center gap-2 text-sm font-semibold"
+              style={{ color: CYAN, ...bodyFont }}
+              whileHover={{ x: 4 }}
+            >
+              Start for free <ChevronRight className="size-4" />
+            </motion.button>
+          </div>
+        </div>
+      </Section>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ TESTIMONIALS ━━━━━━━━━━━━━━━━ */}
+      <Section className="py-32">
+        <div className="text-center mb-20">
+          <h2 className="font-bold text-white mb-4" style={{ ...headingFont, fontSize: '2.25rem' }}>
+            Trusted by thousands
+          </h2>
+          <p style={{ color: '#a1a1aa', ...bodyFont, maxWidth: '400px', margin: '0 auto', lineHeight: 1.7 }}>
+            Real people, real results.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            { name: 'Sarah Johnson', role: 'Freelance Designer', content: 'FinMax transformed how I manage my finances. The AI insights are incredibly accurate!', rating: 5 },
+            { name: 'Michael Chen', role: 'Software Engineer', content: "Best budgeting app I've used. Clean interface, powerful features, beautiful analytics.", rating: 5 },
+            { name: 'Emily Rodriguez', role: 'Marketing Manager', content: "Finally, a finance app that makes sense! I've saved over ₹2 lakh in just 3 months.", rating: 5 },
+          ].map((t, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.1 }}
+            >
+              <GlassCard rounded="apple" className="p-8 h-full border-white/5" interactive={true} spacing="lg">
+                <div className="flex gap-1 mb-6">
                   {[...Array(t.rating)].map((_, j) => (
-                    <Star key={j} className="size-5 fill-yellow-400 text-yellow-400" style={{ filter: 'drop-shadow(0 0 5px rgba(234,179,8,0.6))' }} />
+                    <Star key={j} className="size-4 fill-cyan-400 text-cyan-400" />
                   ))}
                 </div>
-                <p className="mb-6 text-white/80" style={monoFont}>{t.content}</p>
-                <div>
-                  <div className="font-semibold text-white" style={headingFont}>{t.name}</div>
-                  <div className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>{t.role}</div>
+                <p className="text-base leading-relaxed mb-8 opacity-60 italic" style={bodyFont}>
+                  "{t.content}"
+                </p>
+                <div className="flex items-center gap-4 border-t border-white/10 pt-6">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-indigo-600 flex-shrink-0" />
+                  <div>
+                    <div className="text-base font-bold text-white tracking-tight" style={headingFont}>{t.name}</div>
+                    <div className="text-xs uppercase tracking-widest opacity-40 font-bold" style={monoFont}>{t.role}</div>
+                  </div>
                 </div>
-              </TiltCard>
-            ))}
-          </div>
-        </motion.div>
-      </section>
+              </GlassCard>
+            </motion.div>
+          ))}
+        </div>
+      </Section>
 
-      {/* ─── PRICING ─── */}
-      <section id="pricing" className="relative z-10 max-w-[1280px] mx-auto px-6 py-[80px]">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
-          <h2 className="text-4xl font-bold text-center mb-4 text-white" style={headingFont}>Simple Pricing</h2>
-          <p className="text-center mb-16 max-w-[600px] mx-auto" style={{ color: '#A1A1A1', ...monoFont }}>Choose the plan that works for you</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto" style={{ perspective: 1200 }}>
-            {[
-              { name: 'Basic', price: 'Free', badge: null, features: ['Budget tracking', 'Up to 50 transactions/mo', 'Basic analytics', 'Email support'] },
-              { name: 'Pro', price: '$9/mo', badge: 'Most Popular', features: ['Unlimited transactions', 'AI spending insights', 'Advanced analytics', 'Priority support', 'Reminders'] },
-              { name: 'Enterprise', price: 'Custom', badge: null, features: ['Everything in Pro', 'Multi-user access', 'Custom integrations', 'Dedicated support', 'SLA guarantee'] },
-            ].map((plan, i) => {
-              const isPro = plan.badge === 'Most Popular';
-              return (
-                <motion.div key={i}
-                  className="relative p-8 rounded-2xl flex flex-col"
-                  style={{
-                    ...(isPro ? {
-                      background: 'rgba(0,242,234,0.07)',
-                      backdropFilter: 'blur(32px) saturate(220%)',
-                      WebkitBackdropFilter: 'blur(32px) saturate(220%)',
-                      border: '1px solid rgba(0,242,234,0.3)',
-                      boxShadow: '0 0 40px rgba(0,242,234,0.15), 0 20px 60px rgba(0,0,0,0.6), inset 0 1.5px 0 rgba(0,242,234,0.25)',
-                    } : glassCard()),
-                  }}
-                  initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}
-                  whileHover={{ scale: 1.03, translateY: -8 }}
-                >
-                  {/* Glass sheen */}
-                  <div className="absolute inset-0 rounded-2xl pointer-events-none"
-                    style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.09) 0%, transparent 60%)' }} />
-                  {plan.badge && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-semibold"
-                      style={{ background: TEAL, color: '#000', ...headingFont, boxShadow: '0 0 15px rgba(0,242,234,0.5)' }}>
-                      {plan.badge}
-                    </div>
-                  )}
-                  <h3 className="text-xl font-bold mb-2 text-white relative" style={headingFont}>{plan.name}</h3>
-                  <div className="text-4xl font-bold mb-8 relative" style={{ color: isPro ? TEAL : '#fff', ...headingFont, textShadow: isPro ? TEAL_GLOW : 'none' }}>{plan.price}</div>
-                  <ul className="space-y-3 flex-1 mb-8 relative">
-                    {plan.features.map((f, j) => (
-                      <li key={j} className="flex items-center gap-3">
-                        <Check className="size-4 shrink-0" style={{ color: TEAL, filter: 'drop-shadow(0 0 5px #00F2EA)' }} />
-                        <span style={{ color: '#A1A1A1', ...monoFont }}>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <motion.button onClick={onGetStarted}
-                    className="w-full py-3 rounded-xl font-semibold relative"
-                    style={isPro
-                      ? { background: TEAL, color: '#000', ...headingFont, boxShadow: '0 0 25px rgba(0,242,234,0.4), inset 0 1px 0 rgba(255,255,255,0.3)' }
-                      : { ...glass(0.05, 16), color: TEAL, ...headingFont }
-                    }
-                    whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-                  >Get Started</motion.button>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
-      </section>
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRICING ━━━━━━━━━━━━━━━━━━ */}
+      <Section id="pricing" className="py-32">
+        <div className="text-center mb-20">
+          <h2 className="font-bold text-white mb-4" style={{ ...headingFont, fontSize: '2.25rem' }}>
+            Simple, honest pricing
+          </h2>
+          <p style={{ color: '#a1a1aa', ...bodyFont, maxWidth: '400px', margin: '0 auto', lineHeight: 1.7 }}>
+            Start free. Upgrade when you need more.
+          </p>
+        </div>
 
-      {/* ─── FINAL CTA ─── */}
-      <section className="relative z-10 max-w-[1280px] mx-auto px-6 py-[80px] mb-20">
-        <motion.div
-          className="relative overflow-hidden rounded-3xl p-16 text-center"
-          style={{
-            background: 'rgba(0,242,234,0.06)',
-            backdropFilter: 'blur(40px) saturate(220%)',
-            WebkitBackdropFilter: 'blur(40px) saturate(220%)',
-            border: '1px solid rgba(0,242,234,0.22)',
-            boxShadow: '0 0 80px rgba(0,242,234,0.1), 0 30px 80px rgba(0,0,0,0.7), inset 0 1.5px 0 rgba(0,242,234,0.3)',
-          }}
-          initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }} transition={{ duration: 0.8 }}
-        >
-          {/* Shimmer */}
-          <div className="absolute inset-0 rounded-3xl pointer-events-none"
-            style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(0,242,234,0.04) 50%, transparent 100%)' }} />
-          <motion.div className="absolute inset-0 rounded-3xl pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse at center, rgba(0,242,234,0.07), transparent)' }}
-            animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 3, repeat: Infinity }} />
-          <div className="relative z-10">
-            <h2 className="text-5xl font-bold mb-6 text-white" style={headingFont}>
-              Start Managing Your{' '}
-              <span style={{ color: TEAL, textShadow: '0 0 30px rgba(0,242,234,0.6)' }}>Money Now</span>
-            </h2>
-            <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: '#A1A1A1', ...monoFont }}>
-              Join thousands of smart users who have taken control of their financial future.
-            </p>
-            <motion.button onClick={onGetStarted}
-              className="px-10 py-4 rounded-xl text-lg font-semibold flex items-center gap-2 mx-auto"
-              style={{ background: TEAL, color: '#000', ...headingFont, boxShadow: '0 0 40px rgba(0,242,234,0.5), inset 0 1px 0 rgba(255,255,255,0.35)' }}
-              whileHover={{ scale: 1.07, boxShadow: '0 0 60px rgba(0,242,234,0.75), inset 0 1px 0 rgba(255,255,255,0.35)' }}
-              whileTap={{ scale: 0.96 }}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          {[
+            { plan: 'Basic', price: 'Free', features: ['Manual tracking', 'Basic budgets', 'Weekly reports'], accent: false },
+            { plan: 'Pro', price: '₹199/mo', features: ['AI insights', 'Split Kro suite', 'Real-time sync', 'Priority support'], accent: true },
+            { plan: 'Elite', price: '₹499/mo', features: ['Visual storytelling', 'Family sharing', 'Personal advisor', 'Early beta access'], accent: false },
+          ].map((p, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.1 }}
             >
-              Get Started Free <Check className="size-5" />
+              <GlassCard
+                rounded="apple"
+                active={p.accent}
+                interactive={true}
+                spacing="lg"
+                className={`flex flex-col h-full border-white/5 ${p.accent ? 'ring-2 ring-cyan-500/20' : ''}`}
+                style={p.accent ? { boxShadow: '0 40px 100px -12px rgba(0,242,255,0.15)' } : {}}
+              >
+                <div className="mb-8">
+                  <div className="text-xs font-black uppercase tracking-[0.2em] mb-2" style={{ color: p.accent ? CYAN : 'rgba(255,255,255,0.4)' }}>{p.plan}</div>
+                  <div className="text-4xl font-black text-white tracking-tighter" style={headingFont}>{p.price}</div>
+                </div>
+                <ul className="space-y-4 mb-10 flex-1">
+                  {p.features.map((f, j) => (
+                    <li key={j} className="flex items-center gap-3">
+                      <Check className="size-4" style={{ color: p.accent ? CYAN : 'rgba(255,255,255,0.2)' }} />
+                      <span className="text-sm opacity-60" style={bodyFont}>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <motion.button
+                  onClick={onGetStarted}
+                  className="w-full py-4 rounded-2xl text-sm font-black uppercase tracking-[0.1em] transition-all"
+                  style={{
+                    background: p.accent ? CYAN : 'rgba(255,255,255,0.05)',
+                    color: p.accent ? '#000' : '#fff',
+                    border: p.accent ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                    ...headingFont,
+                  }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Choose {p.plan}
+                </motion.button>
+              </GlassCard>
+            </motion.div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FINAL CTA ━━━━━━━━━━━━━━━━━━━━ */}
+      <Section className="py-48 text-center overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          className="relative"
+        >
+          {/* Background glow */}
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[300px] w-[300px] md:h-[600px] md:w-[600px] mx-auto bg-cyan-500/20 blur-[120px] rounded-full pointer-events-none" />
+
+          <h2 className="text-6xl md:text-[10rem] font-black tracking-tighter leading-none mb-12 relative z-10" style={headingFont}>
+            JUST<br />
+            <span style={{ color: CYAN, textShadow: '0 0 60px rgba(0, 242, 255, 0.5)' }}>START.</span>
+          </h2>
+
+          <div className="flex flex-col md:flex-row gap-6 justify-center items-center relative z-10">
+            <motion.button
+              onClick={onGetStarted}
+              className="px-12 py-6 rounded-full text-xl font-black uppercase tracking-[0.2em] shadow-[0_0_50px_rgba(0,242,255,0.4)]"
+              style={{ background: CYAN, color: '#000', ...headingFont }}
+              whileHover={{ scale: 1.1, boxShadow: '0 0 80px rgba(0,242,255,0.6)' }}
+              whileTap={{ scale: 0.9 }}
+            >
+              Get Started Free
+            </motion.button>
+            <motion.button
+              onClick={onLogin}
+              className="px-12 py-6 rounded-full text-xl font-black uppercase tracking-[0.2em] border border-white/20"
+              style={{ ...glassFrame(), color: '#fff', ...headingFont }}
+              whileHover={{ scale: 1.05, background: 'rgba(255,255,255,0.05)' }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Member Login
             </motion.button>
           </div>
         </motion.div>
-      </section>
+      </Section>
 
-      {/* ─── FOOTER ─── */}
-      <footer className="relative z-10 py-12" style={{ borderTop: '1px solid rgba(0,242,234,0.1)' }}>
-        <div className="max-w-[1280px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <Logo />
-          <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>© 2026 FinMax. All rights reserved.</p>
-          <div className="flex gap-8 text-sm">
-            {['Privacy', 'Terms', 'Contact'].map((link) => (
-              <a key={link} href="#" style={{ color: '#A1A1A1', ...monoFont }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = TEAL)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = '#A1A1A1')}
-                className="transition-colors duration-200">{link}</a>
-            ))}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FOOTER ━━━━━━━━━━━━━━━━━━━━ */}
+      <footer className="py-20 border-t border-white/5 relative z-10">
+        <div className="max-w-[1280px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
+          <div className="flex flex-col items-center md:items-start gap-4">
+            <Logo />
+            <p className="text-sm opacity-40 max-w-xs text-center md:text-left" style={bodyFont}>
+              Redefining financial freedom through high-fidelity intelligence and zen-like control.
+            </p>
+          </div>
+          <div className="flex gap-12 text-sm font-bold uppercase tracking-widest" style={monoFont}>
+            <a href="#" className="opacity-40 hover:opacity-100 transition-opacity">Privacy</a>
+            <a href="#" className="opacity-40 hover:opacity-100 transition-opacity">Terms</a>
+            <a href="#" className="opacity-40 hover:opacity-100 transition-opacity">Status</a>
+          </div>
+          <div className="text-xs opacity-20" style={monoFont}>
+            © 2026 FINMAX ELITE. ALL RIGHTS RESERVED.
           </div>
         </div>
       </footer>

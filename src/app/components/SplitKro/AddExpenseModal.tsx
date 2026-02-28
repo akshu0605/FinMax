@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { splitKroApi, SKMember } from '../../utils/splitkro-api';
+import { GlassCard } from '../ui/GlassCard';
+import { NeonButton } from '../ui/NeonButton';
 
 const INDIGO = '#818CF8';
 const INDIGO_DARK = '#6366F1';
@@ -9,10 +11,11 @@ const headingFont: React.CSSProperties = { fontFamily: 'Inter, Geist, SF Pro, sa
 const monoFont: React.CSSProperties = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
 
 const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '10px 14px',
+    width: '100%', padding: '12px 16px',
     background: 'rgba(255,255,255,0.05)',
     border: '1px solid rgba(99,102,241,0.25)',
-    borderRadius: '10px', color: '#fff', outline: 'none', ...monoFont,
+    borderRadius: '12px', color: '#fff', outline: 'none', ...monoFont,
+    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
 };
 
 type SplitType = 'equal' | 'exact' | 'percentage';
@@ -81,161 +84,173 @@ export function AddExpenseModal({ groupId, members, userId, onClose, onAdded }: 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
             style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)' }}>
-            <motion.div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl p-7 relative"
+            <GlassCard
+                className="w-full max-w-lg max-h-[90vh] overflow-y-auto p-7 relative"
+                spacing="none"
                 style={{
-                    background: 'rgba(0,0,0,0.65)',
-                    backdropFilter: 'blur(36px) saturate(220%)',
-                    border: '1px solid rgba(99,102,241,0.28)',
-                    boxShadow: '0 30px 80px rgba(0,0,0,0.9)',
+                    boxShadow: '0 30px 80px rgba(0,0,0,0.9), 0 0 40px rgba(99,102,241,0.08)',
                 }}
-                initial={{ opacity: 0, scale: 0.88, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}>
-                {/* shimmer line */}
-                <div className="absolute top-0 left-0 right-0 h-px"
-                    style={{ background: 'linear-gradient(90deg, transparent, rgba(129,140,248,0.6), transparent)' }} />
-                <div className="absolute inset-0 pointer-events-none rounded-2xl"
-                    style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.06) 0%, transparent 60%)' }} />
+            >
+                <div className="p-7 relative z-10">
+                    {/* shimmer line */}
+                    <div className="absolute top-0 left-0 right-0 h-px"
+                        style={{ background: 'linear-gradient(90deg, transparent, rgba(129,140,248,0.6), transparent)' }} />
+                    <div className="absolute inset-0 pointer-events-none rounded-2xl"
+                        style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.06) 0%, transparent 60%)' }} />
 
-                <div className="flex items-center justify-between mb-6 relative z-10">
-                    <h3 className="text-xl font-bold text-white" style={headingFont}>Add Expense 💸</h3>
-                    <button onClick={onClose} style={{ color: 'rgba(255,255,255,0.4)', fontSize: 20 }}
-                        onMouseEnter={e => (e.currentTarget.style.color = INDIGO)}
-                        onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}>✕</button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
-                    {/* Description */}
-                    <div>
-                        <label className="block text-sm mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Description *</label>
-                        <input value={description} onChange={e => setDescription(e.target.value)}
-                            placeholder="e.g. Hotel Booking, Dinner, Petrol" style={inputStyle} autoFocus />
+                    <div className="flex items-center justify-between mb-6 relative z-10">
+                        <h3 className="text-xl font-bold text-white" style={headingFont}>Add Expense 💸</h3>
+                        <button onClick={onClose} style={{ color: 'rgba(255,255,255,0.4)', fontSize: 20 }}
+                            onMouseEnter={e => (e.currentTarget.style.color = INDIGO)}
+                            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}>✕</button>
                     </div>
 
-                    {/* Amount */}
-                    <div>
-                        <label className="block text-sm mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Total Amount (₹) *</label>
-                        <input value={amount} onChange={e => setAmount(e.target.value)}
-                            placeholder="0.00" type="number" min="0.01" step="0.01" style={inputStyle} />
-                    </div>
-
-                    {/* Paid By */}
-                    <div>
-                        <label className="block text-sm mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Paid By</label>
-                        <select value={paidBy} onChange={e => setPaidBy(e.target.value)}
-                            style={{ ...inputStyle, cursor: 'pointer' }}>
-                            {members.map(m => (
-                                <option key={m.user_id} value={m.user_id}
-                                    style={{ background: '#111' }}>
-                                    {m.user_id === userId ? `${m.display_name} (You)` : m.display_name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Split Type */}
-                    <div>
-                        <label className="block text-sm mb-3" style={{ color: '#A1A1A1', ...monoFont }}>Split Type</label>
-                        <div className="grid grid-cols-3 gap-2">
-                            {(['equal', 'exact', 'percentage'] as SplitType[]).map(type => (
-                                <button key={type} type="button" onClick={() => setSplitType(type)}
-                                    className="py-2.5 px-2 rounded-xl text-sm font-medium capitalize transition-all"
-                                    style={splitType === type ? {
-                                        background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)`,
-                                        color: '#fff', ...headingFont,
-                                        boxShadow: '0 0 14px rgba(99,102,241,0.4)',
-                                    } : {
-                                        background: 'rgba(255,255,255,0.04)',
-                                        border: '1px solid rgba(255,255,255,0.08)',
-                                        color: '#A1A1A1', ...headingFont,
-                                    }}>
-                                    {type === 'equal' ? '⚖️ Equal' : type === 'exact' ? '💵 Exact' : '% Percent'}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Split breakdown / inputs */}
-                    <div>
-                        <div className="flex items-center justify-between mb-2">
-                            <label className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Per-Member Split</label>
-                            {splitType !== 'equal' && (
-                                <span className="text-xs px-2 py-1 rounded-lg"
-                                    style={{
-                                        background: Math.abs((splitType === 'exact' ? sharesSum : (pctSum / 100) * totalAmount) - totalAmount) < 0.01
-                                            ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
-                                        color: Math.abs((splitType === 'exact' ? sharesSum : (pctSum / 100) * totalAmount) - totalAmount) < 0.01
-                                            ? '#34D399' : '#F87171',
-                                        ...monoFont,
-                                    }}>
-                                    {splitType === 'exact' ? `₹${sharesSum.toFixed(2)} / ₹${totalAmount}` : `${pctSum.toFixed(1)}%`}
-                                </span>
-                            )}
+                    <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
+                        {/* Description */}
+                        <div>
+                            <label className="block text-sm mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Description *</label>
+                            <input value={description} onChange={e => setDescription(e.target.value)}
+                                placeholder="e.g. Hotel Booking, Dinner, Petrol" style={inputStyle} autoFocus
+                                onFocus={e => {
+                                    e.currentTarget.style.borderColor = INDIGO;
+                                    e.currentTarget.style.boxShadow = '0 0 16px rgba(99,102,241,0.2), inset 0 1px 0 rgba(255,255,255,0.08)';
+                                }}
+                                onBlur={e => {
+                                    e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            />
                         </div>
 
-                        <div className="space-y-2">
-                            {members.map(m => {
-                                const preview = sharesPreview.find(s => s.userId === m.user_id);
-                                return (
-                                    <div key={m.user_id} className="flex items-center gap-3 p-3 rounded-xl"
-                                        style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.1)' }}>
-                                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
-                                            style={{ background: m.user_id === userId ? `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)` : 'rgba(255,255,255,0.1)', color: '#fff' }}>
-                                            {(m.display_name || 'U')[0].toUpperCase()}
-                                        </div>
-                                        <span className="flex-1 text-sm text-white" style={headingFont}>
-                                            {m.user_id === userId ? `${m.display_name} (You)` : m.display_name}
-                                        </span>
-                                        {splitType === 'equal' ? (
-                                            <span className="text-sm font-semibold" style={{ color: INDIGO, ...monoFont }}>
-                                                ₹{(preview?.owedAmount || 0).toFixed(2)}
-                                            </span>
-                                        ) : (
-                                            <div className="flex items-center gap-2">
-                                                <input
-                                                    type="number" min="0" step={splitType === 'percentage' ? '0.1' : '0.01'}
-                                                    value={memberInputs[m.user_id]}
-                                                    onChange={e => setMemberInputs(prev => ({ ...prev, [m.user_id]: e.target.value }))}
-                                                    placeholder={splitType === 'percentage' ? '%' : '₹'}
-                                                    style={{
-                                                        width: 80, padding: '6px 10px',
-                                                        background: 'rgba(255,255,255,0.05)',
-                                                        border: '1px solid rgba(99,102,241,0.2)',
-                                                        borderRadius: 8, color: '#fff', outline: 'none', ...monoFont, fontSize: 13,
-                                                    }} />
-                                                {splitType === 'percentage' && (
-                                                    <span className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>
-                                                        = ₹{(preview?.owedAmount || 0).toFixed(0)}
-                                                    </span>
-                                                )}
+                        {/* Amount */}
+                        <div>
+                            <label className="block text-sm mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Total Amount (₹) *</label>
+                            <input value={amount} onChange={e => setAmount(e.target.value)}
+                                placeholder="0.00" type="number" min="0.01" step="0.01" style={inputStyle}
+                                onFocus={e => {
+                                    e.currentTarget.style.borderColor = INDIGO;
+                                    e.currentTarget.style.boxShadow = '0 0 16px rgba(99,102,241,0.2), inset 0 1px 0 rgba(255,255,255,0.08)';
+                                }}
+                                onBlur={e => {
+                                    e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            />
+                        </div>
+
+                        {/* Paid By */}
+                        <div>
+                            <label className="block text-sm mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Paid By</label>
+                            <select value={paidBy} onChange={e => setPaidBy(e.target.value)}
+                                style={{ ...inputStyle, cursor: 'pointer' }}>
+                                {members.map(m => (
+                                    <option key={m.user_id} value={m.user_id}
+                                        style={{ background: '#111' }}>
+                                        {m.user_id === userId ? `${m.display_name} (You)` : m.display_name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Split Type */}
+                        <div>
+                            <label className="block text-sm mb-3" style={{ color: '#A1A1A1', ...monoFont }}>Split Type</label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {(['equal', 'exact', 'percentage'] as SplitType[]).map(type => (
+                                    <button key={type} type="button" onClick={() => setSplitType(type)}
+                                        className="py-2.5 px-2 rounded-xl text-sm font-medium capitalize transition-all"
+                                        style={splitType === type ? {
+                                            background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)`,
+                                            color: '#fff', ...headingFont,
+                                            boxShadow: '0 0 14px rgba(99,102,241,0.4)',
+                                        } : {
+                                            background: 'rgba(255,255,255,0.04)',
+                                            border: '1px solid rgba(255,255,255,0.08)',
+                                            color: '#A1A1A1', ...headingFont,
+                                        }}
+                                        onMouseEnter={e => { if (splitType !== type) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+                                        onMouseLeave={e => { if (splitType !== type) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                                    >
+                                        {type === 'equal' ? '⚖️ Equal' : type === 'exact' ? '💵 Exact' : '% Percent'}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Split breakdown / inputs */}
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Per-Member Split</label>
+                                {splitType !== 'equal' && (
+                                    <span className="text-xs px-2 py-1 rounded-lg"
+                                        style={{
+                                            background: Math.abs((splitType === 'exact' ? sharesSum : (pctSum / 100) * totalAmount) - totalAmount) < 0.01
+                                                ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
+                                            color: Math.abs((splitType === 'exact' ? sharesSum : (pctSum / 100) * totalAmount) - totalAmount) < 0.01
+                                                ? '#34D399' : '#F87171',
+                                            ...monoFont,
+                                        }}>
+                                        {splitType === 'exact' ? `₹${sharesSum.toFixed(2)} / ₹${totalAmount}` : `${pctSum.toFixed(1)}%`}
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="space-y-2">
+                                {members.map(m => {
+                                    const preview = sharesPreview.find(s => s.userId === m.user_id);
+                                    return (
+                                        <div key={m.user_id} className="flex items-center gap-3 p-3 rounded-xl"
+                                            style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.1)' }}>
+                                            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                                                style={{ background: m.user_id === userId ? `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)` : 'rgba(255,255,255,0.1)', color: '#fff' }}>
+                                                {(m.display_name || 'U')[0].toUpperCase()}
                                             </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
+                                            <span className="flex-1 text-sm text-white" style={headingFont}>
+                                                {m.user_id === userId ? `${m.display_name} (You)` : m.display_name}
+                                            </span>
+                                            {splitType === 'equal' ? (
+                                                <span className="text-sm font-semibold" style={{ color: INDIGO, ...monoFont }}>
+                                                    ₹{(preview?.owedAmount || 0).toFixed(2)}
+                                                </span>
+                                            ) : (
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="number" min="0" step={splitType === 'percentage' ? '0.1' : '0.01'}
+                                                        value={memberInputs[m.user_id]}
+                                                        onChange={e => setMemberInputs(prev => ({ ...prev, [m.user_id]: e.target.value }))}
+                                                        placeholder={splitType === 'percentage' ? '%' : '₹'}
+                                                        style={{
+                                                            width: 80, padding: '6px 10px',
+                                                            background: 'rgba(255,255,255,0.05)',
+                                                            border: '1px solid rgba(99,102,241,0.2)',
+                                                            borderRadius: 8, color: '#fff', outline: 'none', ...monoFont, fontSize: 13,
+                                                        }} />
+                                                    {splitType === 'percentage' && (
+                                                        <span className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>
+                                                            = ₹{(preview?.owedAmount || 0).toFixed(0)}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Actions */}
-                    <div className="flex gap-3 pt-1">
-                        <button type="button" onClick={onClose}
-                            className="flex-1 py-3 rounded-xl text-sm"
-                            style={{ background: 'rgba(255,255,255,0.06)', color: '#A1A1A1', border: '1px solid rgba(255,255,255,0.1)', ...monoFont }}>
-                            Cancel
-                        </button>
-                        <motion.button type="submit" disabled={loading || !isValid}
-                            className="flex-1 py-3 rounded-xl text-sm font-bold"
-                            style={{
-                                background: isValid ? `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)` : 'rgba(255,255,255,0.05)',
-                                color: isValid ? '#fff' : '#555', ...headingFont,
-                                boxShadow: isValid ? '0 0 20px rgba(99,102,241,0.35)' : 'none',
-                                cursor: isValid ? 'pointer' : 'not-allowed',
-                            }}
-                            whileHover={isValid ? { scale: 1.02, boxShadow: '0 0 28px rgba(99,102,241,0.55)' } : {}}
-                            whileTap={isValid ? { scale: 0.97 } : {}}>
-                            {loading ? 'Adding...' : 'Add Expense 💸'}
-                        </motion.button>
-                    </div>
-                </form>
-            </motion.div>
+                        {/* Actions */}
+                        <div className="flex gap-3 pt-1">
+                            <NeonButton variant="ghost" type="button" onClick={onClose} className="flex-1">
+                                Cancel
+                            </NeonButton>
+                            <NeonButton type="submit" disabled={loading || !isValid} className="flex-1 shadow-[0_0_20px_rgba(99,102,241,0.35)]"
+                                style={{ background: isValid ? `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)` : 'rgba(255,255,255,0.05)' }}>
+                                {loading ? 'Adding...' : 'Add Expense 💸'}
+                            </NeonButton>
+                        </div>
+                    </form>
+                </div>
+            </GlassCard>
         </div>
     );
 }

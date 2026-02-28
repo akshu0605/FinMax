@@ -4,6 +4,7 @@ import { X, Eye, EyeOff } from 'lucide-react';
 import { Logo } from './Logo';
 import { auth } from '../utils/localStorage-auth';
 import { toast } from 'sonner';
+import { NeonButton } from './ui/NeonButton';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const TEAL = '#00F2EA';
+const TEAL = '#00f2ff';
 const monoFont = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
 const headingFont = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
 
@@ -79,7 +80,7 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
   if (!isOpen) return null;
 
   const inputClass =
-    'peer w-full px-4 py-3 rounded-xl text-white placeholder-transparent focus:outline-none transition-all';
+    'peer w-full px-4 py-3 rounded-xl text-white placeholder-transparent focus:outline-none transition-all duration-200 cubic-bezier(0.4, 0, 0.2, 1)';
 
   return (
     <>
@@ -118,7 +119,7 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
 
           {/* Card — Liquid Glass */}
           <div
-            className="relative rounded-3xl overflow-hidden"
+            className="relative rounded-[40px] overflow-hidden"
             style={{
               background: 'rgba(0,0,0,0.52)',
               backdropFilter: 'blur(36px) saturate(220%) brightness(1.08)',
@@ -128,7 +129,7 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
             }}
           >
             {/* Glass sheen */}
-            <div className="absolute inset-0 pointer-events-none rounded-3xl"
+            <div className="absolute inset-0 pointer-events-none rounded-[40px]"
               style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(0,242,234,0.04) 40%, transparent 70%)' }} />
             {/* Subtle inner glow top */}
             <div
@@ -218,10 +219,10 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
                       }}
                       onFocus={(e) => {
                         e.currentTarget.style.borderColor = TEAL;
-                        e.currentTarget.style.boxShadow = '0 0 15px rgba(0,242,234,0.15)';
+                        e.currentTarget.style.boxShadow = '0 0 16px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)';
                       }}
                       onBlur={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(0,242,234,0.15)';
+                        e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)';
                         e.currentTarget.style.boxShadow = 'none';
                       }}
                     />
@@ -250,10 +251,10 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
                     }}
                     onFocus={(e) => {
                       e.currentTarget.style.borderColor = TEAL;
-                      e.currentTarget.style.boxShadow = '0 0 15px rgba(0,242,234,0.15)';
+                      e.currentTarget.style.boxShadow = '0 0 16px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)';
                     }}
                     onBlur={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(0,242,234,0.15)';
+                      e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)';
                       e.currentTarget.style.boxShadow = 'none';
                     }}
                   />
@@ -281,10 +282,10 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
                     }}
                     onFocus={(e) => {
                       e.currentTarget.style.borderColor = TEAL;
-                      e.currentTarget.style.boxShadow = '0 0 15px rgba(0,242,234,0.15)';
+                      e.currentTarget.style.boxShadow = '0 0 16px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)';
                     }}
                     onBlur={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(0,242,234,0.15)';
+                      e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)';
                       e.currentTarget.style.boxShadow = 'none';
                     }}
                   />
@@ -323,10 +324,10 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
                       }}
                       onFocus={(e) => {
                         e.currentTarget.style.borderColor = TEAL;
-                        e.currentTarget.style.boxShadow = '0 0 15px rgba(0,242,234,0.15)';
+                        e.currentTarget.style.boxShadow = '0 0 16px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)';
                       }}
                       onBlur={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(0,242,234,0.15)';
+                        e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)';
                         e.currentTarget.style.boxShadow = 'none';
                       }}
                     />
@@ -349,21 +350,17 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
                   </div>
                 )}
 
-                <motion.button
+                <NeonButton
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 rounded-xl font-semibold text-base transition-all"
+                  className="w-full py-4 text-base font-bold"
                   style={{
                     background: loading ? 'rgba(0,242,234,0.5)' : TEAL,
                     color: '#000',
-                    boxShadow: loading ? 'none' : '0 0 24px rgba(0,242,234,0.4), inset 0 1.5px 0 rgba(255,255,255,0.35)',
-                    ...headingFont,
                   }}
-                  whileHover={!loading ? { scale: 1.03, boxShadow: '0 0 40px rgba(0,242,234,0.65), inset 0 1.5px 0 rgba(255,255,255,0.35)' } : {}}
-                  whileTap={!loading ? { scale: 0.97 } : {}}
                 >
                   {loading ? 'Processing...' : mode === 'signup' ? 'Create Account' : 'Sign In'}
-                </motion.button>
+                </NeonButton>
               </form>
 
               {/* Toggle */}

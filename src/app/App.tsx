@@ -3,6 +3,8 @@ import { Toaster, toast } from 'sonner';
 import { LandingPage } from './components/LandingPage';
 import { AuthModal } from './components/AuthModal';
 import { Dashboard } from './components/Dashboard';
+import { SmoothScroll } from './components/SmoothScroll';
+import { CyberBackground } from './components/CyberBackground';
 import { auth } from './utils/localStorage-auth';
 import { supabase } from './utils/supabase';
 
@@ -106,40 +108,46 @@ export default function App() {
   }
 
   return (
-    <div className="size-full">
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          style: {
-            background: 'rgba(10,10,10,0.95)',
-            border: '1px solid rgba(0,242,234,0.25)',
-            color: '#fff',
-            fontFamily: 'JetBrains Mono, "Courier New", monospace',
-            backdropFilter: 'blur(20px)',
-          },
-        }}
-        richColors
-      />
+    <SmoothScroll>
+      <div className="size-full">
+        <CyberBackground />
 
-      {!isAuthenticated ? (
-        <LandingPage onGetStarted={handleGetStarted} onLogin={handleOpenLogin} />
-      ) : (
-        <Dashboard
-          userName={userName}
-          userEmail={userEmail}
-          userId={userId}
-          accessToken={accessToken}
-          onLogout={handleLogout}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: 'rgba(10,10,10,0.95)',
+              border: '1px solid rgba(0,242,234,0.25)',
+              color: '#fff',
+              fontFamily: 'JetBrains Mono, "Courier New", monospace',
+              backdropFilter: 'blur(20px)',
+            },
+          }}
+          richColors
         />
-      )}
 
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        onLogin={handleLogin}
-        onSignup={handleSignup}
-        initialMode={authMode}
-      />
-    </div>
+        <div className="relative z-10 size-full">
+          {!isAuthenticated ? (
+            <LandingPage onGetStarted={handleGetStarted} onLogin={handleOpenLogin} />
+          ) : (
+            <Dashboard
+              userName={userName}
+              userEmail={userEmail}
+              userId={userId}
+              accessToken={accessToken}
+              onLogout={handleLogout}
+            />
+          )}
+        </div>
+
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          onLogin={handleLogin}
+          onSignup={handleSignup}
+          initialMode={authMode}
+        />
+      </div>
+    </SmoothScroll>
   );
 }

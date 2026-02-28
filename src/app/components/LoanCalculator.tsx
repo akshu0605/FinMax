@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { X, Calculator, TrendingUp, Zap, RefreshCw } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { GlassCard } from './ui/GlassCard';
+import { NeonButton } from './ui/NeonButton';
 
 // ─── Design tokens ────────────────────────────────────────────────
 const TEAL = '#00F2EA';
@@ -69,17 +71,17 @@ function ModalStars({ count = 120 }: { count?: number }) {
 
 // ─── Helpers ──────────────────────────────────────────────────────
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '11px 14px',
+  width: '100%', padding: '12px 16px',
   background: 'rgba(255,255,255,0.055)',
   backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
   border: '1px solid rgba(0,242,234,0.18)',
-  borderRadius: '10px', color: '#fff', outline: 'none', ...monoFont,
+  borderRadius: '12px', color: '#fff', outline: 'none', ...monoFont,
   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)',
-  transition: 'border-color 0.2s, box-shadow 0.2s',
+  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
 };
 const focusInput = (e: React.FocusEvent<HTMLInputElement>) => {
   e.currentTarget.style.borderColor = TEAL;
-  e.currentTarget.style.boxShadow = `0 0 16px rgba(0,242,234,0.2), inset 0 1px 0 rgba(255,255,255,0.07)`;
+  e.currentTarget.style.boxShadow = `0 0 16px rgba(0,242,234,0.25), inset 0 1px 0 rgba(255,255,255,0.07)`;
 };
 const blurInput = (e: React.FocusEvent<HTMLInputElement>) => {
   e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)';
@@ -228,248 +230,241 @@ export function LoanCalculator({ isOpen, onClose, currencySymbol }: LoanCalculat
           />
 
           {/* ── Main Glass Card ── */}
-          <div className="relative rounded-3xl overflow-hidden"
+          <GlassCard
+            className="w-full relative"
+            spacing="none"
             style={{
-              background: 'rgba(0,0,0,0.58)',
-              backdropFilter: 'blur(40px) saturate(220%) brightness(1.08)',
-              WebkitBackdropFilter: 'blur(40px) saturate(220%) brightness(1.08)',
-              border: '1px solid rgba(0,242,234,0.22)',
-              boxShadow: '0 32px 90px rgba(0,0,0,0.9), 0 0 60px rgba(0,242,234,0.07), inset 0 1.5px 0 rgba(0,242,234,0.22), inset 0 -1px 0 rgba(0,0,0,0.3)',
+              boxShadow: '0 32px 90px rgba(0,0,0,0.9), 0 0 60px rgba(0,242,234,0.07)',
             }}
           >
-            {/* Glass sheen */}
-            <div className="absolute inset-0 pointer-events-none"
-              style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(0,242,234,0.03) 40%, transparent 70%)' }} />
-            {/* Top teal glow line */}
-            <div className="absolute top-0 left-0 right-0 h-px"
-              style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(0,242,234,0.7) 50%, transparent 95%)' }} />
+            <div className="relative">
+              {/* Glass sheen */}
+              <div className="absolute inset-0 pointer-events-none"
+                style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(0,242,234,0.03) 40%, transparent 70%)' }} />
+              {/* Top teal glow line */}
+              <div className="absolute top-0 left-0 right-0 h-px"
+                style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(0,242,234,0.7) 50%, transparent 95%)' }} />
 
-            {/* ── Header ── */}
-            <div className="relative px-8 py-6" style={{ borderBottom: '1px solid rgba(0,242,234,0.1)' }}>
-              {/* Subtle scan-line shimmer on header */}
-              <motion.div className="absolute inset-0 pointer-events-none"
-                style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,242,234,0.04) 50%, transparent 100%)', backgroundSize: '200% 100%' }}
-                animate={{ backgroundPosition: ['-100% 0', '200% 0'] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-              />
+              {/* ── Header ── */}
+              <div className="relative px-8 py-6" style={{ borderBottom: '1px solid rgba(0,242,234,0.1)' }}>
+                {/* Subtle scan-line shimmer on header */}
+                <motion.div className="absolute inset-0 pointer-events-none"
+                  style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(0,242,234,0.04) 50%, transparent 100%)', backgroundSize: '200% 100%' }}
+                  animate={{ backgroundPosition: ['-100% 0', '200% 0'] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                />
 
-              <button onClick={onClose} className="absolute top-6 right-6 transition-colors z-10"
-                style={{ color: 'rgba(255,255,255,0.35)' }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = TEAL)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
-              ><X className="size-6" /></button>
+                <button onClick={onClose} className="absolute top-6 right-6 transition-colors z-10"
+                  style={{ color: 'rgba(255,255,255,0.35)' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = TEAL)}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
+                ><X className="size-6" /></button>
 
-              <div className="flex items-center gap-4 relative z-10">
-                <motion.div className="w-14 h-14 rounded-xl flex items-center justify-center"
-                  style={{
-                    background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.3)',
-                    boxShadow: '0 0 28px rgba(0,242,234,0.18), inset 0 1px 0 rgba(0,242,234,0.25)',
-                  }}
-                  animate={{ boxShadow: ['0 0 18px rgba(0,242,234,0.15)', '0 0 36px rgba(0,242,234,0.3)', '0 0 18px rgba(0,242,234,0.15)'] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                >
-                  <Calculator className="size-7" style={{ color: TEAL, filter: 'drop-shadow(0 0 10px #00F2EA)' }} />
-                </motion.div>
-                <div>
-                  <div className="text-xs mb-1 tracking-widest uppercase" style={{ color: TEAL, ...monoFont, letterSpacing: '0.15em' }}>Financial Tools</div>
-                  <h2 className="text-2xl font-bold text-white" style={headingFont}>Loan Interest Calculator</h2>
-                  <p className="text-sm mt-0.5" style={{ color: '#A1A1A1', ...monoFont }}>Calculate your EMI and interest breakdown</p>
+                <div className="flex items-center gap-4 relative z-10">
+                  <motion.div className="w-14 h-14 rounded-xl flex items-center justify-center"
+                    style={{
+                      background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.3)',
+                      boxShadow: '0 0 28px rgba(0,242,234,0.18), inset 0 1px 0 rgba(0,242,234,0.25)',
+                    }}
+                    animate={{ boxShadow: ['0 0 18px rgba(0,242,234,0.15)', '0 0 36px rgba(0,242,234,0.3)', '0 0 18px rgba(0,242,234,0.15)'] }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  >
+                    <Calculator className="size-7" style={{ color: TEAL, filter: 'drop-shadow(0 0 10px #00F2EA)' }} />
+                  </motion.div>
+                  <div>
+                    <div className="text-xs mb-1 tracking-widest uppercase" style={{ color: TEAL, ...monoFont, letterSpacing: '0.15em' }}>Financial Tools</div>
+                    <h2 className="text-2xl font-bold text-white" style={headingFont}>Loan Interest Calculator</h2>
+                    <p className="text-sm mt-0.5" style={{ color: '#A1A1A1', ...monoFont }}>Calculate your EMI and interest breakdown</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* ── Body ── */}
-            <div className="relative p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              {/* ── Body ── */}
+              <div className="relative p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-                {/* LEFT: Form */}
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Zap className="size-4" style={{ color: TEAL }} />
-                    <h3 className="text-base font-semibold tracking-wide uppercase" style={{ color: '#A1A1A1', ...monoFont, letterSpacing: '0.1em' }}>Loan Details</h3>
-                  </div>
-
-                  {/* Amount */}
-                  <div>
-                    <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Loan Amount</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg" style={{ color: TEAL, ...monoFont }}>{currencySymbol}</span>
-                      <input type="number" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)}
-                        style={{ ...inputStyle, paddingLeft: '2.5rem' }} placeholder="100000"
-                        onFocus={focusInput} onBlur={blurInput} />
+                  {/* LEFT: Form */}
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Zap className="size-4" style={{ color: TEAL }} />
+                      <h3 className="text-base font-semibold tracking-wide uppercase" style={{ color: '#A1A1A1', ...monoFont, letterSpacing: '0.1em' }}>Loan Details</h3>
                     </div>
-                  </div>
 
-                  {/* Rate */}
-                  <div>
-                    <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Interest Rate (% per annum)</label>
-                    <div className="relative">
-                      <input type="number" step="0.1" value={interestRate} onChange={(e) => setInterestRate(e.target.value)}
-                        style={{ ...inputStyle, paddingRight: '2.5rem' }} placeholder="10"
-                        onFocus={focusInput} onBlur={blurInput} />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold" style={{ color: TEAL, ...monoFont }}>%</span>
-                    </div>
-                  </div>
-
-                  {/* Duration */}
-                  <div>
-                    <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Loan Duration</label>
-                    <div className="flex gap-3">
-                      <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)}
-                        style={{ ...inputStyle }} placeholder="12"
-                        onFocus={focusInput} onBlur={blurInput} />
-                      <div className="flex items-center rounded-xl p-1 shrink-0"
-                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(0,242,234,0.15)', backdropFilter: 'blur(12px)' }}>
-                        <button onClick={() => setDurationType('months')} style={durationType === 'months' ? toggleBtnOn : toggleBtnOff}>Mo</button>
-                        <button onClick={() => setDurationType('years')} style={durationType === 'years' ? toggleBtnOn : toggleBtnOff}>Yr</button>
+                    {/* Amount */}
+                    <div>
+                      <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Loan Amount</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg" style={{ color: TEAL, ...monoFont }}>{currencySymbol}</span>
+                        <input type="number" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)}
+                          style={{ ...inputStyle, paddingLeft: '2.5rem' }} placeholder="100000"
+                          onFocus={focusInput} onBlur={blurInput} />
                       </div>
                     </div>
-                  </div>
 
-                  {/* Interest Type */}
-                  <div>
-                    <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Interest Type</label>
-                    <div className="flex gap-3">
-                      {(['simple', 'compound'] as InterestType[]).map((t) => (
-                        <button key={t} onClick={() => setInterestType(t)}
-                          className="flex-1 transition-all"
-                          style={interestType === t ? interestBtnOn : interestBtnOff}
-                          onMouseEnter={(e) => { if (interestType !== t) e.currentTarget.style.color = '#fff'; }}
-                          onMouseLeave={(e) => { if (interestType !== t) e.currentTarget.style.color = '#A1A1A1'; }}
-                        >
-                          {t.charAt(0).toUpperCase() + t.slice(1)}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Quick-pick sliders display */}
-                  <div className="grid grid-cols-3 gap-2 pt-1">
-                    {[
-                      { label: 'Principal', value: `${currencySymbol}${parseFloat(loanAmount || '0').toLocaleString()}` },
-                      { label: 'Rate', value: `${interestRate}% p.a.` },
-                      { label: 'Period', value: `${duration} ${durationType}` },
-                    ].map(({ label, value }) => (
-                      <div key={label} className="p-3 rounded-xl text-center relative overflow-hidden"
-                        style={{ background: 'rgba(0,242,234,0.05)', border: '1px solid rgba(0,242,234,0.12)', backdropFilter: 'blur(10px)' }}>
-                        <div className="text-xs mb-1" style={{ color: '#A1A1A1', ...monoFont }}>{label}</div>
-                        <div className="text-sm font-bold" style={{ color: TEAL, ...monoFont }}>{value}</div>
+                    {/* Rate */}
+                    <div>
+                      <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Interest Rate (% per annum)</label>
+                      <div className="relative">
+                        <input type="number" step="0.1" value={interestRate} onChange={(e) => setInterestRate(e.target.value)}
+                          style={{ ...inputStyle, paddingRight: '2.5rem' }} placeholder="10"
+                          onFocus={focusInput} onBlur={blurInput} />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold" style={{ color: TEAL, ...monoFont }}>%</span>
                       </div>
-                    ))}
-                  </div>
+                    </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-3 pt-2">
-                    <motion.button onClick={calculateLoan}
-                      className="flex-1 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2"
-                      style={{ background: TEAL, color: '#000', ...headingFont, boxShadow: '0 0 22px rgba(0,242,234,0.38), inset 0 1.5px 0 rgba(255,255,255,0.32)' }}
-                      whileHover={{ scale: 1.03, boxShadow: '0 0 40px rgba(0,242,234,0.65), inset 0 1.5px 0 rgba(255,255,255,0.32)' }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      <Calculator className="size-5" /> Calculate
-                    </motion.button>
-                    <motion.button onClick={handleReset}
-                      className="px-5 py-3.5 rounded-xl flex items-center gap-2"
-                      style={{ background: 'rgba(255,255,255,0.06)', color: '#A1A1A1', border: '1px solid rgba(255,255,255,0.1)', ...monoFont, backdropFilter: 'blur(10px)' }}
-                      whileHover={{ background: 'rgba(255,255,255,0.1)', color: '#fff' }}
-                      whileTap={{ scale: 0.97 }}
-                    ><RefreshCw className="size-4" /> Reset</motion.button>
-                  </div>
-                </div>
+                    {/* Duration */}
+                    <div>
+                      <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Loan Duration</label>
+                      <div className="flex gap-3">
+                        <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)}
+                          style={{ ...inputStyle }} placeholder="12"
+                          onFocus={focusInput} onBlur={blurInput} />
+                        <div className="flex items-center rounded-xl p-1 shrink-0"
+                          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(0,242,234,0.15)', backdropFilter: 'blur(12px)' }}>
+                          <button onClick={() => setDurationType('months')} style={durationType === 'months' ? toggleBtnOn : toggleBtnOff}>Mo</button>
+                          <button onClick={() => setDurationType('years')} style={durationType === 'years' ? toggleBtnOn : toggleBtnOff}>Yr</button>
+                        </div>
+                      </div>
+                    </div>
 
-                {/* RIGHT: Results */}
-                <div>
-                  {!showResults ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center p-8 gap-6">
-                      <motion.div
-                        animate={{ rotate: [0, 360] }}
-                        transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
-                      >
-                        <TrendingUp className="size-24" style={{ color: 'rgba(0,242,234,0.18)', filter: 'drop-shadow(0 0 20px rgba(0,242,234,0.15))' }} />
-                      </motion.div>
-                      {/* Pulse rings */}
-                      <div className="relative flex items-center justify-center">
-                        {[0, 1, 2].map((i) => (
-                          <motion.div key={i} className="absolute rounded-full"
-                            style={{ width: 40 + i * 30, height: 40 + i * 30, border: '1px solid rgba(0,242,234,0.15)' }}
-                            animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
-                            transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.6 }}
-                          />
+                    {/* Interest Type */}
+                    <div>
+                      <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Interest Type</label>
+                      <div className="flex gap-3">
+                        {(['simple', 'compound'] as InterestType[]).map((t) => (
+                          <button key={t} onClick={() => setInterestType(t)}
+                            className="flex-1 transition-all"
+                            style={interestType === t ? interestBtnOn : interestBtnOff}
+                            onMouseEnter={(e) => { if (interestType !== t) e.currentTarget.style.color = '#fff'; }}
+                            onMouseLeave={(e) => { if (interestType !== t) e.currentTarget.style.color = '#A1A1A1'; }}
+                          >
+                            {t.charAt(0).toUpperCase() + t.slice(1)}
+                          </button>
                         ))}
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center"
-                          style={{ background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.3)' }}>
-                          <Calculator className="size-5" style={{ color: TEAL }} />
-                        </div>
                       </div>
-                      <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Enter loan details and click Calculate to see results</p>
                     </div>
-                  ) : (
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <TrendingUp className="size-4" style={{ color: TEAL }} />
-                        <h3 className="text-base font-semibold tracking-wide uppercase" style={{ color: '#A1A1A1', ...monoFont, letterSpacing: '0.1em' }}>Loan Breakdown</h3>
-                      </div>
 
-                      {/* Result cards */}
+                    {/* Quick-pick sliders display */}
+                    <div className="grid grid-cols-3 gap-2 pt-1">
                       {[
-                        { label: 'Monthly EMI', value: animEMI, accent: TEAL, delay: 0.05 },
-                        { label: 'Total Interest Payable', value: animInterest, accent: '#F87171', delay: 0.15 },
-                        { label: 'Total Amount Payable', value: animTotal, accent: '#34D399', delay: 0.25 },
-                      ].map(({ label, value, accent, delay }) => (
-                        <motion.div key={label}
-                          className="p-5 rounded-xl relative overflow-hidden group"
-                          style={{
-                            background: `rgba(${accent === TEAL ? '0,242,234' : accent === '#F87171' ? '248,113,113' : '52,211,153'},0.07)`,
-                            border: `1px solid ${accent}28`,
-                            backdropFilter: 'blur(12px)',
-                            boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06)`,
-                          }}
-                          initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}
-                          whileHover={{ borderColor: `${accent}55`, boxShadow: `0 0 20px ${accent}18, inset 0 1px 0 rgba(255,255,255,0.06)` }}
-                        >
-                          <div className="absolute inset-0 pointer-events-none rounded-[inherit]"
-                            style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 60%)' }} />
-                          <div className="text-xs mb-1 relative" style={{ color: '#A1A1A1', ...monoFont }}>{label}</div>
-                          <div className="text-3xl font-bold relative" style={{ color: accent, ...headingFont, textShadow: `0 0 24px ${accent}55` }}>
-                            {currencySymbol}{value.toLocaleString()}
-                          </div>
-                          {/* Animated progress bar */}
-                          <motion.div className="absolute bottom-0 left-0 h-0.5 rounded-full"
-                            style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }}
-                            initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 0.8, delay: delay + 0.2 }}
-                          />
-                        </motion.div>
-                      ))}
-
-                      {/* Pie chart */}
-                      <motion.div className="p-5 rounded-xl relative overflow-hidden"
-                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,242,234,0.1)', backdropFilter: 'blur(12px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }}
-                        initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 }}
-                      >
-                        <div className="absolute inset-0 pointer-events-none"
-                          style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)' }} />
-                        <h4 className="text-xs font-semibold mb-3 uppercase tracking-widest relative" style={{ color: '#A1A1A1', ...monoFont }}>Principal vs Interest</h4>
-                        <div className="h-[190px] relative">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                              <Pie data={chartData} cx="50%" cy="50%" labelLine={false} outerRadius={78} dataKey="value" animationBegin={0} animationDuration={900}>
-                                {chartData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
-                              </Pie>
-                              <Tooltip
-                                contentStyle={{ backgroundColor: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,242,234,0.25)', borderRadius: '10px', color: '#fff', ...monoFont }}
-                                formatter={(v: number) => `${currencySymbol}${v.toLocaleString()}`}
-                              />
-                              <Legend wrapperStyle={{ color: '#A1A1A1', ...monoFont }} iconType="circle" />
-                            </PieChart>
-                          </ResponsiveContainer>
+                        { label: 'Principal', value: `${currencySymbol}${parseFloat(loanAmount || '0').toLocaleString()}` },
+                        { label: 'Rate', value: `${interestRate}% p.a.` },
+                        { label: 'Period', value: `${duration} ${durationType}` },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="p-3 rounded-xl text-center relative overflow-hidden"
+                          style={{ background: 'rgba(0,242,234,0.05)', border: '1px solid rgba(0,242,234,0.12)', backdropFilter: 'blur(10px)' }}>
+                          <div className="text-xs mb-1" style={{ color: '#A1A1A1', ...monoFont }}>{label}</div>
+                          <div className="text-sm font-bold" style={{ color: TEAL, ...monoFont }}>{value}</div>
                         </div>
+                      ))}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-3 pt-2">
+                      <NeonButton onClick={calculateLoan} className="flex-1 py-3.5 shadow-[0_0_22px_rgba(0,242,234,0.38)]"
+                        style={{ background: TEAL, color: '#000' }}>
+                        <Calculator className="size-5" /> Calculate
+                      </NeonButton>
+                      <NeonButton variant="ghost" onClick={handleReset} className="px-5 py-3.5">
+                        <RefreshCw className="size-4" /> Reset
+                      </NeonButton>
+                    </div>
+                  </div>
+
+                  {/* RIGHT: Results */}
+                  <div>
+                    {!showResults ? (
+                      <div className="h-full flex flex-col items-center justify-center text-center p-8 gap-6">
+                        <motion.div
+                          animate={{ rotate: [0, 360] }}
+                          transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+                        >
+                          <TrendingUp className="size-24" style={{ color: 'rgba(0,242,234,0.18)', filter: 'drop-shadow(0 0 20px rgba(0,242,234,0.15))' }} />
+                        </motion.div>
+                        {/* Pulse rings */}
+                        <div className="relative flex items-center justify-center">
+                          {[0, 1, 2].map((i) => (
+                            <motion.div key={i} className="absolute rounded-full"
+                              style={{ width: 40 + i * 30, height: 40 + i * 30, border: '1px solid rgba(0,242,234,0.15)' }}
+                              animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
+                              transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.6 }}
+                            />
+                          ))}
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center"
+                            style={{ background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.3)' }}>
+                            <Calculator className="size-5" style={{ color: TEAL }} />
+                          </div>
+                        </div>
+                        <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Enter loan details and click Calculate to see results</p>
+                      </div>
+                    ) : (
+                      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <TrendingUp className="size-4" style={{ color: TEAL }} />
+                          <h3 className="text-base font-semibold tracking-wide uppercase" style={{ color: '#A1A1A1', ...monoFont, letterSpacing: '0.1em' }}>Loan Breakdown</h3>
+                        </div>
+
+                        {/* Result cards */}
+                        {[
+                          { label: 'Monthly EMI', value: animEMI, accent: TEAL, delay: 0.05 },
+                          { label: 'Total Interest Payable', value: animInterest, accent: '#F87171', delay: 0.15 },
+                          { label: 'Total Amount Payable', value: animTotal, accent: '#34D399', delay: 0.25 },
+                        ].map(({ label, value, accent, delay }) => (
+                          <motion.div key={label}
+                            className="p-5 rounded-xl relative overflow-hidden group"
+                            style={{
+                              background: `rgba(${accent === TEAL ? '0,242,234' : accent === '#F87171' ? '248,113,113' : '52,211,153'},0.07)`,
+                              border: `1px solid ${accent}28`,
+                              backdropFilter: 'blur(12px)',
+                              boxShadow: `inset 0 1px 0 rgba(255,255,255,0.06)`,
+                            }}
+                            initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay }}
+                            whileHover={{ borderColor: `${accent}55`, boxShadow: `0 0 20px ${accent}18, inset 0 1px 0 rgba(255,255,255,0.06)` }}
+                          >
+                            <div className="absolute inset-0 pointer-events-none rounded-[inherit]"
+                              style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 60%)' }} />
+                            <div className="text-xs mb-1 relative" style={{ color: '#A1A1A1', ...monoFont }}>{label}</div>
+                            <div className="text-3xl font-bold relative" style={{ color: accent, ...headingFont, textShadow: `0 0 24px ${accent}55` }}>
+                              {currencySymbol}{value.toLocaleString()}
+                            </div>
+                            {/* Animated progress bar */}
+                            <motion.div className="absolute bottom-0 left-0 h-0.5 rounded-full"
+                              style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }}
+                              initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 0.8, delay: delay + 0.2 }}
+                            />
+                          </motion.div>
+                        ))}
+
+                        {/* Pie chart */}
+                        <motion.div className="p-5 rounded-xl relative overflow-hidden"
+                          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,242,234,0.1)', backdropFilter: 'blur(12px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }}
+                          initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 }}
+                        >
+                          <div className="absolute inset-0 pointer-events-none"
+                            style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)' }} />
+                          <h4 className="text-xs font-semibold mb-3 uppercase tracking-widest relative" style={{ color: '#A1A1A1', ...monoFont }}>Principal vs Interest</h4>
+                          <div className="h-[190px] relative">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <Pie data={chartData} cx="50%" cy="50%" labelLine={false} outerRadius={78} dataKey="value" animationBegin={0} animationDuration={900}>
+                                  {chartData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                                </Pie>
+                                <Tooltip
+                                  contentStyle={{ backgroundColor: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,242,234,0.25)', borderRadius: '10px', color: '#fff', ...monoFont }}
+                                  formatter={(v: number) => `${currencySymbol}${v.toLocaleString()}`}
+                                />
+                                <Legend wrapperStyle={{ color: '#A1A1A1', ...monoFont }} iconType="circle" />
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </motion.div>
                       </motion.div>
-                    </motion.div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </GlassCard>
         </motion.div>
       </div>
     </>

@@ -5,7 +5,10 @@ import {
   LogOut, DollarSign, Calendar, Target, CheckCircle2, Circle, Trash2,
   Globe, Calculator, HeadphonesIcon, Heart, X, Menu, Search, Loader2,
 } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import {
+  PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid
+} from 'recharts';
 import { Logo } from './Logo';
 import { StarField } from './StarField';
 import { LoanCalculator } from './LoanCalculator';
@@ -14,6 +17,8 @@ import { ContactDeveloper } from './ContactDeveloper';
 import { api } from '../utils/api';
 import { toast } from 'sonner';
 import { SplitKro } from './SplitKro';
+import { GlassCard } from './ui/GlassCard';
+import { NeonButton } from './ui/NeonButton';
 
 // ─── Design tokens ────────────────────────────────────────────────
 const TEAL = '#00F2EA';
@@ -49,128 +54,97 @@ const inputStyle: React.CSSProperties = {
   border: '1px solid rgba(0,242,234,0.18)',
   borderRadius: '10px', color: '#fff', outline: 'none', ...monoFont,
   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
+  transition: 'all 0.2s ease',
 };
 
-// ─── 3D Tilt card ─────────────────────────────────────────────────
-function TiltCard({ children, style = {}, className = '', teal = false }: {
-  children: React.ReactNode; style?: React.CSSProperties; className?: string; teal?: boolean;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotX = useSpring(useTransform(y, [-0.5, 0.5], [6, -6]), { stiffness: 350, damping: 35 });
-  const rotY = useSpring(useTransform(x, [-0.5, 0.5], [-6, 6]), { stiffness: 350, damping: 35 });
-  const handleMouse = (e: React.MouseEvent<HTMLDivElement>) => {
-    const r = ref.current?.getBoundingClientRect();
-    if (!r) return;
-    x.set((e.clientX - r.left) / r.width - 0.5);
-    y.set((e.clientY - r.top) / r.height - 0.5);
-  };
-  const handleLeave = () => { x.set(0); y.set(0); };
-  return (
-    <motion.div ref={ref} className={className}
-      style={{ ...glass(teal), ...style, transformStyle: 'preserve-3d', rotateX: rotX, rotateY: rotY, willChange: 'transform', position: 'relative' }}
-      onMouseMove={handleMouse} onMouseLeave={handleLeave}
-      whileHover={{ scale: 1.02, z: 20 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-    >
-      {/* Glass reflection sheen */}
-      <div className="absolute inset-0 rounded-[inherit] pointer-events-none"
-        style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0) 50%, rgba(0,242,234,0.03) 100%)' }} />
-      <div style={{ position: 'relative', zIndex: 1 }}>{children}</div>
-    </motion.div>
-  );
-}
+// Custom Tooltip for Recharts
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="p-3 rounded-xl" style={{ ...glass(false, 20), border: '1px solid rgba(0,242,234,0.3)' }}>
+        <p className="text-xs font-bold mb-1 text-white" style={headingFont}>{label || payload[0].name}</p>
+        <p className="text-sm font-bold" style={{ color: TEAL, ...monoFont }}>
+          {payload[0].value.toLocaleString()}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
+
 
 // ─── Liquid glass modal ────────────────────────────────────────────
 function ModalCard({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(10px)' }}>
-      <motion.div
-        className="w-full max-w-md rounded-2xl p-7 relative overflow-hidden"
+      <GlassCard
+        className="w-full max-w-md p-7"
+        spacing="none"
         style={{
-          background: 'rgba(0,0,0,0.55)',
-          backdropFilter: 'blur(36px) saturate(220%) brightness(1.08)',
-          WebkitBackdropFilter: 'blur(36px) saturate(220%) brightness(1.08)',
-          border: '1px solid rgba(0,242,234,0.22)',
-          boxShadow: '0 30px 80px rgba(0,0,0,0.8), 0 0 40px rgba(0,242,234,0.07), inset 0 1.5px 0 rgba(0,242,234,0.2)',
+          boxShadow: '0 30px 80px rgba(0,0,0,0.8), 0 0 40px rgba(0,242,255,0.07)',
         }}
-        initial={{ opacity: 0, scale: 0.88, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
       >
-        {/* top shimmer + glass sheen */}
-        <div className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent, rgba(0,242,234,0.6), transparent)' }} />
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)' }} />
-        <div className="flex items-center justify-between mb-6 relative z-10">
-          <h3 className="text-xl font-bold text-white" style={headingFont}>{title}</h3>
-          <button onClick={onClose} style={{ color: 'rgba(255,255,255,0.4)' }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = TEAL)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
-          ><X className="size-5" /></button>
+        <div className="p-7 relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-white" style={headingFont}>{title}</h3>
+            <button onClick={onClose} style={{ color: 'rgba(255,255,255,0.4)' }}
+              className="hover:text-[var(--ns-cyan)] transition-colors"
+            ><X className="size-5" /></button>
+          </div>
+          {children}
         </div>
-        <div className="relative z-10">{children}</div>
-      </motion.div>
+      </GlassCard>
     </div>
   );
 }
 
-// ─── Teal CTA button ──────────────────────────────────────────────
-function TealButton({ onClick, type = 'button', children, className = '' }:
-  { onClick?: () => void; type?: 'button' | 'submit'; children: React.ReactNode; className?: string }) {
-  return (
-    <motion.button type={type} onClick={onClick}
-      className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold ${className}`}
-      style={{
-        background: TEAL, color: '#000', ...headingFont,
-        boxShadow: '0 0 18px rgba(0,242,234,0.3), inset 0 1px 0 rgba(255,255,255,0.3)',
-      }}
-      whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(0,242,234,0.55), inset 0 1px 0 rgba(255,255,255,0.3)' }}
-      whileTap={{ scale: 0.96 }}
-    >{children}</motion.button>
-  );
-}
-
-function GhostButton({ onClick, children }: { onClick?: () => void; children: React.ReactNode }) {
-  return (
-    <motion.button type="button" onClick={onClick}
-      className="px-6 py-2 rounded-lg"
-      style={{ background: 'rgba(255,255,255,0.06)', color: '#A1A1A1', border: '1px solid rgba(255,255,255,0.1)', ...monoFont, backdropFilter: 'blur(10px)' }}
-      whileHover={{ scale: 1.04, background: 'rgba(255,255,255,0.12)', color: '#fff' }}
-      whileTap={{ scale: 0.97 }}
-    >{children}</motion.button>
-  );
-}
-
 // ─── Stat Card ────────────────────────────────────────────────────
-function StatCard({ icon: Icon, iconColor, label, value, delay, onEdit }:
-  { icon: any; iconColor: string; label: string; value: string; delay: number; onEdit?: () => void }) {
+function StatCard({ icon: Icon, iconColor, label, value, delay, onEdit, index }:
+  { icon: any; iconColor: string; label: string; value: string; delay: number; onEdit?: () => void; index: number }) {
+  // Normalize icons to the new cyan if they were the old teal
+  const actualColor = iconColor === TEAL ? '#00f2ff' : iconColor;
+
   return (
-    <TiltCard teal className="p-6 rounded-2xl overflow-hidden"
-      style={{ minHeight: 140 }}
+    <GlassCard
+      interactive
+      rounded="apple"
+      active={iconColor === TEAL}
+      className="flex flex-col"
+      style={{ minHeight: 140, boxShadow: '0 20px 50px -12px rgba(0,0,0,0.5)' }}
+      animate={{
+        y: [0, -6, 0],
+      }}
+      transition={{
+        y: {
+          duration: 5 + index,
+          repeat: Infinity,
+          ease: "easeInOut"
+        },
+        delay: delay
+      }}
+      whileHover={{ y: -12, scale: 1.02, boxShadow: `0 30px 60px -12px rgba(0,0,0,0.7), 0 0 30px ${actualColor}15` }}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="w-12 h-12 rounded-xl flex items-center justify-center"
           style={{
-            background: `rgba(${iconColor === TEAL ? '0,242,234' : iconColor === '#F87171' ? '248,113,113' : iconColor === '#34D399' ? '52,211,153' : '96,165,250'},0.12)`,
-            border: `1px solid ${iconColor}33`,
-            boxShadow: `0 4px 16px ${iconColor}22, inset 0 1px 0 rgba(255,255,255,0.1)`,
+            background: `rgba(${actualColor === '#00f2ff' ? '0,242,255' : actualColor === '#F87171' ? '248,113,113' : actualColor === '#34D399' ? '52,211,153' : '96,165,250'},0.12)`,
+            border: `1px solid ${actualColor}33`,
+            boxShadow: `0 4px 16px ${actualColor}22`,
           }}>
-          <Icon className="size-6" style={{ color: iconColor, filter: `drop-shadow(0 0 7px ${iconColor})` }} />
+          <Icon className="size-6" style={{ color: actualColor, filter: `drop-shadow(0 0 7px ${actualColor})` }} />
         </div>
         {onEdit && (
-          <button className="text-xs" style={{ color: '#A1A1A1', ...monoFont }}
+          <button className="text-xs text-[var(--ns-text-secondary)] hover:text-[var(--ns-cyan)] transition-colors" style={monoFont}
             onClick={onEdit}
-            onMouseEnter={(e) => (e.currentTarget.style.color = TEAL)}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#A1A1A1')}
           >Edit</button>
         )}
       </div>
-      <motion.div className="text-3xl font-bold text-white mb-1" style={headingFont}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay }}>{value}</motion.div>
-      <div className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>{label}</div>
-    </TiltCard>
+      <motion.div className="text-3xl font-bold text-white mb-1 tracking-tight" style={headingFont}
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>{value}</motion.div>
+      <div className="text-sm font-medium" style={{ color: 'var(--ns-text-secondary)', ...monoFont }}>{label}</div>
+    </GlassCard>
   );
 }
 
@@ -549,22 +523,22 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         </motion.div>
 
         {/* ─── STAT CARDS ─── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard icon={DollarSign} iconColor={TEAL} label="Monthly Income" value={`${sym}${salary.toLocaleString()}`} delay={0.3} onEdit={() => setShowEditSalary(true)} />
-          <StatCard icon={TrendingDown} iconColor="#F87171" label="Total Expenses" value={`${sym}${totalExpenses.toLocaleString()}`} delay={0.4} />
-          <StatCard icon={PiggyBank} iconColor="#34D399" label="Total Savings" value={`${sym}${savings.toLocaleString()}`} delay={0.5} />
-          <StatCard icon={TrendingUp} iconColor="#60A5FA" label="Savings Rate" value={`${savingsRate}%`} delay={0.6} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 items-start">
+          <StatCard index={0} icon={DollarSign} iconColor={TEAL} label="Monthly Income" value={`${sym}${salary.toLocaleString()}`} delay={0.3} onEdit={() => setShowEditSalary(true)} />
+          <StatCard index={1} icon={TrendingDown} iconColor="#F87171" label="Total Expenses" value={`${sym}${totalExpenses.toLocaleString()}`} delay={0.4} />
+          <StatCard index={2} icon={PiggyBank} iconColor="#34D399" label="Total Savings" value={`${sym}${savings.toLocaleString()}`} delay={0.5} />
+          <StatCard index={3} icon={TrendingUp} iconColor="#60A5FA" label="Savings Rate" value={`${savingsRate}%`} delay={0.6} />
         </div>
 
         {/* ─── DASHBOARD VIEW ─── */}
         {activeView === 'dashboard' && (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <TiltCard teal className="p-6 rounded-2xl min-h-[400px] flex flex-col">
-                <h2 className="text-2xl font-bold mb-6 text-white" style={headingFont}>Spending by Category</h2>
+              <GlassCard rounded="apple" className="flex flex-col min-h-[400px]" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
+                <h2 className="text-2xl font-bold mb-6 text-white tracking-tight" style={headingFont}>Spending by Category</h2>
                 {expenses.length === 0 ? (
                   <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-                    <PieChart className="size-12 mb-4 opacity-20" style={{ color: TEAL }} />
+                    <PieChart className="size-12 mb-4 opacity-20 text-[var(--ns-cyan)]" />
                     <p className="text-sm opacity-50" style={monoFont}>No expense data available for the pie chart.</p>
                   </div>
                 ) : (
@@ -574,18 +548,58 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                         <Pie data={categoryData} cx="50%" cy="50%" labelLine={false} outerRadius={100} dataKey="value" animationBegin={0} animationDuration={1000}>
                           {categoryData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                         </Pie>
-                        <Tooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', border: '1px solid rgba(0,242,234,0.25)', borderRadius: '10px', color: '#fff', ...monoFont }} />
+                        <Tooltip content={<CustomTooltip />} />
                         <Legend wrapperStyle={{ color: '#A1A1A1', ...monoFont }} iconType="circle" />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
                 )}
-              </TiltCard>
+              </GlassCard>
+            </div>
 
-              <TiltCard teal className="p-6 rounded-2xl">
+            <GlassCard rounded="apple" className="mb-8 p-6 lg:p-8" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-2xl font-bold text-white tracking-tight mb-1" style={headingFont}>Spending Trend</h2>
+                  <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Overview of your daily activity</p>
+                </div>
+                <div className="flex gap-2">
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs" style={monoFont}>
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Income
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs" style={monoFont}>
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-500" /> Expenses
+                  </div>
+                </div>
+              </div>
+              <div className="h-[320px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={expenses.slice(-15).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())}>
+                    <defs>
+                      <linearGradient id="colorExp" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#F87171" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#F87171" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="colorTeal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={TEAL} stopOpacity={0.3} />
+                        <stop offset="95%" stopColor={TEAL} stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="date" hide />
+                    <YAxis hide domain={['auto', 'auto']} />
+                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }} />
+                    <Area type="monotone" dataKey="amount" stroke="#F87171" strokeWidth={3} fillOpacity={1} fill="url(#colorExp)" activeDot={{ r: 6, stroke: '#F87171', strokeWidth: 2, fill: '#000' }} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </GlassCard>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              <GlassCard rounded="apple" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white" style={headingFont}>Recent Expenses</h2>
-                  <TealButton onClick={() => setShowAddExpense(true)}><Plus className="size-4" /> Add</TealButton>
+                  <h2 className="text-2xl font-bold text-white tracking-tight" style={headingFont}>Recent Expenses</h2>
+                  <NeonButton size="sm" onClick={() => setShowAddExpense(true)}><Plus className="size-4" /> Add</NeonButton>
                 </div>
                 <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
                   {expenses.length === 0 ? (
@@ -622,14 +636,14 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                     </motion.div>
                   ))}
                 </div>
-              </TiltCard>
+              </GlassCard>
             </div>
 
             {/* Reminders widget */}
-            <TiltCard teal className="p-6 rounded-2xl">
+            <GlassCard rounded="apple" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white" style={headingFont}>Financial Reminders</h2>
-                <TealButton onClick={() => setShowAddReminder(true)}><Plus className="size-4" /> Add Reminder</TealButton>
+                <h2 className="text-2xl font-bold text-white tracking-tight" style={headingFont}>Financial Reminders</h2>
+                <NeonButton size="sm" onClick={() => setShowAddReminder(true)}><Plus className="size-4" /> Add Reminder</NeonButton>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {reminders.length === 0 ? (
@@ -662,16 +676,16 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                   );
                 })}
               </div>
-            </TiltCard>
+            </GlassCard>
           </>
         )}
 
         {/* ─── BUDGETS VIEW ─── */}
         {activeView === 'budgets' && (
-          <TiltCard teal className="p-6 rounded-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-3xl font-bold text-white" style={headingFont}>Budget Management</h2>
-              <TealButton onClick={() => setShowAddBudget(true)}><Plus className="size-4" /> Add Budget</TealButton>
+          <GlassCard spacing="lg" rounded="apple" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-white tracking-tight" style={headingFont}>Budget Management</h2>
+              <NeonButton onClick={() => setShowAddBudget(true)}><Plus className="size-5" /> Add Budget</NeonButton>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {budgets.length === 0 ? (
@@ -709,15 +723,15 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                 );
               })}
             </div>
-          </TiltCard>
+          </GlassCard>
         )}
 
         {/* ─── EXPENSES VIEW ─── */}
         {activeView === 'expenses' && (
-          <TiltCard teal className="p-8 rounded-2xl min-h-[500px]">
+          <GlassCard spacing="lg" className="min-h-[500px]">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white" style={headingFont}>Expense Archive</h2>
-              <TealButton onClick={() => setShowAddExpense(true)}><Plus className="size-5" /> Add Expense</TealButton>
+              <h2 className="text-3xl font-bold text-white tracking-tight" style={headingFont}>Expense Archive</h2>
+              <NeonButton onClick={() => setShowAddExpense(true)}><Plus className="size-5" /> Add Expense</NeonButton>
             </div>
             <div className="space-y-4">
               {expenses.length === 0 ? (
@@ -753,15 +767,15 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                 </motion.div>
               ))}
             </div>
-          </TiltCard>
+          </GlassCard>
         )}
 
         {/* ─── REMINDERS VIEW ─── */}
         {activeView === 'reminders' && (
-          <TiltCard teal className="p-8 rounded-2xl min-h-[500px]">
+          <GlassCard spacing="lg" className="min-h-[500px]">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white" style={headingFont}>Reminders & Bills</h2>
-              <TealButton onClick={() => setShowAddReminder(true)}><Plus className="size-5" /> New Reminder</TealButton>
+              <h2 className="text-3xl font-bold text-white tracking-tight" style={headingFont}>Reminders & Bills</h2>
+              <NeonButton onClick={() => setShowAddReminder(true)}><Plus className="size-5" /> New Reminder</NeonButton>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {reminders.length === 0 ? (
@@ -792,7 +806,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                 );
               })}
             </div>
-          </TiltCard>
+          </GlassCard>
         )}
 
         {/* ─── SPLIT KRO VIEW ─── */}
@@ -817,10 +831,10 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
       {/* ─── INCOME SETUP OVERLAY ─── */}
       {!loading && salary === 0 && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)' }}>
-          <TiltCard teal className="w-full max-w-md p-8 rounded-3xl text-center">
+          <GlassCard spacing="lg" interactive className="w-full max-w-md text-center">
             <div className="w-20 h-20 rounded-2xl mx-auto mb-6 flex items-center justify-center"
-              style={{ background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.2)' }}>
-              <Wallet className="size-10" style={{ color: TEAL }} />
+              style={{ background: 'rgba(0,242,255,0.1)', border: '1px solid rgba(0,242,255,0.2)' }}>
+              <Wallet className="size-10 text-[var(--ns-cyan)]" />
             </div>
             <h2 className="text-3xl font-bold mb-3 text-white" style={headingFont}>Welcome to FinMax!</h2>
             <p className="mb-8 opacity-60 text-sm" style={monoFont}>To get started, please enter your total monthly income. This will help us calculate your savings and budgets.</p>
@@ -844,9 +858,9 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                   style={{ borderColor: 'rgba(0,242,234,0.3)', color: TEAL, ...monoFont }}
                 />
               </div>
-              <TealButton type="submit" className="w-full py-4 text-lg">Start Managing Finances</TealButton>
+              <NeonButton type="submit" size="lg" className="w-full">Start Managing Finances</NeonButton>
             </form>
-          </TiltCard>
+          </GlassCard>
         </div>
       )}
 
@@ -923,7 +937,10 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                 onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = `0 0 14px rgba(0,242,234,0.15), inset 0 1px 0 rgba(255,255,255,0.08)`; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)'; e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.08)'; }}
               /></div>
-            <div className="flex gap-3 pt-2"><TealButton type="submit" className="flex-1 py-2.5">Add Expense</TealButton><GhostButton onClick={() => setShowAddExpense(false)}>Cancel</GhostButton></div>
+            <div className="flex gap-3 pt-2">
+              <NeonButton type="submit" className="flex-1 py-2.5">Add Expense</NeonButton>
+              <NeonButton variant="ghost" type="button" onClick={() => setShowAddExpense(false)}>Cancel</NeonButton>
+            </div>
           </form>
         </ModalCard>
       )}
@@ -941,7 +958,10 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                 onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = `0 0 14px rgba(0,242,234,0.15), inset 0 1px 0 rgba(255,255,255,0.08)`; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)'; e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.08)'; }}
               /></div>
-            <div className="flex gap-3 pt-2"><TealButton type="submit" className="flex-1 py-2.5">Add Reminder</TealButton><GhostButton onClick={() => setShowAddReminder(false)}>Cancel</GhostButton></div>
+            <div className="flex gap-3 pt-2">
+              <NeonButton type="submit" className="flex-1 py-2.5">Add Reminder</NeonButton>
+              <NeonButton variant="ghost" type="button" onClick={() => setShowAddReminder(false)}>Cancel</NeonButton>
+            </div>
           </form>
         </ModalCard>
       )}
@@ -954,7 +974,10 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                 onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = `0 0 14px rgba(0,242,234,0.15), inset 0 1px 0 rgba(255,255,255,0.08)`; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)'; e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.08)'; }}
               /></div>
-            <div className="flex gap-3 pt-2"><TealButton type="submit" className="flex-1 py-2.5">Save</TealButton><GhostButton onClick={() => setShowEditSalary(false)}>Cancel</GhostButton></div>
+            <div className="flex gap-3 pt-2">
+              <NeonButton type="submit" className="flex-1 py-2.5">Save</NeonButton>
+              <NeonButton variant="ghost" type="button" onClick={() => setShowEditSalary(false)}>Cancel</NeonButton>
+            </div>
           </form>
         </ModalCard>
       )}
@@ -971,7 +994,10 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                 onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = `0 0 14px rgba(0,242,234,0.15), inset 0 1px 0 rgba(255,255,255,0.08)`; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)'; e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.08)'; }}
               /></div>
-            <div className="flex gap-3 pt-2"><TealButton type="submit" className="flex-1 py-2.5">Add Budget</TealButton><GhostButton onClick={() => setShowAddBudget(false)}>Cancel</GhostButton></div>
+            <div className="flex gap-3 pt-2">
+              <NeonButton type="submit" className="flex-1 py-2.5">Add Budget</NeonButton>
+              <NeonButton variant="ghost" type="button" onClick={() => setShowAddBudget(false)}>Cancel</NeonButton>
+            </div>
           </form>
         </ModalCard>
       )}

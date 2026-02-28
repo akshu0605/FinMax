@@ -4,6 +4,8 @@ import { Users, Plus, Trash2, ChevronRight, UsersRound, Plane, Home, Heart } fro
 import { toast } from 'sonner';
 import { splitKroApi, SKGroup } from '../../utils/splitkro-api';
 import { GroupDetail } from './GroupDetail.tsx';
+import { GlassCard } from '../ui/GlassCard';
+import { NeonButton } from '../ui/NeonButton';
 
 // ─── Design tokens (matching Dashboard) ────────────────────────────────────
 const INDIGO = '#818CF8';
@@ -28,11 +30,12 @@ const indigoGlass = (): React.CSSProperties => ({
 });
 
 const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '10px 14px',
+    width: '100%', padding: '12px 16px',
     background: 'rgba(255,255,255,0.05)',
     backdropFilter: 'blur(12px)',
     border: '1px solid rgba(99,102,241,0.25)',
-    borderRadius: '10px', color: '#fff', outline: 'none', ...monoFont,
+    borderRadius: '12px', color: '#fff', outline: 'none', ...monoFont,
+    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
 };
 
 const GROUP_TYPES = [
@@ -73,82 +76,81 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
             style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(10px)' }}>
-            <motion.div className="w-full max-w-md rounded-2xl p-7 relative overflow-hidden"
+            <GlassCard
+                className="w-full max-w-md p-7 relative overflow-hidden"
+                spacing="none"
                 style={{
-                    background: 'rgba(0,0,0,0.6)',
-                    backdropFilter: 'blur(36px) saturate(220%)',
-                    border: '1px solid rgba(99,102,241,0.28)',
                     boxShadow: '0 30px 80px rgba(0,0,0,0.85), 0 0 40px rgba(99,102,241,0.08)',
                 }}
-                initial={{ opacity: 0, scale: 0.88, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
             >
-                {/* top shimmer */}
-                <div className="absolute top-0 left-0 right-0 h-px"
-                    style={{ background: 'linear-gradient(90deg, transparent, rgba(129,140,248,0.6), transparent)' }} />
-                <div className="absolute inset-0 pointer-events-none"
-                    style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.07) 0%, transparent 60%)' }} />
+                <div className="p-7 relative z-10">
+                    {/* top shimmer */}
+                    <div className="absolute top-0 left-0 right-0 h-px"
+                        style={{ background: 'linear-gradient(90deg, transparent, rgba(129,140,248,0.6), transparent)' }} />
+                    <div className="absolute inset-0 pointer-events-none"
+                        style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.07) 0%, transparent 60%)' }} />
 
-                <div className="flex items-center justify-between mb-6 relative z-10">
-                    <h3 className="text-xl font-bold text-white" style={headingFont}>Create New Group</h3>
-                    <button onClick={onClose} style={{ color: 'rgba(255,255,255,0.4)', fontSize: 20 }}
-                        onMouseEnter={e => (e.currentTarget.style.color = INDIGO)}
-                        onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}>✕</button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
-                    <div>
-                        <label className="block text-sm mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Group Name</label>
-                        <input value={name} onChange={e => setName(e.target.value)}
-                            placeholder="e.g. Goa Trip 2025"
-                            style={inputStyle} autoFocus />
+                    <div className="flex items-center justify-between mb-6 relative z-10">
+                        <h3 className="text-xl font-bold text-white" style={headingFont}>Create New Group</h3>
+                        <button onClick={onClose} style={{ color: 'rgba(255,255,255,0.4)', fontSize: 20 }}
+                            onMouseEnter={e => (e.currentTarget.style.color = INDIGO)}
+                            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}>✕</button>
                     </div>
 
-                    <div>
-                        <label className="block text-sm mb-3" style={{ color: '#A1A1A1', ...monoFont }}>Group Type</label>
-                        <div className="grid grid-cols-2 gap-2">
-                            {GROUP_TYPES.map(({ label, icon: Icon }) => (
-                                <button key={label} type="button" onClick={() => setType(label)}
-                                    className="flex items-center gap-2 p-3 rounded-xl transition-all"
-                                    style={type === label ? {
-                                        background: 'rgba(99,102,241,0.15)',
-                                        border: '1px solid rgba(129,140,248,0.4)',
-                                        color: INDIGO,
-                                        ...monoFont,
-                                        boxShadow: '0 0 16px rgba(99,102,241,0.15)',
-                                    } : {
-                                        background: 'rgba(255,255,255,0.04)',
-                                        border: '1px solid rgba(255,255,255,0.08)',
-                                        color: '#A1A1A1',
-                                        ...monoFont,
-                                    }}>
-                                    <Icon className="size-4" />
-                                    <span className="text-sm font-medium">{label}</span>
-                                </button>
-                            ))}
+                    <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
+                        <div>
+                            <label className="block text-sm mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Group Name</label>
+                            <input value={name} onChange={e => setName(e.target.value)}
+                                placeholder="e.g. Goa Trip 2025"
+                                style={inputStyle} autoFocus
+                                onFocus={e => {
+                                    e.currentTarget.style.borderColor = INDIGO;
+                                    e.currentTarget.style.boxShadow = '0 0 16px rgba(99,102,241,0.2), inset 0 1px 0 rgba(255,255,255,0.08)';
+                                }}
+                                onBlur={e => {
+                                    e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            />
                         </div>
-                    </div>
 
-                    <div className="flex gap-3 pt-2">
-                        <button type="button" onClick={onClose}
-                            className="flex-1 py-2.5 rounded-xl text-sm"
-                            style={{ background: 'rgba(255,255,255,0.06)', color: '#A1A1A1', border: '1px solid rgba(255,255,255,0.1)', ...monoFont }}>
-                            Cancel
-                        </button>
-                        <motion.button type="submit" disabled={loading}
-                            className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
-                            style={{
-                                background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)`,
-                                color: '#fff', border: 'none', ...headingFont,
-                                boxShadow: '0 0 20px rgba(99,102,241,0.35)',
-                                opacity: loading ? 0.7 : 1,
-                            }}
-                            whileHover={{ scale: 1.02, boxShadow: '0 0 28px rgba(99,102,241,0.55)' }}
-                            whileTap={{ scale: 0.97 }}>
-                            {loading ? 'Creating...' : 'Create Group ✨'}
-                        </motion.button>
-                    </div>
-                </form>
-            </motion.div>
+                        <div>
+                            <label className="block text-sm mb-3" style={{ color: '#A1A1A1', ...monoFont }}>Group Type</label>
+                            <div className="grid grid-cols-2 gap-2">
+                                {GROUP_TYPES.map(({ label, icon: Icon }) => (
+                                    <button key={label} type="button" onClick={() => setType(label)}
+                                        className="flex items-center gap-2 p-3 rounded-xl transition-all"
+                                        style={type === label ? {
+                                            background: 'rgba(99,102,241,0.15)',
+                                            border: '1px solid rgba(129,140,248,0.4)',
+                                            color: INDIGO,
+                                            ...monoFont,
+                                            boxShadow: '0 0 16px rgba(99,102,241,0.15)',
+                                        } : {
+                                            background: 'rgba(255,255,255,0.04)',
+                                            border: '1px solid rgba(255,255,255,0.08)',
+                                            color: '#A1A1A1',
+                                            ...monoFont,
+                                        }}>
+                                        <Icon className="size-4" />
+                                        <span className="text-sm font-medium">{label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 pt-2">
+                            <NeonButton variant="ghost" type="button" onClick={onClose} className="flex-1">
+                                Cancel
+                            </NeonButton>
+                            <NeonButton type="submit" disabled={loading} className="flex-1 shadow-[0_0_20px_rgba(99,102,241,0.35)]"
+                                style={{ background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)` }}>
+                                {loading ? 'Creating...' : 'Create Group ✨'}
+                            </NeonButton>
+                        </div>
+                    </form>
+                </div>
+            </GlassCard>
         </div>
     );
 }
@@ -159,13 +161,15 @@ function GroupCard({ group, onSelect, onDelete }: {
 }) {
     const GroupIcon = getGroupIcon(group.type);
     return (
-        <motion.div
-            className="p-5 rounded-2xl cursor-pointer group relative overflow-hidden"
-            style={indigoGlass()}
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.02, borderColor: 'rgba(129,140,248,0.4)' }}
-            whileTap={{ scale: 0.98 }}
+        <GlassCard
+            interactive
+            active={true}
+            className="p-5 cursor-pointer flex flex-col"
             onClick={onSelect}
+            style={{
+                border: '1px solid rgba(99,102,241,0.2)',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.65), inset 0 1.5px 0 rgba(129,140,248,0.15)',
+            }}
         >
             {/* sheen */}
             <div className="absolute inset-0 pointer-events-none rounded-[inherit]"
@@ -201,7 +205,7 @@ function GroupCard({ group, onSelect, onDelete }: {
                     {new Date(group.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </span>
             </div>
-        </motion.div>
+        </GlassCard>
     );
 }
 
@@ -266,18 +270,11 @@ export function SplitKro({ userId, userName }: SplitKroProps) {
                         </div>
                     </div>
 
-                    <motion.button onClick={() => setShowCreate(true)}
-                        className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm"
-                        style={{
-                            background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)`,
-                            color: '#fff', border: 'none', ...headingFont,
-                            boxShadow: '0 0 20px rgba(99,102,241,0.35)',
-                        }}
-                        whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(99,102,241,0.55)' }}
-                        whileTap={{ scale: 0.96 }}>
+                    <NeonButton onClick={() => setShowCreate(true)} className="shadow-[0_0_20px_rgba(99,102,241,0.35)]"
+                        style={{ background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)` }}>
                         <Plus className="size-4" />
                         New Group
-                    </motion.button>
+                    </NeonButton>
                 </div>
             </motion.div>
 
@@ -289,13 +286,13 @@ export function SplitKro({ userId, userName }: SplitKroProps) {
                     { label: 'Active Splits', value: groups.length > 0 ? 'Tap to view' : 'None', icon: '📊' },
                     { label: 'Split Method', value: 'Smart Settle', icon: '⚡' },
                 ].map((stat, i) => (
-                    <div key={i} className="p-4 rounded-xl flex items-center gap-4" style={glass()}>
+                    <GlassCard key={i} className="flex items-center gap-4" spacing="md">
                         <span className="text-2xl">{stat.icon}</span>
                         <div>
                             <div className="font-bold text-white" style={headingFont}>{stat.value}</div>
                             <div className="text-xs" style={{ color: '#A1A1A1', ...monoFont }}>{stat.label}</div>
                         </div>
-                    </div>
+                    </GlassCard>
                 ))}
             </motion.div>
 
@@ -315,16 +312,10 @@ export function SplitKro({ userId, userName }: SplitKroProps) {
                     <p className="text-sm mb-6" style={{ color: '#A1A1A1', ...monoFont }}>
                         Create your first group to start splitting expenses
                     </p>
-                    <motion.button onClick={() => setShowCreate(true)}
-                        className="px-6 py-3 rounded-xl font-semibold"
-                        style={{
-                            background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)`,
-                            color: '#fff', ...headingFont,
-                            boxShadow: '0 0 20px rgba(99,102,241,0.35)',
-                        }}
-                        whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}>
+                    <NeonButton onClick={() => setShowCreate(true)} size="lg" className="shadow-[0_0_20px_rgba(99,102,241,0.35)]"
+                        style={{ background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)` }}>
                         Create First Group
-                    </motion.button>
+                    </NeonButton>
                 </motion.div>
             ) : (
                 <div>

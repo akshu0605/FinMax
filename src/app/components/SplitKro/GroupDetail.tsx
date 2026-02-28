@@ -6,25 +6,15 @@ import { splitKroApi, SKGroup, SKMember, SKExpense, BalanceEntry } from '../../u
 import { simplifyDebts } from '../../utils/debtSimplifier';
 import { AddExpenseModal } from './AddExpenseModal.tsx';
 import { SettleUpModal } from './SettleUpModal.tsx';
+import { GlassCard } from '../ui/GlassCard';
+import { NeonButton } from '../ui/NeonButton';
 
 const INDIGO = '#818CF8';
 const INDIGO_DARK = '#6366F1';
 const headingFont: React.CSSProperties = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
 const monoFont: React.CSSProperties = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
 
-const glass = (): React.CSSProperties => ({
-    background: 'rgba(255,255,255,0.04)',
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-});
-
-const indigoCard = (): React.CSSProperties => ({
-    background: 'rgba(99,102,241,0.07)',
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(129,140,248,0.18)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-});
+// Using global GlassCard for all cards and modals
 
 // ─── Add Member Modal ────────────────────────────────────────────────────────
 function AddMemberModal({ groupId, onClose, onAdded }: {
@@ -49,62 +39,75 @@ function AddMemberModal({ groupId, onClose, onAdded }: {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
             style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(10px)' }}>
-            <motion.div className="w-full max-w-md rounded-2xl p-7 relative overflow-hidden"
+            <GlassCard
+                className="w-full max-w-md p-7 relative overflow-hidden"
+                spacing="none"
                 style={{
-                    background: 'rgba(0,0,0,0.6)',
-                    backdropFilter: 'blur(36px)',
-                    border: '1px solid rgba(99,102,241,0.28)',
-                    boxShadow: '0 30px 80px rgba(0,0,0,0.85)',
+                    boxShadow: '0 30px 80px rgba(0,0,0,0.85), 0 0 40px rgba(99,102,241,0.08)',
                 }}
-                initial={{ opacity: 0, scale: 0.88, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}>
-                <div className="absolute top-0 left-0 right-0 h-px"
-                    style={{ background: 'linear-gradient(90deg, transparent, rgba(129,140,248,0.6), transparent)' }} />
-                <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-white" style={headingFont}>Add Member</h3>
-                    <button onClick={onClose} style={{ color: 'rgba(255,255,255,0.4)', fontSize: 20 }}
-                        onMouseEnter={e => (e.currentTarget.style.color = INDIGO)}
-                        onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}>✕</button>
+            >
+                <div className="p-7 relative z-10">
+                    <div className="absolute top-0 left-0 right-0 h-px"
+                        style={{ background: 'linear-gradient(90deg, transparent, rgba(129,140,248,0.6), transparent)' }} />
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold text-white" style={headingFont}>Add Member</h3>
+                        <button onClick={onClose} style={{ color: 'rgba(255,255,255,0.4)', fontSize: 20 }}
+                            onMouseEnter={e => (e.currentTarget.style.color = INDIGO)}
+                            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}>✕</button>
+                    </div>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label className="block text-sm mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Name *</label>
+                            <input value={displayName} onChange={e => setDisplayName(e.target.value)}
+                                placeholder="e.g. Rohan Sharma"
+                                style={{
+                                    width: '100%', padding: '12px 16px',
+                                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(99,102,241,0.25)',
+                                    borderRadius: '12px', color: '#fff', outline: 'none', ...monoFont,
+                                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                }} autoFocus
+                                onFocus={e => {
+                                    e.currentTarget.style.borderColor = INDIGO;
+                                    e.currentTarget.style.boxShadow = '0 0 16px rgba(99,102,241,0.2), inset 0 1px 0 rgba(255,255,255,0.08)';
+                                }}
+                                onBlur={e => {
+                                    e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Email (optional)</label>
+                            <input value={email} onChange={e => setEmail(e.target.value)}
+                                placeholder="rohan@example.com" type="email"
+                                style={{
+                                    width: '100%', padding: '12px 16px',
+                                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(99,102,241,0.25)',
+                                    borderRadius: '12px', color: '#fff', outline: 'none', ...monoFont,
+                                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                }}
+                                onFocus={e => {
+                                    e.currentTarget.style.borderColor = INDIGO;
+                                    e.currentTarget.style.boxShadow = '0 0 16px rgba(99,102,241,0.2), inset 0 1px 0 rgba(255,255,255,0.08)';
+                                }}
+                                onBlur={e => {
+                                    e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            />
+                        </div>
+                        <div className="flex gap-3 pt-2">
+                            <NeonButton variant="ghost" type="button" onClick={onClose} className="flex-1">
+                                Cancel
+                            </NeonButton>
+                            <NeonButton type="submit" disabled={loading} className="flex-1 shadow-[0_0_20px_rgba(99,102,241,0.35)]"
+                                style={{ background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)` }}>
+                                {loading ? 'Adding...' : 'Add Member'}
+                            </NeonButton>
+                        </div>
+                    </form>
                 </div>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Name *</label>
-                        <input value={displayName} onChange={e => setDisplayName(e.target.value)}
-                            placeholder="e.g. Rohan Sharma"
-                            style={{
-                                width: '100%', padding: '10px 14px',
-                                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(99,102,241,0.25)',
-                                borderRadius: '10px', color: '#fff', outline: 'none', ...monoFont,
-                            }} autoFocus />
-                    </div>
-                    <div>
-                        <label className="block text-sm mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Email (optional)</label>
-                        <input value={email} onChange={e => setEmail(e.target.value)}
-                            placeholder="rohan@example.com" type="email"
-                            style={{
-                                width: '100%', padding: '10px 14px',
-                                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(99,102,241,0.25)',
-                                borderRadius: '10px', color: '#fff', outline: 'none', ...monoFont,
-                            }} />
-                    </div>
-                    <div className="flex gap-3 pt-2">
-                        <button type="button" onClick={onClose}
-                            className="flex-1 py-2.5 rounded-xl text-sm"
-                            style={{ background: 'rgba(255,255,255,0.06)', color: '#A1A1A1', border: '1px solid rgba(255,255,255,0.1)', ...monoFont }}>
-                            Cancel
-                        </button>
-                        <motion.button type="submit" disabled={loading}
-                            className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
-                            style={{
-                                background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)`,
-                                color: '#fff', border: 'none', ...headingFont,
-                                opacity: loading ? 0.7 : 1,
-                            }}
-                            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-                            {loading ? 'Adding...' : 'Add Member'}
-                        </motion.button>
-                    </div>
-                </form>
-            </motion.div>
+            </GlassCard>
         </div>
     );
 }
@@ -180,24 +183,13 @@ export function GroupDetail({ group, userId, userName, onBack }: GroupDetailProp
                     </div>
 
                     <div className="flex gap-2 flex-wrap">
-                        <motion.button onClick={() => setShowAddMember(true)}
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm"
-                            style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(129,140,248,0.25)', color: INDIGO, ...monoFont }}
-                            whileHover={{ scale: 1.03, background: 'rgba(99,102,241,0.18)' }}
-                            whileTap={{ scale: 0.97 }}>
+                        <NeonButton onClick={() => setShowAddMember(true)} variant="ghost" size="sm">
                             <UserPlus className="size-4" /> Add Member
-                        </motion.button>
-                        <motion.button onClick={() => setShowAddExpense(true)}
-                            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
-                            style={{
-                                background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)`,
-                                color: '#fff', ...headingFont,
-                                boxShadow: '0 0 16px rgba(99,102,241,0.3)',
-                            }}
-                            whileHover={{ scale: 1.04, boxShadow: '0 0 24px rgba(99,102,241,0.5)' }}
-                            whileTap={{ scale: 0.97 }}>
+                        </NeonButton>
+                        <NeonButton onClick={() => setShowAddExpense(true)} size="sm" className="shadow-[0_0_16px_rgba(99,102,241,0.3)]"
+                            style={{ background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)` }}>
                             <Plus className="size-4" /> Add Expense
-                        </motion.button>
+                        </NeonButton>
                     </div>
                 </div>
             </motion.div>
@@ -220,15 +212,17 @@ export function GroupDetail({ group, userId, userName, onBack }: GroupDetailProp
                         color: '#FBBF24', icon: '📋',
                     },
                 ].map((s, i) => (
-                    <motion.div key={i} className="p-4 rounded-xl"
-                        style={indigoCard()}
-                        initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                    <GlassCard key={i} className="flex flex-col" spacing="md"
+                        style={{
+                            border: `1px solid ${s.color}33`,
+                            boxShadow: `0 8px 32px ${i === 1 ? s.color + '15' : 'rgba(0,0,0,0.5)'}`,
+                        }}>
                         <div className="flex items-center gap-2 mb-1">
                             <span className="text-lg">{s.icon}</span>
                             <span className="text-xs" style={{ color: '#A1A1A1', ...monoFont }}>{s.label}</span>
                         </div>
                         <div className="text-xl font-bold" style={{ color: s.color, ...headingFont }}>{s.value}</div>
-                    </motion.div>
+                    </GlassCard>
                 ))}
             </div>
 
@@ -261,11 +255,11 @@ export function GroupDetail({ group, userId, userName, onBack }: GroupDetailProp
                     {activeTab === 'expenses' && (
                         <motion.div key="expenses" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
                             {expenses.length === 0 ? (
-                                <div className="py-20 text-center rounded-2xl" style={indigoCard()}>
+                                <GlassCard className="py-20 text-center" spacing="lg">
                                     <div className="text-4xl mb-3">💸</div>
                                     <p className="text-white font-semibold mb-1" style={headingFont}>No expenses yet</p>
                                     <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Add your first shared expense</p>
-                                </div>
+                                </GlassCard>
                             ) : (
                                 <div className="space-y-3">
                                     {expenses.map((exp, i) => {
@@ -273,11 +267,15 @@ export function GroupDetail({ group, userId, userName, onBack }: GroupDetailProp
                                         const payerName = payer?.display_name || 'Unknown';
                                         const isSettlement = exp.description === '✅ Settlement';
                                         return (
-                                            <motion.div key={exp.id}
-                                                className="p-5 rounded-xl flex items-center justify-between group"
-                                                style={isSettlement ? glass() : indigoCard()}
-                                                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                                                whileHover={{ scale: 1.01 }}>
+                                            <GlassCard key={exp.id}
+                                                className="flex items-center justify-between group"
+                                                active={!isSettlement}
+                                                spacing="md"
+                                                style={{
+                                                    borderColor: isSettlement ? 'rgba(52,211,153,0.2)' : 'rgba(129,140,248,0.2)',
+                                                }}
+                                                onClick={() => { }} // dummy to enable hover effects from components
+                                            >
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl"
                                                         style={{ background: isSettlement ? 'rgba(52,211,153,0.1)' : 'rgba(99,102,241,0.12)', border: `1px solid ${isSettlement ? 'rgba(52,211,153,0.2)' : 'rgba(129,140,248,0.2)'}` }}>
@@ -309,7 +307,7 @@ export function GroupDetail({ group, userId, userName, onBack }: GroupDetailProp
                                                         </button>
                                                     )}
                                                 </div>
-                                            </motion.div>
+                                            </GlassCard>
                                         );
                                     })}
                                 </div>
@@ -321,20 +319,21 @@ export function GroupDetail({ group, userId, userName, onBack }: GroupDetailProp
                     {activeTab === 'balances' && (
                         <motion.div key="balances" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
                             {balances.length === 0 ? (
-                                <div className="py-20 text-center rounded-2xl" style={indigoCard()}>
+                                <GlassCard className="py-20 text-center" spacing="lg">
                                     <div className="text-4xl mb-3">📊</div>
                                     <p className="text-white font-semibold" style={headingFont}>Add expenses to see balances</p>
-                                </div>
+                                </GlassCard>
                             ) : (
                                 <div className="space-y-3">
                                     {balances.map((bal, i) => {
                                         const isMe = bal.userId === userId;
                                         const isPositive = bal.netBalance >= 0;
                                         return (
-                                            <motion.div key={bal.userId}
-                                                className="p-5 rounded-xl"
-                                                style={indigoCard()}
-                                                initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }}>
+                                            <GlassCard key={bal.userId}
+                                                className="flex flex-col"
+                                                spacing="md"
+                                                style={{ border: '1px solid rgba(129,140,248,0.2)' }}
+                                            >
                                                 <div className="flex items-center justify-between mb-3">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold"
@@ -371,7 +370,7 @@ export function GroupDetail({ group, userId, userName, onBack }: GroupDetailProp
                                                 <div className="mt-2 text-xs" style={{ color: '#A1A1A1', ...monoFont }}>
                                                     {isPositive ? `Others owe ${isMe ? 'you' : bal.displayName} ₹${bal.netBalance.toFixed(0)}` : `${isMe ? 'You owe' : `${bal.displayName} owes`} ₹${Math.abs(bal.netBalance).toFixed(0)}`}
                                                 </div>
-                                            </motion.div>
+                                            </GlassCard>
                                         );
                                     })}
                                 </div>
@@ -383,21 +382,22 @@ export function GroupDetail({ group, userId, userName, onBack }: GroupDetailProp
                     {activeTab === 'settle' && (
                         <motion.div key="settle" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
                             {settlements.length === 0 ? (
-                                <div className="py-20 text-center rounded-2xl" style={indigoCard()}>
+                                <GlassCard className="py-20 text-center" spacing="lg">
                                     <div className="text-4xl mb-3">🎉</div>
                                     <p className="text-white font-semibold mb-1" style={headingFont}>All settled up!</p>
                                     <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>No pending payments</p>
-                                </div>
+                                </GlassCard>
                             ) : (
                                 <div className="space-y-3">
                                     {settlements.map((txn, i) => {
                                         const isMyPayment = txn.from === userId;
                                         const isMyReceipt = txn.to === userId;
                                         return (
-                                            <motion.div key={i}
-                                                className="p-5 rounded-xl"
-                                                style={indigoCard()}
-                                                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
+                                            <GlassCard key={i}
+                                                className="flex flex-col"
+                                                spacing="md"
+                                                style={{ border: '1px solid rgba(129,140,248,0.2)' }}
+                                            >
                                                 <div className="flex items-center justify-between flex-wrap gap-4">
                                                     <div className="flex items-center gap-3">
                                                         <div className="flex items-center gap-2">
@@ -426,21 +426,17 @@ export function GroupDetail({ group, userId, userName, onBack }: GroupDetailProp
                                                             ₹{txn.amount.toLocaleString()}
                                                         </div>
                                                         {isMyPayment && (
-                                                            <motion.button
+                                                            <NeonButton
                                                                 onClick={() => setShowSettle(true)}
-                                                                className="px-4 py-2 rounded-xl text-sm font-semibold"
-                                                                style={{
-                                                                    background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)`,
-                                                                    color: '#fff', ...headingFont,
-                                                                    boxShadow: '0 0 12px rgba(99,102,241,0.3)',
-                                                                }}
-                                                                whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+                                                                size="sm"
+                                                                className="shadow-[0_0_12px_rgba(99,102,241,0.3)]"
+                                                                style={{ background: `linear-gradient(135deg, ${INDIGO_DARK}, #8B5CF6)` }}>
                                                                 Settle ✓
-                                                            </motion.button>
+                                                            </NeonButton>
                                                         )}
                                                     </div>
                                                 </div>
-                                            </motion.div>
+                                            </GlassCard>
                                         );
                                     })}
                                 </div>

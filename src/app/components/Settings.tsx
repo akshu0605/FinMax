@@ -8,28 +8,22 @@ import {
 import { Logo } from './Logo';
 import { StarField } from './StarField';
 
+import { GlassCard } from './ui/GlassCard';
+import { NeonButton } from './ui/NeonButton';
+
 // ─── Design tokens ────────────────────────────────────────────────
-const TEAL = '#00F2EA';
+const TEAL = '#00f2ff';
 const headingFont: React.CSSProperties = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
 const monoFont: React.CSSProperties = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
 
-const glass = (): React.CSSProperties => ({
-  background: 'rgba(255,255,255,0.045)',
-  backdropFilter: 'blur(24px) saturate(200%) brightness(1.08)',
-  WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.08)',
-  border: '1px solid rgba(0,242,234,0.13)',
-  boxShadow: '0 12px 40px rgba(0,0,0,0.6), inset 0 1.5px 0 rgba(255,255,255,0.09)',
-  position: 'relative' as const,
-});
-
 const inputBase: React.CSSProperties = {
-  width: '100%', padding: '11px 14px',
+  width: '100%', padding: '12px 16px',
   background: 'rgba(255,255,255,0.05)',
   backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
   border: '1px solid rgba(0,242,234,0.18)',
-  borderRadius: '10px', color: '#fff', outline: 'none', ...monoFont,
+  borderRadius: '12px', color: '#fff', outline: 'none', ...monoFont,
   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)',
-  transition: 'border-color 0.2s, box-shadow 0.2s',
+  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
 };
 
 const sheen = (
@@ -60,16 +54,6 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
   );
 }
 
-// ─── Glass section card ───────────────────────────────────────────
-function GlassCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`p-6 rounded-2xl overflow-hidden ${className}`} style={glass()}>
-      {sheen}
-      <div className="relative z-10">{children}</div>
-    </div>
-  );
-}
-
 // ─── Row with toggle ──────────────────────────────────────────────
 function ToggleRow({ icon: Icon, iconColor, label, description, on, onToggle }: {
   icon: any; iconColor: string; label: string; description: string; on: boolean; onToggle: () => void;
@@ -94,38 +78,6 @@ function ToggleRow({ icon: Icon, iconColor, label, description, on, onToggle }: 
   );
 }
 
-// ─── Teal CTA button ──────────────────────────────────────────────
-function TealButton({ onClick, type = 'button', children, className = '' }:
-  { onClick?: () => void; type?: 'button' | 'submit'; children: React.ReactNode; className?: string }) {
-  return (
-    <motion.button type={type} onClick={onClick}
-      className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold ${className}`}
-      style={{ background: TEAL, color: '#000', ...headingFont, boxShadow: '0 0 18px rgba(0,242,234,0.32), inset 0 1.5px 0 rgba(255,255,255,0.3)' }}
-      whileHover={{ scale: 1.04, boxShadow: '0 0 36px rgba(0,242,234,0.6), inset 0 1.5px 0 rgba(255,255,255,0.3)' }}
-      whileTap={{ scale: 0.97 }}
-    >{children}</motion.button>
-  );
-}
-
-function GhostButton({ onClick, children, danger = false }: { onClick?: () => void; children: React.ReactNode; danger?: boolean }) {
-  return (
-    <motion.button onClick={onClick}
-      className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all"
-      style={danger ? {
-        background: 'rgba(248,113,113,0.08)', color: '#F87171',
-        border: '1px solid rgba(248,113,113,0.28)', ...headingFont,
-      } : {
-        background: 'rgba(255,255,255,0.06)', color: '#A1A1A1',
-        border: '1px solid rgba(255,255,255,0.1)', ...monoFont,
-        backdropFilter: 'blur(10px)',
-      }}
-      whileHover={danger
-        ? { background: 'rgba(248,113,113,0.14)', color: '#FCA5A5' }
-        : { background: 'rgba(255,255,255,0.1)', color: '#fff' }}
-      whileTap={{ scale: 0.97 }}
-    >{children}</motion.button>
-  );
-}
 
 // ─── Types ────────────────────────────────────────────────────────
 interface SettingsProps { userEmail: string; onBack: () => void; onLogout: () => void; currency: string; onCurrencyChange: (c: string) => void; }
@@ -192,7 +144,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
         return (
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             {/* Avatar */}
-            <GlassCard>
+            <GlassCard rounded="apple">
               <div className="flex items-center gap-6">
                 <div className="relative group shrink-0">
                   <div className="w-24 h-24 rounded-full flex items-center justify-center overflow-hidden"
@@ -208,22 +160,22 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
                 <div>
                   <h3 className="text-xl font-bold text-white mb-1" style={headingFont}>{fullName}</h3>
                   <p className="text-sm mb-3" style={{ color: '#A1A1A1', ...monoFont }}>{userEmail}</p>
-                  <button className="text-sm font-semibold transition-colors" style={{ color: TEAL, ...monoFont }}
-                    onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
-                    onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
-                  >Upload new photo</button>
+                  <label className="text-sm font-semibold transition-colors cursor-pointer" style={{ color: TEAL, ...monoFont }}>
+                    Upload new photo
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  </label>
                 </div>
               </div>
             </GlassCard>
 
             {/* Personal info */}
-            <GlassCard>
+            <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-5" style={headingFont}>Personal Information</h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Full Name</label>
                   <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} style={inputBase}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = '0 0 14px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)'; }}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = '0 0 16px rgba(0,242,234,0.15), inset 0 1px 0 rgba(255,255,255,0.07)'; }}
                     onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)'; e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.07)'; }} />
                 </div>
                 <div>
@@ -238,16 +190,18 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
                   <div className="relative">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 size-4" style={{ color: '#A1A1A1' }} />
                     <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} style={{ ...inputBase, paddingLeft: '2.75rem' }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = '0 0 14px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)'; }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = '0 0 16px rgba(0,242,234,0.15), inset 0 1px 0 rgba(255,255,255,0.07)'; }}
                       onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)'; e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.07)'; }} />
                   </div>
                 </div>
-                <div className="flex gap-3 pt-2"><TealButton><Save className="size-4" /> Save Changes</TealButton></div>
+                <div className="flex gap-3 pt-2">
+                  <NeonButton><Save className="size-4" /> Save Changes</NeonButton>
+                </div>
               </div>
             </GlassCard>
 
             {/* Security quick actions */}
-            <GlassCard>
+            <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-4" style={headingFont}>Quick Security</h3>
               <div className="space-y-3">
                 <motion.button className="w-full flex items-center justify-between px-4 py-3 rounded-xl group relative overflow-hidden"
@@ -276,7 +230,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
       case 'financial':
         return (
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <GlassCard>
+            <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-5" style={headingFont}>Financial Preferences</h3>
               <div className="space-y-4">
                 <div>
@@ -303,7 +257,9 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
                 </div>
                 <div>
                   <label className="block text-xs mb-2" style={{ color: '#A1A1A1', ...monoFont }}>Financial Year</label>
-                  <select value={financialYear} onChange={(e) => setFinancialYear(e.target.value)} style={inputBase as any}>
+                  <select value={financialYear} onChange={(e) => setFinancialYear(e.target.value)} style={inputBase as any}
+                    onFocus={(e) => { e.currentTarget.style.borderColor = TEAL; e.currentTarget.style.boxShadow = '0 0 16px rgba(0,242,234,0.15), inset 0 1px 0 rgba(255,255,255,0.07)'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)'; e.currentTarget.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.07)'; }}>
                     <option value="April-March" style={{ background: '#0A0A0A' }}>April – March (India)</option>
                     <option value="January-December" style={{ background: '#0A0A0A' }}>January – December (Calendar Year)</option>
                     <option value="July-June" style={{ background: '#0A0A0A' }}>July – June (Australia)</option>
@@ -314,7 +270,9 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
                 <ToggleRow icon={Bell} iconColor={TEAL} label="Enable Budget Alerts" description="Get notified when approaching budget limits" on={budgetAlerts} onToggle={() => setBudgetAlerts(!budgetAlerts)} />
                 <ToggleRow icon={AlertTriangle} iconColor="#FBBF24" label="Over-Budget Warning" description="Alert when expenses exceed budget" on={overBudgetWarning} onToggle={() => setOverBudgetWarning(!overBudgetWarning)} />
               </div>
-              <div className="mt-5"><TealButton className="w-full py-3">Save Preferences</TealButton></div>
+              <div className="mt-5">
+                <NeonButton className="w-full py-3">Save Preferences</NeonButton>
+              </div>
             </GlassCard>
           </motion.div>
         );
@@ -322,7 +280,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
       case 'notifications':
         return (
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <GlassCard>
+            <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Notification Settings</h3>
               <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Manage how you receive notifications</p>
               <div>
@@ -341,7 +299,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
       case 'appearance':
         return (
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <GlassCard>
+            <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Appearance Settings</h3>
               <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Customize your interface</p>
               <ToggleRow icon={Palette} iconColor={TEAL} label="Dark Mode" description="Use dark theme across the app" on={darkMode} onToggle={() => setDarkMode(!darkMode)} />
@@ -372,7 +330,6 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
             {/* Status banner */}
             <div className="p-5 rounded-2xl overflow-hidden relative"
               style={{ background: 'rgba(52,211,153,0.07)', border: '1px solid rgba(52,211,153,0.25)', backdropFilter: 'blur(20px)' }}>
-              {sheen}
               <div className="flex items-center gap-4 relative z-10">
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center"
                   style={{ background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)' }}>
@@ -385,7 +342,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
               </div>
             </div>
 
-            <GlassCard>
+            <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-4" style={headingFont}>Security Options</h3>
               <div className="space-y-3">
                 <motion.button className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl"
@@ -415,7 +372,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
               </div>
             </GlassCard>
 
-            <GlassCard>
+            <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-4" style={headingFont}>Active Sessions</h3>
               <div className="space-y-3">
                 {activeSessions.map((s, i) => (
@@ -441,7 +398,9 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
                   </div>
                 ))}
               </div>
-              <div className="mt-4"><GhostButton danger><LogOut className="size-4" /> Logout from All Devices</GhostButton></div>
+              <div className="mt-4">
+                <NeonButton variant="danger"><LogOut className="size-4" /> Logout from All Devices</NeonButton>
+              </div>
             </GlassCard>
           </motion.div>
         );
@@ -449,34 +408,32 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
       case 'data':
         return (
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <GlassCard>
+            <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Export Data</h3>
               <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Download your financial data in various formats</p>
               <div className="grid grid-cols-2 gap-3">
-                <TealButton><Download className="size-4" /> Export as CSV</TealButton>
-                <GhostButton><Download className="size-4" /> Export as PDF</GhostButton>
+                <NeonButton><Download className="size-4" /> Export as CSV</NeonButton>
+                <NeonButton variant="ghost"><Download className="size-4" /> Export as PDF</NeonButton>
               </div>
             </GlassCard>
 
-            <GlassCard>
+            <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Import Data</h3>
               <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Import financial data from external sources</p>
-              <GhostButton><FileUp className="size-4" /> Import CSV File</GhostButton>
+              <NeonButton variant="ghost"><FileUp className="size-4" /> Import CSV File</NeonButton>
             </GlassCard>
 
-            <GlassCard>
+            <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Backup & Restore</h3>
               <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Create a backup or restore from previous backup</p>
               <div className="grid grid-cols-2 gap-3">
-                <TealButton><Database className="size-4" /> Create Backup</TealButton>
-                <GhostButton><Upload className="size-4" /> Restore Backup</GhostButton>
+                <NeonButton><Database className="size-4" /> Create Backup</NeonButton>
+                <NeonButton variant="ghost"><Upload className="size-4" /> Restore Backup</NeonButton>
               </div>
             </GlassCard>
 
-            {/* Danger zone */}
             <div className="p-6 rounded-2xl relative overflow-hidden"
               style={{ background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.22)', backdropFilter: 'blur(20px)' }}>
-              {sheen}
               <div className="relative z-10">
                 <div className="flex items-start gap-3 mb-4">
                   <AlertTriangle className="size-5 text-red-400 mt-0.5 shrink-0" />
@@ -485,7 +442,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
                     <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>These actions cannot be undone</p>
                   </div>
                 </div>
-                <GhostButton danger><Trash2 className="size-4" /> Reset All Financial Data</GhostButton>
+                <NeonButton variant="danger"><Trash2 className="size-4" /> Reset All Financial Data</NeonButton>
               </div>
             </div>
           </motion.div>
@@ -519,11 +476,11 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
                   </div>
                 ))}
               </div>
-              <TealButton className="w-full py-3 relative z-10">Upgrade to Premium</TealButton>
+              <NeonButton className="w-full py-3 relative z-10">Upgrade to Premium</NeonButton>
             </div>
 
             {/* Payment */}
-            <GlassCard>
+            <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-4" style={headingFont}>Payment Method</h3>
               <div className="flex items-center justify-between p-4 rounded-xl"
                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
@@ -545,7 +502,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
             </GlassCard>
 
             {/* Billing history */}
-            <GlassCard>
+            <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-4" style={headingFont}>Billing History</h3>
               <div className="space-y-3">
                 {[{ date: 'Feb 1, 2026', amount: '₹499' }, { date: 'Jan 1, 2026', amount: '₹499' }, { date: 'Dec 1, 2025', amount: '₹499' }].map((inv, i) => (

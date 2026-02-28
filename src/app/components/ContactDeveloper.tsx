@@ -3,19 +3,13 @@ import { motion } from 'motion/react';
 import { Mail, Phone, MapPin, User, Send, Github, Linkedin, Twitter, Heart, ArrowLeft, MessageSquare, Code } from 'lucide-react';
 import { Logo } from './Logo';
 import { StarField } from './StarField';
+import { GlassCard } from './ui/GlassCard';
+import { NeonButton } from './ui/NeonButton';
 
 // ─── Design tokens ────────────────────────────────────────────────
 const TEAL = '#00F2EA';
 const headingFont: React.CSSProperties = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
 const monoFont: React.CSSProperties = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
-
-const glass = (): React.CSSProperties => ({
-  background: 'rgba(255,255,255,0.045)',
-  backdropFilter: 'blur(24px) saturate(200%) brightness(1.08)',
-  WebkitBackdropFilter: 'blur(24px) saturate(200%) brightness(1.08)',
-  border: '1px solid rgba(0,242,234,0.13)',
-  boxShadow: '0 12px 40px rgba(0,0,0,0.6), inset 0 1.5px 0 rgba(255,255,255,0.1)',
-});
 
 const inputBase: React.CSSProperties = {
   width: '100%',
@@ -29,11 +23,12 @@ const inputBase: React.CSSProperties = {
   outline: 'none',
   ...monoFont,
   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)',
+  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
 };
 
 const focusInput = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
   e.currentTarget.style.borderColor = TEAL;
-  e.currentTarget.style.boxShadow = `0 0 16px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)`;
+  e.currentTarget.style.boxShadow = `0 0 16px rgba(0,242,234,0.25), inset 0 1px 0 rgba(255,255,255,0.07)`;
 };
 const blurInput = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
   e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)';
@@ -94,7 +89,17 @@ export function ContactDeveloper({ onBack }: ContactDeveloperProps) {
       )}
 
       {/* Header */}
-      <div className="relative z-10 px-8 py-5" style={{ borderBottom: '1px solid rgba(0,242,234,0.1)', ...glass() }}>
+      <GlassCard
+        className="relative z-10 px-8 py-5"
+        spacing="none"
+        style={{
+          borderTop: 'none',
+          borderLeft: 'none',
+          borderRight: 'none',
+          borderRadius: '0',
+          background: 'rgba(0,0,0,0.3)',
+        }}
+      >
         <div className="flex items-center gap-4">
           <motion.button onClick={onBack}
             className="w-10 h-10 rounded-xl flex items-center justify-center group transition-all"
@@ -110,7 +115,7 @@ export function ContactDeveloper({ onBack }: ContactDeveloperProps) {
           </motion.button>
           <Logo />
         </div>
-      </div>
+      </GlassCard>
 
       {/* Main content */}
       <div className="relative z-10 max-w-7xl mx-auto px-8 py-12">
@@ -131,7 +136,13 @@ export function ContactDeveloper({ onBack }: ContactDeveloperProps) {
           {/* LEFT: Form */}
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
             className="col-span-12 lg:col-span-7">
-            <div className="p-8 rounded-2xl relative overflow-hidden" style={{ ...glass() }}>
+            <GlassCard
+              className="p-8 relative overflow-hidden"
+              spacing="none"
+              style={{
+                boxShadow: '0 30px 80px rgba(0,0,0,0.7), 0 0 50px rgba(0,242,234,0.05)',
+              }}
+            >
               {/* Sheen */}
               <div className="absolute inset-0 pointer-events-none"
                 style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)' }} />
@@ -180,27 +191,22 @@ export function ContactDeveloper({ onBack }: ContactDeveloperProps) {
                     onFocus={focusInput as any} onBlur={blurInput as any} />
                 </div>
 
-                <motion.button type="submit"
-                  className="w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2"
-                  style={{
-                    background: TEAL, color: '#000', ...headingFont,
-                    boxShadow: '0 0 22px rgba(0,242,234,0.4), inset 0 1.5px 0 rgba(255,255,255,0.3)',
-                  }}
-                  whileHover={{ scale: 1.02, boxShadow: '0 0 40px rgba(0,242,234,0.65), inset 0 1.5px 0 rgba(255,255,255,0.3)' }}
-                  whileTap={{ scale: 0.98 }}
+                <NeonButton type="submit"
+                  className="w-full py-4 text-base font-bold shadow-[0_0_22px_rgba(0,242,234,0.4)]"
+                  style={{ background: TEAL, color: '#000' }}
                 >
                   <span>Send Message</span>
                   <Send className="size-5" />
-                </motion.button>
+                </NeonButton>
               </form>
-            </div>
+            </GlassCard>
           </motion.div>
 
           {/* RIGHT: Info */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.3 }}
             className="col-span-12 lg:col-span-5 space-y-5">
             {/* Developer card */}
-            <div className="p-6 rounded-2xl relative overflow-hidden" style={{ ...glass() }}>
+            <GlassCard className="p-6 relative overflow-hidden" spacing="none">
               <div className="absolute inset-0 pointer-events-none"
                 style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)' }} />
               <div className="flex items-center gap-4 relative z-10">
@@ -216,12 +222,12 @@ export function ContactDeveloper({ onBack }: ContactDeveloperProps) {
                   <div className="text-2xl font-bold text-white" style={headingFont}>Akshit Jaswal</div>
                 </div>
               </div>
-            </div>
+            </GlassCard>
 
             {/* Contact info cards */}
             {infoCards.map(({ icon: Icon, label, value, href, color }, i) => (
-              <motion.div key={label} className="p-5 rounded-xl relative overflow-hidden"
-                style={{ ...glass() }}
+              <GlassCard key={label} className="p-5 relative overflow-hidden"
+                spacing="none"
                 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 + i * 0.1 }}
                 whileHover={{ scale: 1.02, borderColor: `${color}40`, boxShadow: `0 12px 40px rgba(0,0,0,0.65), 0 0 20px ${color}15, inset 0 1.5px 0 rgba(255,255,255,0.1)` }}
               >
@@ -249,14 +255,17 @@ export function ContactDeveloper({ onBack }: ContactDeveloperProps) {
                     )}
                   </div>
                 </div>
-              </motion.div>
+              </GlassCard>
             ))}
           </motion.div>
         </div>
 
         {/* Social links */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}
-          className="p-8 rounded-2xl relative overflow-hidden" style={{ ...glass() }}>
+        <GlassCard
+          className="p-8 relative overflow-hidden"
+          spacing="none"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}
+        >
           <div className="absolute inset-0 pointer-events-none"
             style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, transparent 60%)' }} />
           <div className="absolute top-0 left-0 right-0 h-px"
@@ -289,7 +298,7 @@ export function ContactDeveloper({ onBack }: ContactDeveloperProps) {
               </motion.a>
             ))}
           </div>
-        </motion.div>
+        </GlassCard>
 
         {/* Footer */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }}
