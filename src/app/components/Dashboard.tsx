@@ -13,6 +13,7 @@ import { Settings as SettingsPage } from './Settings';
 import { ContactDeveloper } from './ContactDeveloper';
 import { api } from '../utils/api';
 import { toast } from 'sonner';
+import { SplitKro } from './SplitKro';
 
 // ─── Design tokens ────────────────────────────────────────────────
 const TEAL = '#00F2EA';
@@ -192,7 +193,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const [activeView, setActiveView] = useState<'dashboard' | 'budgets' | 'expenses' | 'reminders'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'budgets' | 'expenses' | 'reminders' | 'splitkro'>('dashboard');
   const [currency, setCurrency] = useState<Currency>('INR');
   const [salary, setSalary] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -433,6 +434,28 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
               </motion.button>
             );
           })}
+
+          {/* Split Kro Specialist Button */}
+          <motion.button
+            onClick={() => { setActiveView('splitkro'); setSidebarOpen(false); }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 relative overflow-hidden mt-3"
+            style={activeView === 'splitkro' ? {
+              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              color: '#fff',
+              boxShadow: '0 8px 24px rgba(99,102,241,0.35)',
+              ...headingFont,
+            } : {
+              background: 'rgba(99,102,241,0.08)',
+              border: '1px solid rgba(99,102,241,0.2)',
+              color: '#C7D2FE',
+              ...headingFont,
+            }}
+            whileHover={{ scale: 1.02, x: 4, background: activeView === 'splitkro' ? 'linear-gradient(135deg, #4F46E5, #7C3AED)' : 'rgba(99,102,241,0.15)' }}
+          >
+            <TrendingUp className="size-5" />
+            <span className="font-bold whitespace-nowrap">Split Kro 💸</span>
+          </motion.button>
 
           <motion.button onClick={() => { setShowLoanCalculator(true); setSidebarOpen(false); }}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl mt-2 relative overflow-hidden"
@@ -770,6 +793,11 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
               })}
             </div>
           </TiltCard>
+        )}
+
+        {/* ─── SPLIT KRO VIEW ─── */}
+        {activeView === 'splitkro' && (
+          <SplitKro userId={userId} userName={userName || userEmail} />
         )}
 
         {/* Footer */}
