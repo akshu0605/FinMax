@@ -31,6 +31,8 @@ export default defineConfig({
           'vendor-recharts': ['recharts'],
           // Split animation library
           'vendor-motion': ['motion'],
+          // Split Supabase
+          'vendor-supabase': ['@supabase/supabase-js'],
           // Split Radix UI into one chunk
           'vendor-radix': [
             '@radix-ui/react-accordion',
