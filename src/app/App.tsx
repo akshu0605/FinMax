@@ -4,6 +4,7 @@ import { LandingPage } from './components/LandingPage';
 import { AuthModal } from './components/AuthModal';
 import { Dashboard } from './components/Dashboard';
 import { auth } from './utils/localStorage-auth';
+import { supabase } from './utils/supabase';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -15,27 +16,31 @@ export default function App() {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [loading, setLoading] = useState(true);
 
-  // ── Restore session on mount (token verified server-side) ──────────────
+  // ── Listen to auth state changes (handles OAuth redirects + session restore) ──
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { session } = await auth.getSession();
-        if (session) {
-          setUserName(session.user.name || '');
-          setUserEmail(session.user.email || '');
-          setUserId(session.user.id);
-          setAccessToken(session.access_token);
-          setIsAuthenticated(true);
-        }
-      } catch {
-        // Session check failed silently — stays on landing page
-      } finally {
-        setLoading(false);
+    // onAuthStateChange fires immediately with the current session,
+    // and again after Google OAuth redirect with the new session.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUserName(session.user.user_metadata?.name || session.user.user_metadata?.full_name || '');
+        setUserEmail(session.user.email || '');
+        setUserId(session.user.id);
+        setAccessToken(session.access_token);
+        setIsAuthenticated(true);
+        setShowAuthModal(false);
+      } else {
+        setIsAuthenticated(false);
+        setUserName('');
+        setUserEmail('');
+        setUserId('');
+        setAccessToken('');
       }
-    };
+      setLoading(false);
+    });
 
-    checkSession();
+    return () => subscription.unsubscribe();
   }, []);
+
 
   const applySession = (session: { user: { name: string; email: string; id: string }; access_token: string }) => {
     setUserName(session.user.name || '');
