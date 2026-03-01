@@ -265,7 +265,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
               className="w-1.5 h-1.5 rounded-full animate-pulse"
               style={{ background: CYAN }}
             />
-            AI-Powered Finance Platform — 2026
+            AI-powered finance, built for India
           </motion.div>
 
           {/* Primary heading */}
@@ -278,7 +278,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
               letterSpacing: '-0.05em',
             }}
           >
-            THE FUTURE OF
+            Your finances,
             <br />
             <span
               style={{
@@ -286,7 +286,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
                 textShadow: '0 0 40px rgba(0, 242, 255, 0.45)',
               }}
             >
-              FINANCE.
+              finally clear.
             </span>
           </h1>
 
@@ -295,7 +295,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             className="text-lg mb-12 max-w-[520px] mx-auto"
             style={{ color: '#a1a1aa', lineHeight: 1.7, ...bodyFont }}
           >
-            Intelligent budgeting, real-time expense tracking, and AI-powered insights — all in one calm, powerful platform.
+            Budget smarter, track every rupee, and get AI-powered insights — all in one clean, focused platform.
           </p>
 
           {/* CTA buttons */}
@@ -315,7 +315,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
               }}
               whileTap={{ scale: 0.97 }}
             >
-              Get Started Free
+              Get started free
               <ArrowRight className="size-4" />
             </motion.button>
             <motion.button
@@ -325,7 +325,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
-              Login
+              Sign in
             </motion.button>
           </div>
         </motion.div>
@@ -360,8 +360,8 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
           <div className="absolute bottom-8 left-8 right-8 flex gap-6 flex-wrap">
             {[
               { label: 'Active Users', value: '24K+' },
-              { label: 'Avg Savings', value: '₹8,400/mo' },
-              { label: 'Transactions', value: '1.2M+' },
+              { label: 'Avg Monthly Savings', value: '₹8,400' },
+              { label: 'Transactions Tracked', value: '1.2M+' },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -401,21 +401,21 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
       <Section id="features" className="py-32">
         <div className="text-center mb-20">
           <h2 className="font-bold text-white mb-4" style={{ ...headingFont, fontSize: '2.25rem' }}>
-            Everything you need
+            Built for how you actually spend
           </h2>
           <p style={{ color: '#a1a1aa', ...bodyFont, maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
-            A complete financial toolkit designed for clarity, speed, and control.
+            A focused financial toolkit — no clutter, no noise. Just the features that matter.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[
-            { icon: Wallet, title: 'Smart Budget Planner', desc: 'Surgical precision in budgeting. Set limits that actually work for you.', accent: false },
-            { icon: TrendingUp, title: 'Real-time Tracking', desc: 'Instant gratification for your financial discipline. See growth as it happens.', accent: false },
-            { icon: Zap, title: 'CRED-Level Insights', desc: 'Advanced algorithms decoding your spending DNA for smarter decisions.', accent: true },
-            { icon: PieChart, title: 'Visual Analytics', desc: 'Understanding money shouldn\'t be hard. Beautiful, intuitive data storytelling.', accent: false },
-            { icon: Bell, title: 'Smart Reminders', desc: 'Your financial guardian angel. Never miss a beat or a bill.', accent: false },
-            { icon: Shield, title: 'Fort Knox Security', desc: 'AES-256 encryption. Your privacy is our absolute priority.', accent: false },
+            { icon: Wallet, title: 'Budget Planner', desc: 'Set spending limits by category and stay on track — automatically updated as you spend.', accent: false },
+            { icon: TrendingUp, title: 'Expense Tracking', desc: 'Log every transaction and see where your money actually goes, in real time.', accent: false },
+            { icon: Zap, title: 'AI Insights', desc: 'Contextual, data-driven advice based on your spending patterns — not generic tips.', accent: true },
+            { icon: PieChart, title: 'Visual Analytics', desc: 'Clean charts that make your financial picture easy to read at a glance.', accent: false },
+            { icon: Bell, title: 'Bill Reminders', desc: 'Set reminders for recurring bills and subscriptions. Never miss a due date.', accent: false },
+            { icon: Shield, title: 'Secure by Design', desc: 'AES-256 encryption. Your data stays private — always.', accent: false },
           ].map((f, i) => (
             <motion.div
               key={i}
@@ -464,19 +464,19 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
         <GlassCard rounded="apple" className="overflow-hidden" spacing="lg" style={{ boxShadow: '0 60px 120px -20px rgba(0,0,0,0.9)' }}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="p-4 lg:p-12">
-              <div className="text-xs font-bold mb-6 tracking-[0.2em] uppercase" style={{ color: CYAN }}>Split Kro ✨</div>
+              <div className="text-xs font-bold mb-6 tracking-[0.2em] uppercase" style={{ color: CYAN }}>Split Kro</div>
               <h2 className="text-4xl lg:text-6xl font-black mb-8 tracking-tighter leading-[0.95]" style={headingFont}>
-                GROUP DYNAMICS<br />
-                <span className="opacity-40">REDEFINED.</span>
+                Split expenses<br />
+                <span className="opacity-40">without the awkwardness.</span>
               </h2>
               <p className="text-lg mb-10 opacity-60 leading-relaxed" style={bodyFont}>
-                The ultimate companion for trips, flatmates, and group dinners. Split Kro handles the math, so you can handle the memories.
+                The smart companion for trips, flatmates, and group dinners. Split Kro handles the numbers so you can focus on the moment.
               </p>
               <div className="space-y-6">
                 {[
-                  { title: 'Fair Splitting', desc: 'Settle up with confidence. No more awkward "who owes what" conversations.' },
-                  { title: 'One-Tap Settlement', desc: 'Clear debts instantly with integrated payment flow simulations.' },
-                  { title: 'Group Harmony', desc: 'Real-time sync. Everyone stays on the same page, always.' },
+                  { title: 'Fair splitting', desc: 'Equal or custom splits — works for any group, any scenario.' },
+                  { title: 'One-tap settlement', desc: 'Resolve balances instantly. No back-and-forth required.' },
+                  { title: 'Real-time sync', desc: 'Everyone in the group sees the same numbers, always.' },
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4">
                     <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1" style={{ background: `${CYAN}20`, border: `1px solid ${CYAN}40` }}>
@@ -501,8 +501,8 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
                 <GlassCard rounded="apple" spacing="md" className="border-white/20">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-xs opacity-50 mb-1 uppercase tracking-widest" style={monoFont}>Goa Trip 2025</div>
-                      <div className="text-xl font-bold" style={headingFont}>You are Owed ₹4,200</div>
+                      <div className="text-xs opacity-50 mb-1 uppercase tracking-widest" style={monoFont}>Goa Trip · 2025</div>
+                      <div className="text-xl font-bold" style={headingFont}>You are owed ₹4,200</div>
                     </div>
                     <div className="w-12 h-12 rounded-full border-2 border-dashed border-cyan-500/50 flex items-center justify-center animate-spin-slow">
                       <Star className="size-5 text-cyan-500" />
@@ -524,15 +524,15 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             Trusted by thousands
           </h2>
           <p style={{ color: '#a1a1aa', ...bodyFont, maxWidth: '400px', margin: '0 auto', lineHeight: 1.7 }}>
-            Real people, real results.
+            People building better financial habits with FinMax every day.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { name: 'Sarah Johnson', role: 'Freelance Designer', content: 'FinMax transformed how I manage my finances. The AI insights are incredibly accurate!', rating: 5 },
-            { name: 'Michael Chen', role: 'Software Engineer', content: "Best budgeting app I've used. Clean interface, powerful features, beautiful analytics.", rating: 5 },
-            { name: 'Emily Rodriguez', role: 'Marketing Manager', content: "Finally, a finance app that makes sense! I've saved over ₹2 lakh in just 3 months.", rating: 5 },
+            { name: 'Aditi Sharma', role: 'Freelance Designer', content: 'FinMax changed how I think about money. The AI insights actually make sense for my situation.', rating: 5 },
+            { name: 'Sudeh Jaswal', role: 'Software Engineer', content: 'Clean, fast, and genuinely useful. The Split Kro feature alone makes it worth it.', rating: 5 },
+            { name: 'Krishu', role: 'Tech Lead', content: 'Saved over ₹2 lakh in 3 months — just by being more aware of where my money was going.', rating: 5 },
           ].map((t, i) => (
             <motion.div
               key={i}
@@ -570,15 +570,15 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             Simple, honest pricing
           </h2>
           <p style={{ color: '#a1a1aa', ...bodyFont, maxWidth: '400px', margin: '0 auto', lineHeight: 1.7 }}>
-            Start free. Upgrade when you need more.
+            Free to start. Upgrade only when you're ready for more.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {[
-            { plan: 'Basic', price: 'Free', features: ['Manual tracking', 'Basic budgets', 'Weekly reports'], accent: false },
+            { plan: 'Basic', price: 'Free', features: ['Manual tracking', 'Basic budgets', 'Weekly summaries'], accent: false },
             { plan: 'Pro', price: '₹199/mo', features: ['AI insights', 'Split Kro suite', 'Real-time sync', 'Priority support'], accent: true },
-            { plan: 'Elite', price: '₹499/mo', features: ['Visual storytelling', 'Family sharing', 'Personal advisor', 'Early beta access'], accent: false },
+            { plan: 'Elite', price: '₹499/mo', features: ['Family sharing', 'Personal advisor', 'Advanced analytics', 'Early access'], accent: false },
           ].map((p, i) => (
             <motion.div
               key={i}
@@ -619,7 +619,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Choose {p.plan}
+                  Get started with {p.plan}
                 </motion.button>
               </GlassCard>
             </motion.div>
@@ -639,8 +639,8 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
           <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[300px] w-[300px] md:h-[600px] md:w-[600px] mx-auto bg-cyan-500/20 blur-[120px] rounded-full pointer-events-none" />
 
           <h2 className="text-6xl md:text-[10rem] font-black tracking-tighter leading-none mb-12 relative z-10" style={headingFont}>
-            JUST<br />
-            <span style={{ color: CYAN, textShadow: '0 0 60px rgba(0, 242, 255, 0.5)' }}>START.</span>
+            Take control<br />
+            <span style={{ color: CYAN, textShadow: '0 0 60px rgba(0, 242, 255, 0.5)' }}>today.</span>
           </h2>
 
           <div className="flex flex-col md:flex-row gap-6 justify-center items-center relative z-10">
@@ -651,7 +651,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
               whileHover={{ scale: 1.1, boxShadow: '0 0 80px rgba(0,242,255,0.6)' }}
               whileTap={{ scale: 0.9 }}
             >
-              Get Started Free
+              Get started free
             </motion.button>
             <motion.button
               onClick={onLogin}
@@ -660,7 +660,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
               whileHover={{ scale: 1.05, background: 'rgba(255,255,255,0.05)' }}
               whileTap={{ scale: 0.95 }}
             >
-              Member Login
+              Sign in
             </motion.button>
           </div>
         </motion.div>
@@ -672,7 +672,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
           <div className="flex flex-col items-center md:items-start gap-4">
             <Logo />
             <p className="text-sm opacity-40 max-w-xs text-center md:text-left" style={bodyFont}>
-              Redefining financial freedom through high-fidelity intelligence and zen-like control.
+              Smart money management for how India actually earns, spends, and saves.
             </p>
           </div>
           <div className="flex gap-12 text-sm font-bold uppercase tracking-widest" style={monoFont}>
@@ -681,7 +681,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             <a href="#" className="opacity-40 hover:opacity-100 transition-opacity">Status</a>
           </div>
           <div className="text-xs opacity-20" style={monoFont}>
-            © 2026 FINMAX ELITE. ALL RIGHTS RESERVED.
+            © 2026 FinMax. All rights reserved.
           </div>
         </div>
       </footer>

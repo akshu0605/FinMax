@@ -535,11 +535,11 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               <GlassCard rounded="apple" className="flex flex-col min-h-[400px]" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
-                <h2 className="text-2xl font-bold mb-6 text-white tracking-tight" style={headingFont}>Spending by Category</h2>
+                <h2 className="text-2xl font-bold mb-6 text-white tracking-tight" style={headingFont}>Where your money goes</h2>
                 {expenses.length === 0 ? (
                   <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
                     <PieChart className="size-12 mb-4 opacity-20 text-[var(--ns-cyan)]" />
-                    <p className="text-sm opacity-50" style={monoFont}>No expense data available for the pie chart.</p>
+                    <p className="text-sm opacity-50" style={monoFont}>Add expenses to see your spending breakdown.</p>
                   </div>
                 ) : (
                   <div className="h-[300px] w-full">
@@ -561,7 +561,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="text-2xl font-bold text-white tracking-tight mb-1" style={headingFont}>Spending Trend</h2>
-                  <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Overview of your daily activity</p>
+                  <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Your recent daily activity</p>
                 </div>
                 <div className="flex gap-2">
                   <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs" style={monoFont}>
@@ -605,7 +605,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                   {expenses.length === 0 ? (
                     <div className="py-12 text-center opacity-30" style={monoFont}>
                       <TrendingDown className="size-8 mx-auto mb-2" />
-                      <p>No expenses found</p>
+                      <p>No expenses yet</p>
                     </div>
                   ) : expenses.slice(0, 5).map((expense, i) => (
                     <motion.div key={expense.id}
@@ -642,7 +642,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
             {/* Reminders widget */}
             <GlassCard rounded="apple" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white tracking-tight" style={headingFont}>Financial Reminders</h2>
+                <h2 className="text-2xl font-bold text-white tracking-tight" style={headingFont}>Upcoming Bills</h2>
                 <NeonButton size="sm" onClick={() => setShowAddReminder(true)}><Plus className="size-4" /> Add Reminder</NeonButton>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -684,14 +684,14 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         {activeView === 'budgets' && (
           <GlassCard spacing="lg" rounded="apple" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white tracking-tight" style={headingFont}>Budget Management</h2>
+              <h2 className="text-3xl font-bold text-white tracking-tight" style={headingFont}>Budgets</h2>
               <NeonButton onClick={() => setShowAddBudget(true)}><Plus className="size-5" /> Add Budget</NeonButton>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {budgets.length === 0 ? (
                 <div className="col-span-full py-20 text-center opacity-30" style={monoFont}>
                   <Target className="size-12 mx-auto mb-4" />
-                  <p>No budgets created yet</p>
+                  <p>No budgets set up yet</p>
                 </div>
               ) : budgets.map((b, i) => {
                 const spent = expenses.filter(e => e.category === b.category).reduce((s, e) => s + e.amount, 0);
@@ -730,14 +730,14 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         {activeView === 'expenses' && (
           <GlassCard spacing="lg" className="min-h-[500px]">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white tracking-tight" style={headingFont}>Expense Archive</h2>
+              <h2 className="text-3xl font-bold text-white tracking-tight" style={headingFont}>All Expenses</h2>
               <NeonButton onClick={() => setShowAddExpense(true)}><Plus className="size-5" /> Add Expense</NeonButton>
             </div>
             <div className="space-y-4">
               {expenses.length === 0 ? (
                 <div className="py-20 text-center opacity-30" style={monoFont}>
                   <TrendingDown className="size-12 mx-auto mb-4" />
-                  <p>No expenses recorded</p>
+                  <p>No expenses recorded yet</p>
                 </div>
               ) : expenses.map((expense, i) => (
                 <motion.div key={expense.id}
@@ -837,7 +837,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
               <Wallet className="size-10 text-[var(--ns-cyan)]" />
             </div>
             <h2 className="text-3xl font-bold mb-3 text-white" style={headingFont}>Welcome to FinMax!</h2>
-            <p className="mb-8 opacity-60 text-sm" style={monoFont}>To get started, please enter your total monthly income. This will help us calculate your savings and budgets.</p>
+            <p className="mb-8 opacity-60 text-sm" style={monoFont}>To get started, enter your monthly income. This helps us calculate your savings and track your budgets accurately.</p>
             <form onSubmit={async (e) => {
               e.preventDefault();
               const val = (e.currentTarget.elements.namedItem('income') as HTMLInputElement).value;
@@ -853,12 +853,12 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
               fetchData();
             }}>
               <div className="mb-6">
-                <input name="income" type="number" step="0.01" required placeholder="Enter Monthly Income" autoFocus
+                <input name="income" type="number" step="0.01" required placeholder="Monthly income (e.g. 50000)" autoFocus
                   className="w-full text-center text-2xl font-bold bg-transparent border-b-2 py-4 focus:outline-none"
                   style={{ borderColor: 'rgba(0,242,234,0.3)', color: TEAL, ...monoFont }}
                 />
               </div>
-              <NeonButton type="submit" size="lg" className="w-full">Start Managing Finances</NeonButton>
+              <NeonButton type="submit" size="lg" className="w-full">Start tracking</NeonButton>
             </form>
           </GlassCard>
         </div>

@@ -24,7 +24,8 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const TEAL = '#00f2ff';
+const SOFT_CYAN = '#88f5f8'; // More soothing cyan
+const TEAL = SOFT_CYAN;
 const monoFont = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
 const headingFont = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
 
@@ -80,7 +81,7 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
   if (!isOpen) return null;
 
   const inputClass =
-    'peer w-full px-4 py-3 rounded-xl text-white placeholder-transparent focus:outline-none transition-all duration-200 cubic-bezier(0.4, 0, 0.2, 1)';
+    'peer w-full px-4 py-3 rounded-xl text-white placeholder-transparent focus:outline-none transition-all duration-300 border border-white/10 bg-white/5 focus:border-[var(--soft-cyan)] focus:ring-4 focus:ring-[var(--soft-cyan)]/10';
 
   return (
     <>
@@ -121,11 +122,11 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
           <div
             className="relative rounded-[40px] overflow-hidden"
             style={{
-              background: 'rgba(0,0,0,0.52)',
-              backdropFilter: 'blur(36px) saturate(220%) brightness(1.08)',
-              WebkitBackdropFilter: 'blur(36px) saturate(220%) brightness(1.08)',
-              border: '1px solid rgba(0,242,234,0.22)',
-              boxShadow: '0 30px 80px rgba(0,0,0,0.85), 0 0 50px rgba(0,242,234,0.07), inset 0 1.5px 0 rgba(0,242,234,0.22), inset 0 -1px 0 rgba(0,0,0,0.3)',
+              background: 'rgba(8, 8, 12, 0.72)', // Slightly deeper but smoother
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              boxShadow: '0 30px 80px rgba(0,0,0,0.6), 0 0 50px rgba(136, 245, 248, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
             }}
           >
             {/* Glass sheen */}
@@ -209,26 +210,12 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
                       onChange={handleChange}
                       required
                       placeholder=" "
-                      className={inputClass}
-                      style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        backdropFilter: 'blur(12px)',
-                        border: '1px solid rgba(0,242,234,0.18)',
-                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)',
-                        ...monoFont,
-                      }}
-                      onFocus={(e) => {
-                        e.currentTarget.style.borderColor = TEAL;
-                        e.currentTarget.style.boxShadow = '0 0 16px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)';
-                      }}
-                      onBlur={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
+                      className={inputClass + ' pr-12'}
+                      style={monoFont}
                     />
                     <label
-                      className="absolute left-4 -top-2.5 text-sm px-2 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-sm"
-                      style={{ color: '#A1A1A1', background: 'transparent', ...monoFont }}
+                      className="absolute left-4 -top-2.5 text-xs px-1 transition-all pointer-events-none peer-placeholder-shown:text-sm peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-xs"
+                      style={{ color: '#888', background: 'rgba(10, 10, 15, 0.9)', borderRadius: '4px', ...monoFont }}
                     >
                       Full Name
                     </label>
@@ -244,23 +231,11 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
                     required
                     placeholder=" "
                     className={inputClass}
-                    style={{
-                      background: 'rgba(0,242,234,0.04)',
-                      border: '1px solid rgba(0,242,234,0.15)',
-                      ...monoFont,
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = TEAL;
-                      e.currentTarget.style.boxShadow = '0 0 16px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)';
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
+                    style={monoFont}
                   />
                   <label
-                    className="absolute left-4 -top-2.5 text-sm px-2 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-sm"
-                    style={{ color: '#A1A1A1', background: 'transparent', ...monoFont }}
+                    className="absolute left-4 -top-2.5 text-xs px-1 transition-all pointer-events-none peer-placeholder-shown:text-sm peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-xs"
+                    style={{ color: '#888', background: 'rgba(10, 10, 15, 0.9)', borderRadius: '4px', ...monoFont }}
                   >
                     Email
                   </label>
@@ -275,23 +250,11 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
                     required
                     placeholder=" "
                     className={inputClass + ' pr-12'}
-                    style={{
-                      background: 'rgba(0,242,234,0.04)',
-                      border: '1px solid rgba(0,242,234,0.15)',
-                      ...monoFont,
-                    }}
-                    onFocus={(e) => {
-                      e.currentTarget.style.borderColor = TEAL;
-                      e.currentTarget.style.boxShadow = '0 0 16px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)';
-                    }}
-                    onBlur={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)';
-                      e.currentTarget.style.boxShadow = 'none';
-                    }}
+                    style={monoFont}
                   />
                   <label
-                    className="absolute left-4 -top-2.5 text-sm px-2 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-sm"
-                    style={{ color: '#A1A1A1', background: 'transparent', ...monoFont }}
+                    className="absolute left-4 -top-2.5 text-xs px-1 transition-all pointer-events-none peer-placeholder-shown:text-sm peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-xs"
+                    style={{ color: '#888', background: 'rgba(10, 10, 15, 0.9)', borderRadius: '4px', ...monoFont }}
                   >
                     Password
                   </label>
@@ -317,23 +280,11 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
                       required
                       placeholder=" "
                       className={inputClass + ' pr-12'}
-                      style={{
-                        background: 'rgba(0,242,234,0.04)',
-                        border: '1px solid rgba(0,242,234,0.15)',
-                        ...monoFont,
-                      }}
-                      onFocus={(e) => {
-                        e.currentTarget.style.borderColor = TEAL;
-                        e.currentTarget.style.boxShadow = '0 0 16px rgba(0,242,234,0.18), inset 0 1px 0 rgba(255,255,255,0.07)';
-                      }}
-                      onBlur={(e) => {
-                        e.currentTarget.style.borderColor = 'rgba(0,242,234,0.18)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
+                      style={monoFont}
                     />
                     <label
-                      className="absolute left-4 -top-2.5 text-sm px-2 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-sm"
-                      style={{ color: '#A1A1A1', background: 'transparent', ...monoFont }}
+                      className="absolute left-4 -top-2.5 text-xs px-1 transition-all pointer-events-none peer-placeholder-shown:text-sm peer-placeholder-shown:top-3.5 peer-focus:-top-2.5 peer-focus:text-xs"
+                      style={{ color: '#888', background: 'rgba(10, 10, 15, 0.9)', borderRadius: '4px', ...monoFont }}
                     >
                       Confirm Password
                     </label>
@@ -353,9 +304,9 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignup, initialMode = 's
                 <NeonButton
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 text-base font-bold"
+                  className="w-full py-4 text-base font-bold shadow-lg"
                   style={{
-                    background: loading ? 'rgba(0,242,234,0.5)' : TEAL,
+                    background: loading ? 'rgba(136, 245, 248, 0.5)' : SOFT_CYAN,
                     color: '#000',
                   }}
                 >
