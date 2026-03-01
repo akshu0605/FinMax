@@ -295,7 +295,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             className="text-lg mb-12 max-w-[520px] mx-auto"
             style={{ color: '#a1a1aa', lineHeight: 1.7, ...bodyFont }}
           >
-            Budget smarter, track every rupee, and get AI-powered insights — all in one clean, focused platform.
+            Budget smarter, track every rupee, and get AI-powered insights all in one clean, focused platform.
           </p>
 
           {/* CTA buttons */}
@@ -404,18 +404,18 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             Built for how you actually spend
           </h2>
           <p style={{ color: '#a1a1aa', ...bodyFont, maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
-            A focused financial toolkit — no clutter, no noise. Just the features that matter.
+            A focused financial toolkit  no clutter, no noise. Just the features that matter.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[
-            { icon: Wallet, title: 'Budget Planner', desc: 'Set spending limits by category and stay on track — automatically updated as you spend.', accent: false },
+            { icon: Wallet, title: 'Budget Planner', desc: 'Set spending limits by category and stay on track automatically updated as you spend.', accent: false },
             { icon: TrendingUp, title: 'Expense Tracking', desc: 'Log every transaction and see where your money actually goes, in real time.', accent: false },
-            { icon: Zap, title: 'AI Insights', desc: 'Contextual, data-driven advice based on your spending patterns — not generic tips.', accent: true },
+            { icon: Zap, title: 'AI Insights', desc: 'Contextual, data-driven advice based on your spending patterns not generic tips.', accent: true },
             { icon: PieChart, title: 'Visual Analytics', desc: 'Clean charts that make your financial picture easy to read at a glance.', accent: false },
             { icon: Bell, title: 'Bill Reminders', desc: 'Set reminders for recurring bills and subscriptions. Never miss a due date.', accent: false },
-            { icon: Shield, title: 'Secure by Design', desc: 'AES-256 encryption. Your data stays private — always.', accent: false },
+            { icon: Shield, title: 'Secure by Design', desc: 'AES-256 encryption. Your data stays private always.', accent: false },
           ].map((f, i) => (
             <motion.div
               key={i}
