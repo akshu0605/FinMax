@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// Types
 export interface SKGroup {
     id: string;
     name: string;
@@ -73,7 +73,7 @@ async function getUserProfile(): Promise<{ id: string; email: string; displayNam
     };
 }
 
-// ─── Groups ────────────────────────────────────────────────────────────────────
+// Groups API
 export const splitKroApi = {
     // Create a group and add creator as first member
     createGroup: async (name: string, type: string) => {
@@ -212,7 +212,7 @@ export const splitKroApi = {
         }
     },
 
-    // ─── Expenses ────────────────────────────────────────────────────────────────
+    // Expenses API
     addExpense: async (
         groupId: string,
         paidByUserId: string,
@@ -294,7 +294,7 @@ export const splitKroApi = {
         }
     },
 
-    // ─── Balances ────────────────────────────────────────────────────────────────
+    // Balances calculation
     // Calculate net balance per member
     getBalances: async (groupId: string, members: SKMember[]): Promise<{ data: BalanceEntry[] | null; error: string | null }> => {
         try {
@@ -338,7 +338,7 @@ export const splitKroApi = {
         }
     },
 
-    // ─── Settlements ─────────────────────────────────────────────────────────────
+    // Settlements API
     recordSettlement: async (groupId: string, fromUserId: string, toUserId: string, amount: number) => {
         try {
             const { data, error } = await supabase

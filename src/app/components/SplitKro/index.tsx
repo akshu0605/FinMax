@@ -7,7 +7,7 @@ import { GroupDetail } from './GroupDetail.tsx';
 import { GlassCard } from '../ui/GlassCard';
 import { NeonButton } from '../ui/NeonButton';
 
-// ─── Design tokens (matching Dashboard) ────────────────────────────────────
+// Design tokens
 const INDIGO = '#818CF8';
 const INDIGO_DARK = '#6366F1';
 const headingFont: React.CSSProperties = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
@@ -55,7 +55,7 @@ function getGroupEmoji(type: string) {
     return map[type] || '👥';
 }
 
-// ─── Create Group Modal ──────────────────────────────────────────────────────
+// Create Group Modal Component
 function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
     const [name, setName] = useState('');
     const [type, setType] = useState('Trip');
@@ -155,7 +155,7 @@ function CreateGroupModal({ onClose, onCreated }: { onClose: () => void; onCreat
     );
 }
 
-// ─── Group Card ──────────────────────────────────────────────────────────────
+// Group Card Component
 function GroupCard({ group, onSelect, onDelete }: {
     group: SKGroup; onSelect: () => void; onDelete: () => void;
 }) {
@@ -209,7 +209,7 @@ function GroupCard({ group, onSelect, onDelete }: {
     );
 }
 
-// ─── Main SplitKro Page ──────────────────────────────────────────────────────
+// Main SplitKro Page Component
 interface SplitKroProps { userId: string; userName: string; }
 
 export function SplitKro({ userId, userName }: SplitKroProps) {

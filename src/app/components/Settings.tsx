@@ -11,7 +11,7 @@ import { StarField } from './StarField';
 import { GlassCard } from './ui/GlassCard';
 import { NeonButton } from './ui/NeonButton';
 
-// ─── Design tokens ────────────────────────────────────────────────
+// Design tokens
 const TEAL = '#00f2ff';
 const headingFont: React.CSSProperties = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
 const monoFont: React.CSSProperties = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
@@ -31,7 +31,7 @@ const sheen = (
     style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)' }} />
 );
 
-// ─── Teal toggle switch ───────────────────────────────────────────
+// Teal toggle switch
 function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
   return (
     <button onClick={onToggle}
@@ -54,7 +54,7 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
   );
 }
 
-// ─── Row with toggle ──────────────────────────────────────────────
+// Row with toggle helper
 function ToggleRow({ icon: Icon, iconColor, label, description, on, onToggle }: {
   icon: any; iconColor: string; label: string; description: string; on: boolean; onToggle: () => void;
 }) {
@@ -79,7 +79,7 @@ function ToggleRow({ icon: Icon, iconColor, label, description, on, onToggle }: 
 }
 
 
-// ─── Types ────────────────────────────────────────────────────────
+// Types & Interfaces
 interface SettingsProps { userEmail: string; onBack: () => void; onLogout: () => void; currency: string; onCurrencyChange: (c: string) => void; }
 type SettingsSection = 'profile' | 'financial' | 'notifications' | 'appearance' | 'security' | 'data' | 'subscription';
 
@@ -470,7 +470,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
                 </div>
               </div>
               <div className="space-y-2 mb-6 relative z-10">
-                {['Unlimited expense tracking', 'Advanced financial calculators', 'AI-powered insights', 'Priority support'].map(f => (
+                {['Unlimited expense tracking', 'Advanced financial calculators', 'Smart financial insights', 'Priority support'].map(f => (
                   <div key={f} className="flex items-center gap-2 text-sm" style={{ color: '#A1A1A1', ...monoFont }}>
                     <Check className="size-4 shrink-0" style={{ color: TEAL }} /> {f}
                   </div>
@@ -576,7 +576,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
       </div>
 
       <div className="flex relative z-10">
-        {/* ── Sidebar ── */}
+        {/* Sidebar */}
         <motion.aside
           className="w-72 min-h-[calc(100vh-69px)] p-6 flex flex-col"
           style={{
@@ -626,7 +626,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
           </nav>
         </motion.aside>
 
-        {/* ── Main content ── */}
+        {/* Main Content */}
         <main className="flex-1 p-8">
           <motion.div
             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}

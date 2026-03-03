@@ -53,7 +53,7 @@ export default function App() {
     setShowAuthModal(false);
   };
 
-  // ── Login ───────────────────────────────────────────────────────────────
+  // Login handler
   const handleLogin = async (email: string, password: string) => {
     const { session, error } = await auth.signIn(email, password);
     if (error || !session) {
@@ -64,7 +64,7 @@ export default function App() {
     toast.success('Welcome back!');
   };
 
-  // ── Sign up ─────────────────────────────────────────────────────────────
+  // Sign up handler
   const handleSignup = async (email: string, password: string, name: string) => {
     const { session, error } = await auth.signUp(email, password, name);
     if (error || !session) {
@@ -75,7 +75,7 @@ export default function App() {
     toast.success('Account created! Welcome to FinMax 🚀');
   };
 
-  // ── Logout: clears all session data from localStorage ──────────────────
+  // Logout handler
   const handleLogout = async () => {
     await auth.signOut();
     setIsAuthenticated(false);
@@ -89,7 +89,7 @@ export default function App() {
   const handleGetStarted = () => { setAuthMode('signup'); setShowAuthModal(true); };
   const handleOpenLogin = () => { setAuthMode('signin'); setShowAuthModal(true); };
 
-  // ── Loading splash ───────────────────────────────────────────────────────
+  // Loading splash component
   if (loading) {
     return (
       <div className="size-full flex items-center justify-center" style={{ background: '#000000' }}>

@@ -1,9 +1,8 @@
-# 🚀 FinMax – AI-Powered Smart Finance Management Platform
+# 🚀 FinMax – Smart Finance Management Platform
 
-FinMax is a premium fintech SaaS web application built with React and powered by a secure backend.  
+FinMax is a premium fintech SaaS web application built with React and a secure backend.  
 It helps users manage personal finances, track expenses, monitor budgets, split expenses with friends, and achieve financial goals through a modern, intuitive interface.
 
-FinMax has evolved from a static application into a fully functional full-stack SaaS platform with authentication and cloud-based data storage.
 
 ---
 

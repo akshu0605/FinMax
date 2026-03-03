@@ -6,7 +6,7 @@ import { StarField } from './StarField';
 import { GlassCard } from './ui/GlassCard';
 import { NeonButton } from './ui/NeonButton';
 
-// ─── Design tokens ────────────────────────────────────────────────
+// Design tokens
 const TEAL = '#00F2EA';
 const headingFont: React.CSSProperties = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
 const monoFont: React.CSSProperties = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };

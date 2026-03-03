@@ -5,12 +5,12 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 import { GlassCard } from './ui/GlassCard';
 import { NeonButton } from './ui/NeonButton';
 
-// ─── Design tokens ────────────────────────────────────────────────
+// Design tokens
 const TEAL = '#00F2EA';
 const headingFont: React.CSSProperties = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
 const monoFont: React.CSSProperties = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
 
-// ─── Animated star canvas inside the modal backdrop ───────────────
+// Animated star canvas for modal backdrop
 function ModalStars({ count = 120 }: { count?: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -69,7 +69,7 @@ function ModalStars({ count = 120 }: { count?: number }) {
   );
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────
+// Helper functions and styles
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '12px 16px',
   background: 'rgba(255,255,255,0.055)',
@@ -229,7 +229,7 @@ export function LoanCalculator({ isOpen, onClose, currencySymbol }: LoanCalculat
             transition={{ duration: 4, repeat: Infinity }}
           />
 
-          {/* ── Main Glass Card ── */}
+          {/* Main Glass Card */}
           <GlassCard
             className="w-full relative"
             spacing="none"
@@ -245,7 +245,7 @@ export function LoanCalculator({ isOpen, onClose, currencySymbol }: LoanCalculat
               <div className="absolute top-0 left-0 right-0 h-px"
                 style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(0,242,234,0.7) 50%, transparent 95%)' }} />
 
-              {/* ── Header ── */}
+              {/* Header */}
               <div className="relative px-8 py-6" style={{ borderBottom: '1px solid rgba(0,242,234,0.1)' }}>
                 {/* Subtle scan-line shimmer on header */}
                 <motion.div className="absolute inset-0 pointer-events-none"
@@ -279,7 +279,7 @@ export function LoanCalculator({ isOpen, onClose, currencySymbol }: LoanCalculat
                 </div>
               </div>
 
-              {/* ── Body ── */}
+              {/* Body */}
               <div className="relative p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 

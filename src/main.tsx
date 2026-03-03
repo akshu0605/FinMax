@@ -1,5 +1,5 @@
 /**
- * FinMax - AI-Powered Smart Finance Management Platform
+ * FinMax - Modern Smart Finance Management Platform
  * 
  * ⚠️  IMPORTANT: This is a STATIC SITE ONLY
  * - No Supabase backend

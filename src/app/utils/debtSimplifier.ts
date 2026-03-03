@@ -1,5 +1,7 @@
-// ─── Debt Simplification Algorithm ───────────────────────────────────────────
-// Minimises the number of transactions needed to settle all debts in a group.
+/**
+ * Debt Simplification Algorithm
+ * Minimises the number of transactions needed to settle all debts in a group.
+ */
 //
 // Input:  BalanceEntry[] — each user's net balance
 // Output: Transaction[] — who pays whom and how much (minimal set)

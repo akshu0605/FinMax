@@ -20,12 +20,12 @@ import { SplitKro } from './SplitKro';
 import { GlassCard } from './ui/GlassCard';
 import { NeonButton } from './ui/NeonButton';
 
-// ─── Design tokens ────────────────────────────────────────────────
+// Design tokens
 const TEAL = '#00F2EA';
 const headingFont: React.CSSProperties = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
 const monoFont: React.CSSProperties = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
 
-// ─── Liquid Glass helpers ──────────────────────────────────────────
+// Liquid Glass helpers
 const glass = (tealTint = false, blurPx = 24): React.CSSProperties => ({
   background: tealTint ? 'rgba(0,242,234,0.055)' : 'rgba(255,255,255,0.045)',
   backdropFilter: `blur(${blurPx}px) saturate(200%) brightness(1.08)`,
@@ -37,7 +37,7 @@ const glass = (tealTint = false, blurPx = 24): React.CSSProperties => ({
 
 const PIE_COLORS = [TEAL, '#00b8b3', '#007a78', '#004d4b', '#10B981', '#3B82F6'];
 
-// ─── Interfaces ───────────────────────────────────────────────────
+// Interfaces
 interface DashboardProps { userName: string; userEmail: string; userId: string; accessToken: string; onLogout: () => void; }
 interface Expense { id: string; category: string; amount: number; date: string; title: string; note?: string; }
 interface Reminder { id: string; title: string; dueDate: string; status: 'pending' | 'completed'; amount?: number; }
@@ -45,7 +45,7 @@ interface Budget { id: string; category: string; allocatedAmount: number; month:
 type Currency = 'INR' | 'USD' | 'EUR' | 'GBP' | 'JPY' | 'AUD';
 const CURRENCY_SYMBOLS: Record<Currency, string> = { INR: '₹', USD: '$', EUR: '€', GBP: '£', JPY: '¥', AUD: 'A$' };
 
-// ─── Input styling ─────────────────────────────────────────────────
+// Input styling
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '10px 14px',
   background: 'rgba(255,255,255,0.05)',
@@ -74,7 +74,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 
 
-// ─── Liquid glass modal ────────────────────────────────────────────
+// Liquid glass modal
 function ModalCard({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -100,7 +100,7 @@ function ModalCard({ children, onClose, title }: { children: React.ReactNode; on
   );
 }
 
-// ─── Stat Card ────────────────────────────────────────────────────
+// Stat Card Component
 function StatCard({ icon: Icon, iconColor, label, value, delay, onEdit, index }:
   { icon: any; iconColor: string; label: string; value: string; delay: number; onEdit?: () => void; index: number }) {
   // Normalize icons to the new cyan if they were the old teal
@@ -148,7 +148,7 @@ function StatCard({ icon: Icon, iconColor, label, value, delay, onEdit, index }:
   );
 }
 
-// ─── Dashboard ────────────────────────────────────────────────────
+// Dashboard Component
 export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // Track whether we are on a desktop viewport (≥1024px) to show sidebar by default
@@ -345,7 +345,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
     <div className="min-h-screen text-white" style={{ background: '#000000', ...monoFont }}>
       <StarField count={200} />
 
-      {/* ─── MOBILE SIDEBAR BACKDROP ─── */}
+      {/* Mobile Sidebar Backdrop */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-20 lg:hidden"
@@ -354,7 +354,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         />
       )}
 
-      {/* ─── LIQUID GLASS SIDEBAR ─── */}
+      {/* Liquid Glass Sidebar */}
       {/* Desktop: always visible (lg:translate-x-0). Mobile: slides in from left. */}
       <aside
         className="fixed left-0 top-0 bottom-0 w-64 flex flex-col z-30 transition-transform duration-300 ease-in-out"
@@ -458,7 +458,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         </div>
       </aside>
 
-      {/* ─── MAIN CONTENT ─── */}
+      {/* Main Content Section */}
       {/* On mobile: no left margin (sidebar is hidden). On lg: ml-64. Extra bottom padding for mobile bottom nav. */}
       <div className="lg:ml-64 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 relative z-10">
         {/* Header */}
@@ -522,7 +522,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
           </div>
         </motion.div>
 
-        {/* ─── STAT CARDS ─── */}
+        {/* Stat Cards Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 items-start">
           <StatCard index={0} icon={DollarSign} iconColor={TEAL} label="Monthly Income" value={`${sym}${salary.toLocaleString()}`} delay={0.3} onEdit={() => setShowEditSalary(true)} />
           <StatCard index={1} icon={TrendingDown} iconColor="#F87171" label="Total Expenses" value={`${sym}${totalExpenses.toLocaleString()}`} delay={0.4} />
@@ -530,7 +530,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
           <StatCard index={3} icon={TrendingUp} iconColor="#60A5FA" label="Savings Rate" value={`${savingsRate}%`} delay={0.6} />
         </div>
 
-        {/* ─── DASHBOARD VIEW ─── */}
+        {/* Dashboard View Section */}
         {activeView === 'dashboard' && (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -680,7 +680,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
           </>
         )}
 
-        {/* ─── BUDGETS VIEW ─── */}
+        {/* Budgets View Section */}
         {activeView === 'budgets' && (
           <GlassCard spacing="lg" rounded="apple" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
             <div className="flex items-center justify-between mb-8">
@@ -726,7 +726,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
           </GlassCard>
         )}
 
-        {/* ─── EXPENSES VIEW ─── */}
+        {/* Expenses View Section */}
         {activeView === 'expenses' && (
           <GlassCard spacing="lg" className="min-h-[500px]">
             <div className="flex items-center justify-between mb-8">
@@ -770,7 +770,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
           </GlassCard>
         )}
 
-        {/* ─── REMINDERS VIEW ─── */}
+        {/* Reminders View Section */}
         {activeView === 'reminders' && (
           <GlassCard spacing="lg" className="min-h-[500px]">
             <div className="flex items-center justify-between mb-8">
@@ -809,7 +809,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
           </GlassCard>
         )}
 
-        {/* ─── SPLIT KRO VIEW ─── */}
+        {/* Split Kro View Section */}
         {activeView === 'splitkro' && (
           <SplitKro userId={userId} userName={userName || userEmail} />
         )}
@@ -828,7 +828,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         </motion.div>
       </div>
 
-      {/* ─── INCOME SETUP OVERLAY ─── */}
+      {/* Income Setup Overlay */}
       {!loading && salary === 0 && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)' }}>
           <GlassCard spacing="lg" interactive className="w-full max-w-md text-center">
@@ -864,7 +864,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         </div>
       )}
 
-      {/* ─── LOADING SPINNER ─── */}
+      {/* Loading Spinner */}
       {loading && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)' }}>
           <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
@@ -873,7 +873,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         </div>
       )}
 
-      {/* ─── MOBILE BOTTOM NAV ─── */}
+      {/* Mobile Bottom Navigation */}
       <div
         className="fixed bottom-0 left-0 right-0 z-20 lg:hidden"
         style={{
@@ -914,7 +914,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         </div>
       </div>
 
-      {/* ─── MODALS ─── */}
+      {/* Modals Section */}
       {showAddExpense && (
         <ModalCard title="Add Expense" onClose={() => setShowAddExpense(false)}>
           <form onSubmit={handleAddExpense} className="space-y-4">

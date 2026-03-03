@@ -78,7 +78,7 @@
   --sidebar-ring: rgba(0, 242, 255, 0.3);
 }
 
-/* ─── NightSec + Apple Minimalism Design System ──────────────────── */
+/* NightSec + Apple Minimalism Design System */
 :root,
 .dark {
   /* Color Palette */
@@ -141,7 +141,7 @@
   --ns-duration-slower: 600ms;
 }
 
-/* ─── Utility Classes ────────────────────────────────────────────── */
+/* Utility Classes */
 .ns-glass {
   background: var(--ns-glass-bg);
   backdrop-filter: blur(var(--ns-glass-blur)) saturate(var(--ns-glass-saturate));

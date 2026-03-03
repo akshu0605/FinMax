@@ -16,7 +16,7 @@ const monoFont: React.CSSProperties = { fontFamily: 'JetBrains Mono, "Courier Ne
 
 // Using global GlassCard for all cards and modals
 
-// ─── Add Member Modal ────────────────────────────────────────────────────────
+// Add Member Modal Component
 function AddMemberModal({ groupId, onClose, onAdded }: {
     groupId: string; onClose: () => void; onAdded: () => void;
 }) {
@@ -112,7 +112,7 @@ function AddMemberModal({ groupId, onClose, onAdded }: {
     );
 }
 
-// ─── Group Detail ────────────────────────────────────────────────────────────
+// Group Detail Component
 interface GroupDetailProps {
     group: SKGroup;
     userId: string;

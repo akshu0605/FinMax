@@ -20,7 +20,7 @@ import { FloatingElements } from './FloatingElements';
 import { StarField } from './StarField';
 import { GlassCard } from './ui/GlassCard';
 
-// ─── Design Tokens ────────────────────────────────────────────────────────────
+// Design Tokens
 const CYAN = '#00f2ff';
 const EMERALD = '#10b981';
 const headingFont: React.CSSProperties = {
@@ -34,7 +34,7 @@ const monoFont: React.CSSProperties = {
   fontFamily: 'JetBrains Mono, "Courier New", monospace',
 };
 
-// ─── Glassmorphism helpers (spec-compliant) ──────────────────────────────────
+// Glassmorphism helpers
 // Outer frame glass (nav, overlays)
 const glassFrame = (): React.CSSProperties => ({
   background: 'rgba(255, 255, 255, 0.03)',
@@ -57,8 +57,7 @@ const glassCard = (accent = false): React.CSSProperties => ({
     : '0 8px 32px rgba(0, 0, 0, 0.6)',
 });
 
-// ─── Tilt Animation Card Wrapper has been removed; using GlassCard globally.
-// ─── Section wrapper with scroll-reveal ──────────────────────────────────────
+// Section wrapper with scroll-reveal
 function Section({
   children,
   className = '',
@@ -82,7 +81,7 @@ function Section({
   );
 }
 
-// ─── Props ────────────────────────────────────────────────────────────────────
+// Props interface
 interface LandingPageProps {
   onGetStarted: () => void;
   onLogin: () => void;
@@ -96,7 +95,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
       className="min-h-screen text-white overflow-hidden relative"
       style={{ background: '#000000', ...bodyFont }}
     >
-      {/* ── Ambient radial glow — very low opacity ── */}
+      {/* Ambient radial glow */}
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -104,7 +103,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             'radial-gradient(ellipse 60% 30% at 50% 0%, rgba(0, 242, 255, 0.06) 0%, transparent 70%)',
         }}
       />
-      {/* ── Subtle noise texture ── */}
+      {/* Subtle noise texture */}
       <div
         className="fixed inset-0 opacity-[0.018] pointer-events-none"
         style={{
@@ -116,7 +115,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
       <StarField count={140} />
       <FloatingElements />
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ NAVIGATION ━━━━━━━━━━━━━━━━ */}
+      {/* NAVIGATION */}
       <motion.nav
         className="sticky top-0 z-50 w-full"
         style={{
@@ -241,7 +240,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
         )}
       </motion.nav>
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ HERO ━━━━━━━━━━━━━━━━━━ */}
+      {/* HERO SECTION */}
       <section
         id="overview"
         className="relative z-10 max-w-[1280px] mx-auto px-6"
@@ -265,7 +264,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
               className="w-1.5 h-1.5 rounded-full animate-pulse"
               style={{ background: CYAN }}
             />
-            AI-powered finance, built for India
+            Smart finance, built for India
           </motion.div>
 
           {/* Primary heading */}
@@ -295,7 +294,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             className="text-lg mb-12 max-w-[520px] mx-auto"
             style={{ color: '#a1a1aa', lineHeight: 1.7, ...bodyFont }}
           >
-            Budget smarter, track every rupee, and get AI-powered insights all in one clean, focused platform.
+            Budget smarter, track every rupee, and get smart insights all in one clean, focused platform.
           </p>
 
           {/* CTA buttons */}
@@ -330,7 +329,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
           </div>
         </motion.div>
 
-        {/* ── Hero Visual — Generated 3D Abstract ── */}
+        {/* Hero Visual */}
         <motion.div
           className="relative w-full rounded-[40px] overflow-hidden"
           style={{
@@ -397,7 +396,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
         </motion.div>
       </section>
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FEATURES ━━━━━━━━━━━━━━━━━━ */}
+      {/* FEATURES SECTION */}
       <Section id="features" className="py-32">
         <div className="text-center mb-20">
           <h2 className="font-bold text-white mb-4" style={{ ...headingFont, fontSize: '2.25rem' }}>
@@ -412,7 +411,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
           {[
             { icon: Wallet, title: 'Budget Planner', desc: 'Set spending limits by category and stay on track automatically updated as you spend.', accent: false },
             { icon: TrendingUp, title: 'Expense Tracking', desc: 'Log every transaction and see where your money actually goes, in real time.', accent: false },
-            { icon: Zap, title: 'AI Insights', desc: 'Contextual, data-driven advice based on your spending patterns not generic tips.', accent: true },
+            { icon: Zap, title: 'Smart Insights', desc: 'Contextual, data-driven advice based on your spending patterns — not generic tips.', accent: true },
             { icon: PieChart, title: 'Visual Analytics', desc: 'Clean charts that make your financial picture easy to read at a glance.', accent: false },
             { icon: Bell, title: 'Bill Reminders', desc: 'Set reminders for recurring bills and subscriptions. Never miss a due date.', accent: false },
             { icon: Shield, title: 'Secure by Design', desc: 'AES-256 encryption. Your data stays private always.', accent: false },
@@ -459,7 +458,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
         </div>
       </Section>
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ SPLIT KRO PREMIUM ━━━━━━━━━━━━ */}
+      {/* SPLIT KRO SECTION */}
       <Section className="py-32">
         <GlassCard rounded="apple" className="overflow-hidden" spacing="lg" style={{ boxShadow: '0 60px 120px -20px rgba(0,0,0,0.9)' }}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -517,7 +516,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
 
 
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ TESTIMONIALS ━━━━━━━━━━━━━━━━ */}
+      {/* TESTIMONIALS SECTION */}
       <Section className="py-32">
         <div className="text-center mb-20">
           <h2 className="font-bold text-white mb-4" style={{ ...headingFont, fontSize: '2.25rem' }}>
@@ -530,7 +529,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { name: 'Aditi Sharma', role: 'Freelance Designer', content: 'FinMax changed how I think about money. The AI insights actually make sense for my situation.', rating: 5 },
+            { name: 'Aditi Sharma', role: 'Freelance Designer', content: 'FinMax changed how I think about money. The smart insights actually make sense for my situation.', rating: 5 },
             { name: 'Sudeh Jaswal', role: 'Software Engineer', content: 'Clean, fast, and genuinely useful. The Split Kro feature alone makes it worth it.', rating: 5 },
             { name: 'Krishu', role: 'Tech Lead', content: 'Saved over ₹2 lakh in 3 months — just by being more aware of where my money was going.', rating: 5 },
           ].map((t, i) => (
@@ -563,7 +562,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
         </div>
       </Section>
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ PRICING ━━━━━━━━━━━━━━━━━━ */}
+      {/* PRICING SECTION */}
       <Section id="pricing" className="py-32">
         <div className="text-center mb-20">
           <h2 className="font-bold text-white mb-4" style={{ ...headingFont, fontSize: '2.25rem' }}>
@@ -577,7 +576,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {[
             { plan: 'Basic', price: 'Free', features: ['Manual tracking', 'Basic budgets', 'Weekly summaries'], accent: false },
-            { plan: 'Pro', price: '₹199/mo', features: ['AI insights', 'Split Kro suite', 'Real-time sync', 'Priority support'], accent: true },
+            { plan: 'Pro', price: '₹199/mo', features: ['Smart insights', 'Split Kro suite', 'Real-time sync', 'Priority support'], accent: true },
             { plan: 'Elite', price: '₹499/mo', features: ['Family sharing', 'Personal advisor', 'Advanced analytics', 'Early access'], accent: false },
           ].map((p, i) => (
             <motion.div
@@ -627,7 +626,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
         </div>
       </Section>
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FINAL CTA ━━━━━━━━━━━━━━━━━━━━ */}
+      {/* FINAL CTA SECTION */}
       <Section className="py-48 text-center overflow-hidden">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -666,7 +665,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
         </motion.div>
       </Section>
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ FOOTER ━━━━━━━━━━━━━━━━━━━━ */}
+      {/* FOOTER */}
       <footer className="py-20 border-t border-white/5 relative z-10">
         <div className="max-w-[1280px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="flex flex-col items-center md:items-start gap-4">

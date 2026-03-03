@@ -1,7 +1,9 @@
 import { supabase } from './supabase';
 
-// ─── FinMax Supabase Database API ──────────────────────────────────────────
-// Direct client-side calls to Supabase tables.
+/**
+ * FinMax Supabase Database API
+ * Direct client-side calls to Supabase tables.
+ */
 
 // Ensure scoped to user
 async function getUserId() {
