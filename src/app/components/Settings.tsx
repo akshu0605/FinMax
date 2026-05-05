@@ -10,6 +10,8 @@ import { StarField } from './StarField';
 
 import { GlassCard } from './ui/GlassCard';
 import { NeonButton } from './ui/NeonButton';
+import { toast } from 'sonner';
+import { exportAllUserDataToCsv, importUserDataFromCsv } from '../utils/csvDataSync';
 
 // Design tokens
 const TEAL = '#00f2ff';
@@ -80,10 +82,17 @@ function ToggleRow({ icon: Icon, iconColor, label, description, on, onToggle }: 
 
 
 // Types & Interfaces
-interface SettingsProps { userEmail: string; onBack: () => void; onLogout: () => void; currency: string; onCurrencyChange: (c: string) => void; }
+interface SettingsProps {
+  userEmail: string;
+  onBack: () => void;
+  onLogout: () => void;
+  currency: string;
+  onCurrencyChange: (c: string) => void;
+  onDataChanged: () => Promise<void>;
+}
 type SettingsSection = 'profile' | 'financial' | 'notifications' | 'appearance' | 'security' | 'data' | 'subscription';
 
-export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChange }: SettingsProps) {
+export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChange, onDataChanged }: SettingsProps) {
   const [activeSection, setActiveSection] = useState<SettingsSection>('profile');
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [fullName, setFullName] = useState('John Doe');
@@ -101,6 +110,8 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
   const [compactMode, setCompactMode] = useState(false);
   const [animationsEnabled, setAnimationsEnabled] = useState(true);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [isExportingCsv, setIsExportingCsv] = useState(false);
+  const [isImportingCsv, setIsImportingCsv] = useState(false);
 
   const activeSessions = [
     { device: 'Chrome on Windows', location: 'Mumbai, India', lastActive: '5 minutes ago', current: true },
@@ -110,6 +121,51 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) { const r = new FileReader(); r.onloadend = () => setProfileImage(r.result as string); r.readAsDataURL(file); }
+  };
+
+  const handleExportCsv = async () => {
+    try {
+      setIsExportingCsv(true);
+      const csv = await exportAllUserDataToCsv();
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `finmax-export-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      toast.success('CSV export completed');
+    } catch (error: any) {
+      toast.error(error.message || 'CSV export failed');
+    } finally {
+      setIsExportingCsv(false);
+    }
+  };
+
+  const handleImportCsvFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsImportingCsv(true);
+      const content = await file.text();
+      const result = await importUserDataFromCsv(content);
+      await onDataChanged();
+
+      if (result.errors.length > 0) {
+        toast.warning(`Imported ${result.imported}, skipped ${result.skipped}. Check console for row errors.`);
+        console.warn('CSV import row errors:', result.errors);
+      } else {
+        toast.success(`Imported ${result.imported} rows successfully`);
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'CSV import failed');
+    } finally {
+      event.target.value = '';
+      setIsImportingCsv(false);
+    }
   };
 
   const menuItems = [
@@ -412,7 +468,9 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
               <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Export Data</h3>
               <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Download your financial data in various formats</p>
               <div className="grid grid-cols-2 gap-3">
-                <NeonButton><Download className="size-4" /> Export as CSV</NeonButton>
+                <NeonButton onClick={handleExportCsv} disabled={isExportingCsv}>
+                  <Download className="size-4" /> {isExportingCsv ? 'Exporting...' : 'Export as CSV'}
+                </NeonButton>
                 <NeonButton variant="ghost"><Download className="size-4" /> Export as PDF</NeonButton>
               </div>
             </GlassCard>
@@ -420,7 +478,12 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
             <GlassCard rounded="apple">
               <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Import Data</h3>
               <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Import financial data from external sources</p>
-              <NeonButton variant="ghost"><FileUp className="size-4" /> Import CSV File</NeonButton>
+              <label className="inline-block">
+                <input type="file" accept=".csv,text/csv" className="hidden" onChange={handleImportCsvFile} disabled={isImportingCsv} />
+                <NeonButton variant="ghost" disabled={isImportingCsv}>
+                  <FileUp className="size-4" /> {isImportingCsv ? 'Importing...' : 'Import CSV File'}
+                </NeonButton>
+              </label>
             </GlassCard>
 
             <GlassCard rounded="apple">

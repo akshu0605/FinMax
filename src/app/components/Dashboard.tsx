@@ -211,7 +211,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
       }
 
       if (expRes.data) setExpenses(expRes.data.expenses.map(e => ({
-        id: e._id,
+        id: e.id,
         category: e.category,
         amount: e.amount,
         date: e.date,
@@ -220,7 +220,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
       })));
 
       if (budRes.data) setBudgets(budRes.data.budgets.map(b => ({
-        id: b._id,
+        id: b.id,
         category: b.category,
         allocatedAmount: b.allocatedAmount,
         month: b.month,
@@ -228,7 +228,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
       })));
 
       if (remRes.data) setReminders(remRes.data.reminders.map(r => ({
-        id: r._id,
+        id: r.id,
         title: r.title,
         dueDate: r.dueDate,
         status: r.status,
@@ -329,7 +329,18 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
     fetchData();
   };
 
-  if (showSettings) return <SettingsPage userEmail={userEmail} onBack={() => setShowSettings(false)} onLogout={onLogout} currency={currency} onCurrencyChange={(c) => setCurrency(c as Currency)} />;
+  if (showSettings) {
+    return (
+      <SettingsPage
+        userEmail={userEmail}
+        onBack={() => setShowSettings(false)}
+        onLogout={onLogout}
+        currency={currency}
+        onCurrencyChange={(c) => setCurrency(c as Currency)}
+        onDataChanged={fetchData}
+      />
+    );
+  }
   if (showContactDeveloper) return <ContactDeveloper onBack={() => setShowContactDeveloper(false)} />;
 
   const navItems = [
