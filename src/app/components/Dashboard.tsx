@@ -3,7 +3,7 @@ import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import {
   Wallet, TrendingDown, TrendingUp, PiggyBank, Plus, Bell, Settings,
   LogOut, DollarSign, Calendar, Target, CheckCircle2, Circle, Trash2,
-  Globe, Calculator, HeadphonesIcon, Heart, X, Menu, Search, Loader2,
+  Globe, Calculator, HeadphonesIcon, Heart, X, Menu, Search, Loader2, Sparkles,
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip,
@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { SplitKro } from './SplitKro';
 import { GlassCard } from './ui/GlassCard';
 import { NeonButton } from './ui/NeonButton';
+import { AIInsights } from './AIInsights/AIInsights';
 
 // Design tokens
 const TEAL = '#00F2EA';
@@ -167,7 +168,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const [activeView, setActiveView] = useState<'dashboard' | 'budgets' | 'expenses' | 'reminders' | 'splitkro'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'budgets' | 'expenses' | 'reminders' | 'splitkro' | 'ai-insights'>('dashboard');
   const [currency, setCurrency] = useState<Currency>('INR');
   const [salary, setSalary] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -345,6 +346,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Wallet },
+    { id: 'ai-insights', label: 'AI Insights', icon: Sparkles },
     { id: 'budgets', label: 'Budgets', icon: Target },
     { id: 'expenses', label: 'Expenses', icon: TrendingDown },
     { id: 'reminders', label: 'Reminders', icon: Bell },
@@ -823,6 +825,11 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         {/* Split Kro View Section */}
         {activeView === 'splitkro' && (
           <SplitKro userId={userId} userName={userName || userEmail} />
+        )}
+
+        {/* AI Insights View Section */}
+        {activeView === 'ai-insights' && (
+          <AIInsights expenses={expenses} currencySymbol={sym} />
         )}
 
         {/* Footer */}
