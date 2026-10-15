@@ -12,6 +12,8 @@ import { GlassCard } from './ui/GlassCard';
 import { NeonButton } from './ui/NeonButton';
 import { toast } from 'sonner';
 import { exportAllUserDataToCsv, importUserDataFromCsv } from '../utils/csvDataSync';
+import { ImportWizard } from './ImportWizard/ImportWizard';
+import { Sparkles } from 'lucide-react';
 
 // Design tokens
 const TEAL = '#00f2ff';
@@ -112,6 +114,7 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [isExportingCsv, setIsExportingCsv] = useState(false);
   const [isImportingCsv, setIsImportingCsv] = useState(false);
+  const [isImportWizardOpen, setIsImportWizardOpen] = useState(false);
 
   const activeSessions = [
     { device: 'Chrome on Windows', location: 'Mumbai, India', lastActive: '5 minutes ago', current: true },
@@ -476,14 +479,40 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
             </GlassCard>
 
             <GlassCard rounded="apple">
-              <h3 className="text-lg font-bold text-white mb-2" style={headingFont}>Import Data</h3>
-              <p className="text-sm mb-5" style={{ color: '#A1A1A1', ...monoFont }}>Import financial data from external sources</p>
-              <label className="inline-block">
-                <input type="file" accept=".csv,text/csv" className="hidden" onChange={handleImportCsvFile} disabled={isImportingCsv} />
-                <NeonButton variant="ghost" disabled={isImportingCsv}>
-                  <FileUp className="size-4" /> {isImportingCsv ? 'Importing...' : 'Import CSV File'}
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <h3 className="text-lg font-bold text-white" style={headingFont}>Import Data</h3>
+                  <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>
+                    Import financial statements from your bank (CSV or PDF)
+                  </p>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold"
+                  style={{ background: 'rgba(0,242,234,0.15)', color: TEAL, border: '1px solid rgba(0,242,234,0.3)', ...monoFont }}>
+                  Upgraded
+                </span>
+              </div>
+
+              <div className="p-4 rounded-xl mb-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                <div className="flex items-center gap-2 text-xs text-neutral-300 mb-1" style={monoFont}>
+                  <Sparkles className="size-3.5 text-cyan-400" />
+                  <span>Smart Bank Statement Import</span>
+                </div>
+                <p className="text-xs text-neutral-400" style={monoFont}>
+                  Supports bank CSV statements, standard PDFs, and password-protected PDF statements with automatic merchant categorization & duplicate detection.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <NeonButton onClick={() => setIsImportWizardOpen(true)}>
+                  <Upload className="size-4" /> Import Statement (CSV / PDF)
                 </NeonButton>
-              </label>
+                <label className="inline-block">
+                  <input type="file" accept=".csv,text/csv" className="hidden" onChange={handleImportCsvFile} disabled={isImportingCsv} />
+                  <NeonButton variant="ghost" disabled={isImportingCsv}>
+                    <FileUp className="size-4" /> {isImportingCsv ? 'Importing...' : 'FinMax Backup CSV'}
+                  </NeonButton>
+                </label>
+              </div>
             </GlassCard>
 
             <GlassCard rounded="apple">
@@ -701,6 +730,14 @@ export function Settings({ userEmail, onBack, onLogout, currency, onCurrencyChan
           <div className="max-w-2xl">{renderContent()}</div>
         </main>
       </div>
+
+      {/* Upgraded Statement Import Wizard (CSV & PDF with password support) */}
+      <ImportWizard
+        isOpen={isImportWizardOpen}
+        onClose={() => setIsImportWizardOpen(false)}
+        onDataChanged={onDataChanged}
+        currency={currency}
+      />
     </div>
   );
 }
