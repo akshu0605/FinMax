@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import {
-  Wallet, TrendingDown, TrendingUp, PiggyBank, Plus, Bell, Settings,
+  Wallet, TrendingDown, TrendingUp, PiggyBank, Plus, Bell, Settings, Upload,
   LogOut, DollarSign, Calendar, Target, CheckCircle2, Circle, Trash2,
   Globe, Calculator, HeadphonesIcon, Heart, X, Menu, Search, Loader2, Sparkles, ChevronDown, ChevronUp,
 } from 'lucide-react';
@@ -20,6 +20,7 @@ import { SplitKro } from './SplitKro';
 import { GlassCard } from './ui/GlassCard';
 import { NeonButton } from './ui/NeonButton';
 import { AIInsights } from './AIInsights/AIInsights';
+import { ImportWizard } from './ImportWizard/ImportWizard';
 import './Dashboard.css';
 
 // Design tokens
@@ -184,6 +185,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
   const [showSettings, setShowSettings] = useState(false);
   const [showContactDeveloper, setShowContactDeveloper] = useState(false);
   const [showAddBudget, setShowAddBudget] = useState(false);
+  const [showImportWizard, setShowImportWizard] = useState(false);
 
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -397,7 +399,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
     { id: 'dashboard', label: 'Dashboard', icon: Wallet },
     { id: 'ai-insights', label: 'AI Insights', icon: Sparkles },
     { id: 'budgets', label: 'Budgets', icon: Target },
-    { id: 'expenses', label: 'Expenses', icon: TrendingDown },
+    { id: 'expenses', label: 'Total Expenses', icon: TrendingDown },
     { id: 'reminders', label: 'Reminders', icon: Bell },
   ] as const;
   const viewTitle = activeView === 'dashboard'
@@ -474,6 +476,17 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
               </motion.button>
             );
           })}
+
+          <motion.button
+            type="button"
+            onClick={() => { setShowImportWizard(true); setSidebarOpen(false); }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 relative overflow-hidden"
+            style={{ border: '1px solid transparent', color: '#A1A1A1', ...monoFont }}
+            whileHover={{ x: 4, color: '#fff', background: 'rgba(255,255,255,0.04)' }}
+          >
+            <Upload className="size-5" />
+            <span>Import Expenses</span>
+          </motion.button>
 
           {/* Split Kro Specialist Button */}
           <motion.button
@@ -650,7 +663,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Income
                   </div>
                   <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs" style={monoFont}>
-                    <div className="w-1.5 h-1.5 rounded-full bg-red-500" /> Expenses
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-500" /> Total Expenses
                   </div>
                 </div>
               </div>
@@ -808,7 +821,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         {activeView === 'expenses' && (
           <GlassCard spacing="lg" className="min-h-[500px]">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white tracking-tight" style={headingFont}>All Expenses</h2>
+              <h2 className="text-3xl font-bold text-white tracking-tight" style={headingFont}>Total Expenses</h2>
               <NeonButton onClick={() => setShowAddExpense(true)}><Plus className="size-5" /> Add Expense</NeonButton>
             </div>
             <div className="space-y-4">
@@ -1092,6 +1105,12 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         </ModalCard>
       )}
 
+      <ImportWizard
+        isOpen={showImportWizard}
+        onClose={() => setShowImportWizard(false)}
+        onDataChanged={fetchData}
+        currency={sym}
+      />
       <LoanCalculator isOpen={showLoanCalculator} onClose={() => setShowLoanCalculator(false)} currencySymbol={sym} />
     </div>
   );
