@@ -914,7 +914,9 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
 
         {/* AI Insights View Section */}
         {activeView === 'ai-insights' && (
-          <AIInsights expenses={expenses} currencySymbol={sym} />
+          <section className="dashboard-ai-insights">
+            <AIInsights expenses={expenses} currencySymbol={sym} />
+          </section>
         )}
 
         {/* Footer */}

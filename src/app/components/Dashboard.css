@@ -66,6 +66,34 @@
 #finmax-dashboard button[style*="box-shadow"] { box-shadow: none !important; }
 #finmax-dashboard .dashboard-reminders-header + .grid { align-items: start; }
 #finmax-dashboard .dashboard-mobile-toggle { display: none; }
+#finmax-dashboard .dashboard-ai-insights {
+  max-width: 980px;
+  padding: clamp(0.25rem, 1vw, 0.75rem) 0 2rem;
+}
+#finmax-dashboard .dashboard-ai-insights > div > div:first-child > div:first-child {
+  width: 7px !important;
+  height: 7px !important;
+  box-shadow: none !important;
+}
+#finmax-dashboard .dashboard-ai-insights [style*="backdropFilter"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+#finmax-dashboard .dashboard-ai-insights [style*="borderRadius: 20px"] {
+  border-radius: 18px !important;
+  background: #131917 !important;
+  border-color: var(--dashboard-border) !important;
+}
+#finmax-dashboard .dashboard-ai-insights [style*="rgba(0,242,234,0.07)"] {
+  background: rgba(69, 200, 161, 0.08) !important;
+  border-color: rgba(69, 200, 161, 0.18) !important;
+}
+#finmax-dashboard .dashboard-stat-card {
+  border-radius: 18px !important;
+  min-height: 150px;
+}
+#finmax-dashboard .dashboard-detail-panels > .grid { gap: 1rem !important; }
+#finmax-dashboard .dashboard-detail-panels > .ns-glass { margin-bottom: 1rem !important; }
 #finmax-dashboard input,
 #finmax-dashboard select { border-color: rgba(255, 255, 255, 0.14) !important; }
 #finmax-dashboard input:focus,

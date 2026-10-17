@@ -1,18 +1,15 @@
-import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
-import { useRef } from 'react';
+import { motion } from 'motion/react';
 import {
-  Wallet,
-  TrendingUp,
   PieChart,
   Bell,
-  Shield,
-  Zap,
   Check,
   Star,
   ArrowRight,
   Menu,
   X,
-  ChevronRight,
+  Sparkles,
+  ReceiptText,
+  BarChart3,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Logo } from './Logo';
@@ -21,7 +18,6 @@ import './LandingPage.css';
 
 // Design Tokens
 const CYAN = '#45c8a1';
-const EMERALD = '#10b981';
 const headingFont: React.CSSProperties = {
   fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
   letterSpacing: '-0.02em',
@@ -123,7 +119,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
 
           {/* Desktop nav links */}
           <div className="hidden md:flex gap-10 items-center">
-            {['Overview', 'Features', 'Pricing'].map((link) => (
+            {['Overview', 'Features', 'Insights'].map((link) => (
               <a
                 key={link}
                 href={`#${link.toLowerCase()}`}
@@ -191,7 +187,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
           >
-            {['Overview', 'Features', 'Pricing'].map((link) => (
+            {['Overview', 'Features', 'Insights'].map((link) => (
               <a
                 key={link}
                 href={`#${link.toLowerCase()}`}
@@ -309,9 +305,9 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
           </div>
         </motion.div>
 
-        {/* Hero Visual */}
+        {/* Product reveal — an interface preview, not a decorative stock image. */}
         <motion.div
-          className="landing-hero-visual relative w-full rounded-[40px] overflow-hidden"
+          className="landing-hero-visual landing-product-reveal relative w-full rounded-[40px] overflow-hidden"
           style={{
             border: '1px solid rgba(255, 255, 255, 0.12)',
             boxShadow: '0 40px 100px rgba(0, 0, 0, 0.9)',
@@ -321,20 +317,40 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
         >
-          <img
-            src="/hero-city.png"
-            alt="Premium finance visualization"
-            className="w-full object-cover object-center"
-            style={{ height: '600px', display: 'block' }}
-          />
-          {/* Gradient overlay — blends image into page */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 30%, rgba(0,0,0,0.9) 100%)',
-            }}
-          />
+          <div className="landing-product-ui" aria-label="FinMax dashboard preview">
+            <div className="landing-product-topbar">
+              <span className="landing-product-wordmark"><strong>Fin</strong>Max</span>
+              <span className="landing-product-date">October overview</span>
+              <span className="landing-product-avatar">A</span>
+            </div>
+            <div className="landing-product-content">
+              <div className="landing-product-sidebar">
+                <span className="is-active">Overview</span>
+                <span>Insights</span>
+                <span>Budgets</span>
+                <span>Expenses</span>
+              </div>
+              <div className="landing-product-main">
+                <div className="landing-product-heading">
+                  <div><span>Good evening</span><strong>Your money, in one view.</strong></div>
+                  <button type="button" tabIndex={-1}>Add expense</button>
+                </div>
+                <div className="landing-product-stats">
+                  <div><span>Monthly income</span><strong>₹1,00,000</strong><small>October</small></div>
+                  <div><span>Total spent</span><strong>₹29,208</strong><small className="is-rose">29% of income</small></div>
+                  <div><span>Available to save</span><strong>₹70,792</strong><small className="is-good">On track</small></div>
+                </div>
+                <div className="landing-product-chart">
+                  <div className="landing-product-chart-head"><span>Spending this month</span><strong>₹29,208</strong></div>
+                  <div className="landing-product-bars" aria-hidden="true">
+                    {[34, 57, 43, 76, 52, 68, 46, 81, 61, 89, 64, 73].map((height, index) => (
+                      <i key={index} style={{ height: `${height}%` }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           {/* Floating stats overlay */}
           <div className="landing-hero-metrics absolute bottom-8 left-8 right-8 grid grid-cols-3 gap-3">
             {[
@@ -369,65 +385,62 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
         </motion.div>
       </section>
 
-      {/* FEATURES SECTION */}
-      <Section id="features" className="landing-features py-32">
-        <div className="text-center mb-20">
-          <h2 className="font-bold text-white mb-4" style={{ ...headingFont, fontSize: '2.25rem' }}>
-            Built for how you actually spend
-          </h2>
-          <p style={{ color: '#a1a1aa', ...bodyFont, maxWidth: '480px', margin: '0 auto', lineHeight: 1.7 }}>
-            A focused financial toolkit  no clutter, no noise. Just the features that matter.
-          </p>
+      {/* A compact sticky sequence keeps the feature story focused as the page scrolls. */}
+      <section id="features" className="landing-feature-story relative z-10">
+        <div className="landing-story-intro max-w-[1280px] mx-auto px-6">
+          <p className="landing-eyebrow">A clearer financial rhythm</p>
+          <h2 style={headingFont}>Everything important.<br />Nothing in the way.</h2>
+          <p>FinMax brings transactions, budgets and patterns into one calm, practical view.</p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="landing-sticky-stack max-w-[1280px] mx-auto px-6">
           {[
-            { icon: Wallet, title: 'Budget Planner', desc: 'Set spending limits by category and stay on track automatically updated as you spend.', accent: false },
-            { icon: TrendingUp, title: 'Expense Tracking', desc: 'Log every transaction and see where your money actually goes, in real time.', accent: false },
-            { icon: Zap, title: 'Smart Insights', desc: 'Contextual, data-driven advice based on your spending patterns — not generic tips.', accent: true },
-            { icon: PieChart, title: 'Visual Analytics', desc: 'Clean charts that make your financial picture easy to read at a glance.', accent: false },
-            { icon: Bell, title: 'Bill Reminders', desc: 'Set reminders for recurring bills and subscriptions. Never miss a due date.', accent: false },
-            { icon: Shield, title: 'Secure by Design', desc: 'AES-256 encryption. Your data stays private always.', accent: false },
-          ].map((f, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-            >
-              <GlassCard
-                rounded="apple"
-                className="landing-feature-card p-8 h-full relative overflow-hidden group border-white/5 transition-all duration-500"
-                active={f.accent}
-                interactive={true}
-                spacing="lg"
+            { icon: ReceiptText, number: '01', title: 'Know every expense.', text: 'Import statements or add expenses in seconds. Each transaction stays readable, categorised and close at hand.', detail: 'Smart import · Merchant categories' },
+            { icon: PieChart, number: '02', title: 'See the shape of your month.', text: 'A balanced overview makes it easier to notice where your money is going before the month gets away from you.', detail: 'Budgets · Category breakdowns' },
+            { icon: Bell, number: '03', title: 'Stay ahead of what is due.', text: 'Reminders and a simple timeline keep bills visible without adding pressure to your day.', detail: 'Bills · Reminders · Split Kro' },
+          ].map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <motion.article
+                key={feature.number}
+                className={`landing-sticky-card landing-sticky-card-${index + 1}`}
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.45 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               >
-                {/* Icon */}
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
-                  style={{
-                    background: f.accent ? 'rgba(0, 242, 255, 0.12)' : 'rgba(255, 255, 255, 0.04)',
-                    border: f.accent ? '1px solid rgba(0, 242, 255, 0.25)' : '1px solid rgba(255, 255, 255, 0.08)',
-                    boxShadow: f.accent ? '0 0 20px rgba(0, 242, 255, 0.15)' : 'none',
-                  }}
-                >
-                  <f.icon className="size-7" style={{ color: f.accent ? CYAN : 'rgba(255,255,255,0.45)' }} />
+                <div className="landing-sticky-card-index">{feature.number}</div>
+                <div className="landing-sticky-card-icon"><Icon className="size-6" /></div>
+                <div className="landing-sticky-card-copy">
+                  <p>{feature.detail}</p>
+                  <h3 style={headingFont}>{feature.title}</h3>
+                  <span>{feature.text}</span>
                 </div>
-                <h3 className="text-xl font-bold mb-3 text-white tracking-tight" style={headingFont}>
-                  {f.title}
-                </h3>
-                <p className="text-sm leading-relaxed opacity-50 group-hover:opacity-100 transition-opacity duration-500" style={{ ...bodyFont }}>
-                  {f.desc}
-                </p>
-                {/* Subtle hover indicator */}
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-px scale-x-0 group-hover:scale-x-100 transition-transform duration-700"
-                  style={{ background: `linear-gradient(90deg, transparent, ${f.accent ? CYAN : 'rgba(255,255,255,0.4)'}, transparent)` }}
-                />
-              </GlassCard>
-            </motion.div>
-          ))}
+                <div className={`landing-sticky-card-visual landing-sticky-card-visual-${index + 1}`} aria-hidden="true">
+                  <div /><div /><div /><div />
+                </div>
+              </motion.article>
+            );
+          })}
+        </div>
+      </section>
+
+      <Section id="insights" className="landing-ai-section">
+        <div className="landing-ai-panel">
+          <div className="landing-ai-copy">
+            <p className="landing-eyebrow"><Sparkles className="size-4" /> AI Insights</p>
+            <h2 style={headingFont}>Useful patterns,<br />explained plainly.</h2>
+            <p>FinMax looks at your actual spending history to surface trend changes, recurring costs and possible savings opportunities.</p>
+            <div className="landing-ai-notes">
+              <span><Check className="size-4" /> Based on your own transactions</span>
+              <span><Check className="size-4" /> Clear, explainable signals</span>
+            </div>
+          </div>
+          <div className="landing-ai-preview" aria-label="AI insights preview">
+            <div className="landing-ai-preview-top"><span>FINMAX INSIGHT</span><span>Updated today</span></div>
+            <div className="landing-ai-preview-main"><BarChart3 className="size-7" /><div><strong>Food & dining is up 18%</strong><span>Compared with your previous period</span></div></div>
+            <div className="landing-ai-preview-chart" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /></div>
+            <div className="landing-ai-preview-foot"><span>Potential monthly saving</span><strong>₹1,240</strong></div>
+          </div>
         </div>
       </Section>
 
