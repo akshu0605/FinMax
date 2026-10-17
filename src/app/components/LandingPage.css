@@ -1,0 +1,156 @@
+#finmax-landing {
+  --ns-cyan: #45c8a1;
+  --landing-bg: #0c100f;
+  --landing-panel: #141917;
+  --landing-border: rgba(255, 255, 255, 0.085);
+  background:
+    radial-gradient(ellipse at 76% 0%, rgba(52, 128, 96, 0.12), transparent 35%),
+    var(--landing-bg) !important;
+  color: #f2f5f3;
+}
+
+#finmax-landing .landing-nav {
+  background: rgba(12, 16, 15, 0.92) !important;
+  border-bottom: 1px solid var(--landing-border) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+#finmax-landing .landing-nav > div:first-child { display: none; }
+#finmax-landing .landing-nav > div.max-w-\[1280px\] { min-height: 70px; }
+#finmax-landing .landing-nav a { color: #c0c8c3 !important; }
+#finmax-landing .landing-nav a:hover { color: #ffffff !important; }
+#finmax-landing .landing-nav button[style*="background: rgb(69, 200, 161)"] { box-shadow: none !important; }
+#finmax-landing .landing-nav > div.absolute { display: none; }
+#finmax-landing button[class*="shadow-"] { box-shadow: none !important; }
+#finmax-landing .landing-menu-toggle { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--landing-border); }
+
+#finmax-landing .flex.items-center.gap-2 > div svg { color: #45c8a1 !important; filter: none !important; }
+#finmax-landing .flex.items-center.gap-2 > span > span:first-child { color: #45c8a1 !important; text-shadow: none !important; }
+#finmax-landing .flex.items-center.gap-2 > span > span:last-child { color: #edf2ef !important; }
+
+#finmax-landing .landing-hero { padding-top: clamp(3.75rem, 8vw, 6.5rem) !important; padding-bottom: 4rem !important; }
+#finmax-landing .landing-hero-title {
+  font-size: clamp(3rem, 8vw, 6.5rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.055em !important;
+}
+#finmax-landing .landing-hero-title span { color: #45c8a1 !important; text-shadow: none !important; }
+#finmax-landing .landing-hero-visual {
+  border-radius: 24px !important;
+  border-color: var(--landing-border) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28) !important;
+}
+#finmax-landing .landing-hero-visual > img { height: 560px !important; object-position: center 56%; }
+#finmax-landing .landing-hero-visual > .absolute.inset-0 {
+  background: linear-gradient(180deg, rgba(7, 12, 10, 0.02) 30%, rgba(7, 12, 10, 0.82) 100%) !important;
+}
+#finmax-landing .landing-hero-metrics { gap: 0.75rem; }
+#finmax-landing .landing-hero-stat-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.125rem;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 14px;
+  background: rgba(13, 19, 16, 0.78);
+  backdrop-filter: blur(14px);
+}
+#finmax-landing .landing-hero-stat-inner > span:first-child { font-size: 1.35rem; text-shadow: none !important; }
+#finmax-landing .landing-hero-stat-inner > span:last-child { color: #d0d8d3 !important; }
+
+#finmax-landing .ns-glass,
+#finmax-landing .ns-glass-active {
+  background: var(--landing-panel) !important;
+  border: 1px solid var(--landing-border) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+#finmax-landing .ns-glass-active {
+  background: linear-gradient(145deg, rgba(69, 200, 161, 0.08), var(--landing-panel) 60%) !important;
+  border-color: rgba(69, 200, 161, 0.22) !important;
+}
+#finmax-landing .ns-glass > .absolute.inset-x-0,
+#finmax-landing .ns-glass-active > .absolute.inset-x-0,
+#finmax-landing .ns-glass > .absolute.inset-0,
+#finmax-landing .ns-glass-active > .absolute.inset-0 { opacity: 0 !important; }
+#finmax-landing .landing-feature-card,
+#finmax-landing .landing-testimonial-card,
+#finmax-landing .landing-pricing-card { border-radius: 20px !important; }
+#finmax-landing .landing-feature-card div.w-14.h-14 {
+  background: rgba(69, 200, 161, 0.08) !important;
+  border-color: rgba(69, 200, 161, 0.16) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+#finmax-landing .landing-feature-card div.w-14.h-14 svg { color: #8fbaa8 !important; }
+#finmax-landing .landing-feature-card .opacity-50 { opacity: 0.72; }
+#finmax-landing .landing-testimonial-card svg { color: #45c8a1 !important; }
+#finmax-landing .landing-pricing-card.ns-glass-active {
+  border-color: rgba(69, 200, 161, 0.28) !important;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.2) !important;
+}
+
+#finmax-landing .landing-section { padding-top: clamp(4rem, 8vw, 7rem); padding-bottom: clamp(4rem, 8vw, 7rem); }
+#finmax-landing .landing-section > div.text-center { margin-bottom: 3rem; }
+#finmax-landing .landing-section > div.text-center h2 { font-size: clamp(1.8rem, 4vw, 2.5rem) !important; letter-spacing: -0.04em; }
+#finmax-landing .landing-split-section > .ns-glass { border-radius: 24px !important; }
+#finmax-landing .landing-split-section h2 { letter-spacing: -0.045em; }
+#finmax-landing .landing-split-section img { filter: none !important; opacity: 0.88 !important; transform: none !important; }
+#finmax-landing .landing-split-section .animate-spin-slow { animation: none !important; border-style: solid !important; }
+#finmax-landing .landing-split-section .opacity-40,
+#finmax-landing .landing-split-section .opacity-60 { opacity: 0.78; }
+
+#finmax-landing .landing-final-cta h2 {
+  font-size: clamp(3rem, 8vw, 7rem) !important;
+  line-height: 1 !important;
+  letter-spacing: -0.055em;
+}
+#finmax-landing .landing-final-cta h2 span { color: #45c8a1 !important; text-shadow: none !important; }
+#finmax-landing .landing-final-cta .blur-\[120px\] { display: none; }
+#finmax-landing button[style*="box-shadow"] { box-shadow: none !important; }
+#finmax-landing button:focus-visible,
+#finmax-landing a:focus-visible { outline: 2px solid #45c8a1; outline-offset: 3px; }
+#finmax-landing input,
+#finmax-landing select { max-width: 100%; }
+
+@media (max-width: 767px) {
+  #finmax-landing .landing-nav > div.max-w-\[1280px\] { min-height: 62px; padding-left: 1.25rem; padding-right: 1.25rem; }
+  #finmax-landing .landing-nav > .md\:hidden { background: #111715 !important; border-top: 1px solid var(--landing-border); }
+  #finmax-landing .landing-hero { padding-left: 1.25rem; padding-right: 1.25rem; padding-top: 3.5rem !important; padding-bottom: 2.5rem !important; }
+  #finmax-landing .landing-hero-title { font-size: clamp(2.7rem, 11vw, 4.5rem) !important; }
+  #finmax-landing .landing-hero .mb-20 { margin-bottom: 2.5rem !important; }
+  #finmax-landing .landing-hero-visual { border-radius: 18px !important; }
+  #finmax-landing .landing-hero-visual > img { height: 440px !important; }
+  #finmax-landing .landing-hero-metrics { left: 0.75rem; right: 0.75rem; bottom: 0.75rem; gap: 0.4rem; }
+  #finmax-landing .landing-hero-stat-inner { padding: 0.75rem 0.6rem; border-radius: 11px; }
+  #finmax-landing .landing-hero-stat-inner > span:first-child { font-size: 1rem; }
+  #finmax-landing .landing-hero-stat-inner > span:last-child { font-size: 0.65rem; line-height: 1.25; }
+  #finmax-landing .landing-section { padding-left: 1.25rem; padding-right: 1.25rem; }
+  #finmax-landing .landing-features > div.grid,
+  #finmax-landing .landing-testimonials > div.grid,
+  #finmax-landing .landing-pricing > div.grid { gap: 1rem; }
+  #finmax-landing .landing-feature-card,
+  #finmax-landing .landing-testimonial-card,
+  #finmax-landing .landing-pricing-card { padding: 1.35rem !important; }
+  #finmax-landing .landing-split-section > .ns-glass { padding: 1.25rem !important; }
+  #finmax-landing .landing-split-section .grid { gap: 1.5rem; }
+  #finmax-landing .landing-final-cta { padding-top: 5rem; padding-bottom: 5rem; }
+  #finmax-landing .landing-final-cta h2 { font-size: clamp(2.8rem, 12vw, 5rem) !important; margin-bottom: 2rem; }
+  #finmax-landing .landing-final-cta button { width: min(100%, 22rem); padding: 1rem 1.25rem; font-size: 0.95rem; border-radius: 14px; letter-spacing: 0.04em; }
+  #finmax-landing .landing-footer > div { gap: 2rem; }
+  #finmax-landing .landing-footer > div > div:last-child { text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #finmax-landing *,
+  #finmax-landing *::before,
+  #finmax-landing *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

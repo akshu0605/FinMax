@@ -49,7 +49,11 @@ function extractDate(line: string): string {
  * Extract amounts from a line (returns all numeric matches).
  */
 function extractAmounts(line: string): string[] {
-  return Array.from(line.matchAll(AMOUNT_PATTERN), m => m[0]);
+  // The date itself contains numeric tokens (e.g. 15/01/2026). Never treat
+  // those components as transaction amounts.
+  const date = extractDate(line);
+  const transactionFields = date ? line.trim().slice(date.length) : line;
+  return Array.from(transactionFields.matchAll(AMOUNT_PATTERN), m => m[0]);
 }
 
 /**

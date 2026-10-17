@@ -16,12 +16,11 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { Logo } from './Logo';
-import { FloatingElements } from './FloatingElements';
-import { StarField } from './StarField';
 import { GlassCard } from './ui/GlassCard';
+import './LandingPage.css';
 
 // Design Tokens
-const CYAN = '#00f2ff';
+const CYAN = '#45c8a1';
 const EMERALD = '#10b981';
 const headingFont: React.CSSProperties = {
   fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
@@ -70,7 +69,7 @@ function Section({
   return (
     <motion.section
       id={id}
-      className={`relative z-10 max-w-[1280px] mx-auto px-6 ${className}`}
+      className={`landing-section relative z-10 max-w-[1280px] mx-auto px-6 ${className}`}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
@@ -92,32 +91,13 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
 
   return (
     <div
+      id="finmax-landing"
       className="min-h-screen text-white overflow-hidden relative"
-      style={{ background: '#000000', ...bodyFont }}
+      style={{ background: '#0c100f', ...bodyFont }}
     >
-      {/* Ambient radial glow */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 60% 30% at 50% 0%, rgba(0, 242, 255, 0.06) 0%, transparent 70%)',
-        }}
-      />
-      {/* Subtle noise texture */}
-      <div
-        className="fixed inset-0 opacity-[0.018] pointer-events-none"
-        style={{
-          backgroundImage:
-            'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 400 400\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' /%3E%3C/svg%3E")',
-        }}
-      />
-
-      <StarField count={140} />
-      <FloatingElements />
-
       {/* NAVIGATION */}
       <motion.nav
-        className="sticky top-0 z-50 w-full"
+        className="landing-nav sticky top-0 z-50 w-full"
         style={{
           ...glassFrame(),
           borderRadius: 0,
@@ -176,7 +156,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             </button>
             <motion.button
               onClick={onGetStarted}
-              className="px-5 py-2 rounded-lg text-sm font-semibold"
+              className="landing-primary-button px-5 py-2 rounded-lg text-sm font-semibold"
               style={{
                 background: CYAN,
                 color: '#000000',
@@ -195,7 +175,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden text-white"
+            className="landing-menu-toggle md:hidden w-11 h-11 rounded-xl flex items-center justify-center text-white"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
@@ -231,7 +211,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             </button>
             <button
               onClick={() => { setMobileMenuOpen(false); onGetStarted(); }}
-              className="px-5 py-3 rounded-xl text-sm font-semibold text-center"
+              className="landing-primary-button px-5 py-3 rounded-xl text-sm font-semibold text-center"
               style={{ background: CYAN, color: '#000000', ...headingFont }}
             >
               Get Started
@@ -243,7 +223,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
       {/* HERO SECTION */}
       <section
         id="overview"
-        className="relative z-10 max-w-[1280px] mx-auto px-6"
+        className="landing-hero relative z-10 max-w-[1280px] mx-auto px-6"
         style={{ paddingTop: '120px', paddingBottom: '80px' }}
       >
         <motion.div
@@ -269,7 +249,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
 
           {/* Primary heading */}
           <h1
-            className="font-black mb-8 text-white tracking-tighter"
+            className="landing-hero-title font-black mb-8 text-white tracking-tighter"
             style={{
               ...headingFont,
               fontSize: 'clamp(3rem, 10vw, 6.5rem)',
@@ -301,7 +281,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
           <div className="flex gap-4 justify-center flex-wrap mb-20">
             <motion.button
               onClick={onGetStarted}
-              className="px-8 py-4 rounded-xl text-base font-semibold flex items-center gap-2"
+              className="landing-primary-button px-8 py-4 rounded-xl text-base font-semibold flex items-center gap-2"
               style={{
                 background: CYAN,
                 color: '#000000',
@@ -331,7 +311,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
 
         {/* Hero Visual */}
         <motion.div
-          className="relative w-full rounded-[40px] overflow-hidden"
+          className="landing-hero-visual relative w-full rounded-[40px] overflow-hidden"
           style={{
             border: '1px solid rgba(255, 255, 255, 0.12)',
             boxShadow: '0 40px 100px rgba(0, 0, 0, 0.9)',
@@ -356,7 +336,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             }}
           />
           {/* Floating stats overlay */}
-          <div className="absolute bottom-8 left-8 right-8 flex gap-6 flex-wrap">
+          <div className="landing-hero-metrics absolute bottom-8 left-8 right-8 grid grid-cols-3 gap-3">
             {[
               { label: 'Active Users', value: '24K+' },
               { label: 'Avg Monthly Savings', value: '₹8,400' },
@@ -364,25 +344,18 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
-                className="flex flex-col"
-                style={glassFrame()}
+                className="landing-hero-stat flex flex-col"
                 initial={{ opacity: 0, scale: 0.9, y: 10 }}
                 whileInView={{ opacity: 1, scale: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: 0.6 + i * 0.1 }}
               >
                 <div
-                  style={{
-                    ...glassFrame(),
-                    padding: '12px 20px',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                  }}
+                  className="landing-hero-stat-inner"
                 >
                   <span
                     className="text-2xl font-bold"
-                    style={{ color: CYAN, ...headingFont, textShadow: '0 0 16px rgba(0, 242, 255, 0.4)' }}
+                    style={{ color: CYAN, ...headingFont }}
                   >
                     {stat.value}
                   </span>
@@ -397,7 +370,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
       </section>
 
       {/* FEATURES SECTION */}
-      <Section id="features" className="py-32">
+      <Section id="features" className="landing-features py-32">
         <div className="text-center mb-20">
           <h2 className="font-bold text-white mb-4" style={{ ...headingFont, fontSize: '2.25rem' }}>
             Built for how you actually spend
@@ -425,7 +398,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
             >
               <GlassCard
                 rounded="apple"
-                className="p-8 h-full relative overflow-hidden group border-white/5 transition-all duration-500"
+                className="landing-feature-card p-8 h-full relative overflow-hidden group border-white/5 transition-all duration-500"
                 active={f.accent}
                 interactive={true}
                 spacing="lg"
@@ -459,7 +432,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
       </Section>
 
       {/* SPLIT KRO SECTION */}
-      <Section className="py-32">
+      <Section className="landing-split-section py-32">
         <GlassCard rounded="apple" className="overflow-hidden" spacing="lg" style={{ boxShadow: '0 60px 120px -20px rgba(0,0,0,0.9)' }}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="p-4 lg:p-12">
@@ -517,7 +490,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
 
 
       {/* TESTIMONIALS SECTION */}
-      <Section className="py-32">
+      <Section className="landing-testimonials py-32">
         <div className="text-center mb-20">
           <h2 className="font-bold text-white mb-4" style={{ ...headingFont, fontSize: '2.25rem' }}>
             Trusted by thousands
@@ -540,7 +513,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.1 }}
             >
-              <GlassCard rounded="apple" className="p-8 h-full border-white/5" interactive={true} spacing="lg">
+              <GlassCard rounded="apple" className="landing-testimonial-card p-8 h-full border-white/5" interactive={true} spacing="lg">
                 <div className="flex gap-1 mb-6">
                   {[...Array(t.rating)].map((_, j) => (
                     <Star key={j} className="size-4 fill-cyan-400 text-cyan-400" />
@@ -563,7 +536,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
       </Section>
 
       {/* PRICING SECTION */}
-      <Section id="pricing" className="py-32">
+      <Section id="pricing" className="landing-pricing py-32">
         <div className="text-center mb-20">
           <h2 className="font-bold text-white mb-4" style={{ ...headingFont, fontSize: '2.25rem' }}>
             Simple, honest pricing
@@ -591,7 +564,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
                 active={p.accent}
                 interactive={true}
                 spacing="lg"
-                className={`flex flex-col h-full border-white/5 ${p.accent ? 'ring-2 ring-cyan-500/20' : ''}`}
+                className={`landing-pricing-card flex flex-col h-full border-white/5 ${p.accent ? 'ring-2 ring-cyan-500/20' : ''}`}
                 style={p.accent ? { boxShadow: '0 40px 100px -12px rgba(0,242,255,0.15)' } : {}}
               >
                 <div className="mb-8">
@@ -627,7 +600,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
       </Section>
 
       {/* FINAL CTA SECTION */}
-      <Section className="py-48 text-center overflow-hidden">
+      <Section className="landing-final-cta py-48 text-center overflow-hidden">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -666,7 +639,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
       </Section>
 
       {/* FOOTER */}
-      <footer className="py-20 border-t border-white/5 relative z-10">
+      <footer className="landing-footer py-20 border-t border-white/5 relative z-10">
         <div className="max-w-[1280px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="flex flex-col items-center md:items-start gap-4">
             <Logo />

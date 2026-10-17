@@ -3,26 +3,27 @@ import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import {
   Wallet, TrendingDown, TrendingUp, PiggyBank, Plus, Bell, Settings,
   LogOut, DollarSign, Calendar, Target, CheckCircle2, Circle, Trash2,
-  Globe, Calculator, HeadphonesIcon, Heart, X, Menu, Search, Loader2, Sparkles,
+  Globe, Calculator, HeadphonesIcon, Heart, X, Menu, Search, Loader2, Sparkles, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip,
   AreaChart, Area, XAxis, YAxis, CartesianGrid
 } from 'recharts';
 import { Logo } from './Logo';
-import { StarField } from './StarField';
 import { LoanCalculator } from './LoanCalculator';
 import { Settings as SettingsPage } from './Settings';
 import { ContactDeveloper } from './ContactDeveloper';
 import { api } from '../utils/api';
+import { supabase } from '../utils/supabase';
 import { toast } from 'sonner';
 import { SplitKro } from './SplitKro';
 import { GlassCard } from './ui/GlassCard';
 import { NeonButton } from './ui/NeonButton';
 import { AIInsights } from './AIInsights/AIInsights';
+import './Dashboard.css';
 
 // Design tokens
-const TEAL = '#00F2EA';
+const TEAL = '#45C8A1';
 const headingFont: React.CSSProperties = { fontFamily: 'Inter, Geist, SF Pro, sans-serif' };
 const monoFont: React.CSSProperties = { fontFamily: 'JetBrains Mono, "Courier New", monospace' };
 
@@ -102,35 +103,25 @@ function ModalCard({ children, onClose, title }: { children: React.ReactNode; on
 }
 
 // Stat Card Component
-function StatCard({ icon: Icon, iconColor, label, value, delay, onEdit, index }:
-  { icon: any; iconColor: string; label: string; value: string; delay: number; onEdit?: () => void; index: number }) {
-  // Normalize icons to the new cyan if they were the old teal
-  const actualColor = iconColor === TEAL ? '#00f2ff' : iconColor;
+function StatCard({ icon: Icon, iconColor, label, value, onEdit }:
+  { icon: any; iconColor: string; label: string; value: string; onEdit?: () => void }) {
+  // Keep the income card on the dashboard's accent color.
+  const actualColor = iconColor === TEAL ? TEAL : iconColor;
 
   return (
     <GlassCard
       interactive
       rounded="apple"
+      spacing="sm"
       active={iconColor === TEAL}
-      className="flex flex-col"
+      className="dashboard-stat-card flex flex-col"
       style={{ minHeight: 140, boxShadow: '0 20px 50px -12px rgba(0,0,0,0.5)' }}
-      animate={{
-        y: [0, -6, 0],
-      }}
-      transition={{
-        y: {
-          duration: 5 + index,
-          repeat: Infinity,
-          ease: "easeInOut"
-        },
-        delay: delay
-      }}
-      whileHover={{ y: -12, scale: 1.02, boxShadow: `0 30px 60px -12px rgba(0,0,0,0.7), 0 0 30px ${actualColor}15` }}
+      whileHover={{ y: -3, scale: 1.01, boxShadow: `0 12px 28px -12px ${actualColor}24` }}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="w-12 h-12 rounded-xl flex items-center justify-center"
           style={{
-            background: `rgba(${actualColor === '#00f2ff' ? '0,242,255' : actualColor === '#F87171' ? '248,113,113' : actualColor === '#34D399' ? '52,211,153' : '96,165,250'},0.12)`,
+            background: `rgba(${actualColor === TEAL ? '69,200,161' : actualColor === '#F87171' ? '248,113,113' : actualColor === '#34D399' ? '52,211,153' : '96,165,250'},0.1)`,
             border: `1px solid ${actualColor}33`,
             boxShadow: `0 4px 16px ${actualColor}22`,
           }}>
@@ -142,7 +133,7 @@ function StatCard({ icon: Icon, iconColor, label, value, delay, onEdit, index }:
           >Edit</button>
         )}
       </div>
-      <motion.div className="text-3xl font-bold text-white mb-1 tracking-tight" style={headingFont}
+      <motion.div className="text-2xl sm:text-3xl font-bold text-white mb-1 tracking-tight" style={headingFont}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>{value}</motion.div>
       <div className="text-sm font-medium" style={{ color: 'var(--ns-text-secondary)', ...monoFont }}>{label}</div>
     </GlassCard>
@@ -156,11 +147,15 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
   const [isDesktop, setIsDesktop] = useState(() =>
     typeof window !== 'undefined' ? window.innerWidth >= 1024 : true,
   );
+  const [showMobileDashboardDetails, setShowMobileDashboardDetails] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 768 : true,
+  );
 
   useEffect(() => {
     const handleResize = () => {
       const desktop = window.innerWidth >= 1024;
       setIsDesktop(desktop);
+      setShowMobileDashboardDetails(window.innerWidth >= 768);
       // Auto-close mobile sidebar when resizing to desktop
       if (desktop) setSidebarOpen(false);
     };
@@ -169,7 +164,16 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
   }, []);
 
   const [activeView, setActiveView] = useState<'dashboard' | 'budgets' | 'expenses' | 'reminders' | 'splitkro' | 'ai-insights'>('dashboard');
-  const [currency, setCurrency] = useState<Currency>('INR');
+  const [currency, setCurrency] = useState<Currency>(() => {
+    try {
+      const saved = localStorage.getItem(`finmax-currency-${userId}`) as Currency | null;
+      return saved && Object.prototype.hasOwnProperty.call(CURRENCY_SYMBOLS, saved) ? saved : 'INR';
+    } catch {
+      return 'INR';
+    }
+  });
+  const [currencyPreferenceReady, setCurrencyPreferenceReady] = useState(false);
+  const [canSyncCurrencyPreference, setCanSyncCurrencyPreference] = useState(false);
   const [salary, setSalary] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showAddExpense, setShowAddExpense] = useState(false);
@@ -246,6 +250,49 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    supabase.auth.getUser().then(({ data, error }) => {
+      if (!active) return;
+      const user = !error && data.user?.id === userId ? data.user : null;
+      if (user) {
+        const preferences = user.user_metadata?.finmax_preferences;
+        const savedCurrency = preferences && typeof preferences === 'object'
+          ? (preferences as Record<string, unknown>).currency
+          : null;
+        if (typeof savedCurrency === 'string' && Object.prototype.hasOwnProperty.call(CURRENCY_SYMBOLS, savedCurrency)) {
+          setCurrency(savedCurrency as Currency);
+        }
+        setCanSyncCurrencyPreference(true);
+      }
+      setCurrencyPreferenceReady(true);
+    }).catch(() => {
+      if (active) setCurrencyPreferenceReady(true);
+    });
+    return () => { active = false; };
+  }, [userId]);
+
+  useEffect(() => {
+    if (!currencyPreferenceReady) return;
+    try {
+      localStorage.setItem(`finmax-currency-${userId}`, currency);
+    } catch {
+      // Account metadata remains the cross-device preference source.
+    }
+    if (!canSyncCurrencyPreference || !userId) return;
+    const timeout = window.setTimeout(async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user || data.user.id !== userId) return;
+      const metadata = data.user.user_metadata || {};
+      const current = metadata.finmax_preferences && typeof metadata.finmax_preferences === 'object'
+        ? metadata.finmax_preferences as Record<string, unknown>
+        : {};
+      const { error: updateError } = await supabase.auth.updateUser({ data: { finmax_preferences: { ...current, currency } } });
+      if (updateError) toast.error('Could not save your currency preference');
+    }, 600);
+    return () => window.clearTimeout(timeout);
+  }, [currency, currencyPreferenceReady, canSyncCurrencyPreference, userId]);
 
   useEffect(() => {
     // budgets[].spent is calculated dynamically in the render logic or a useMemo
@@ -333,6 +380,8 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
   if (showSettings) {
     return (
       <SettingsPage
+        userId={userId}
+        userName={userName}
         userEmail={userEmail}
         onBack={() => setShowSettings(false)}
         onLogout={onLogout}
@@ -351,12 +400,16 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
     { id: 'expenses', label: 'Expenses', icon: TrendingDown },
     { id: 'reminders', label: 'Reminders', icon: Bell },
   ] as const;
+  const viewTitle = activeView === 'dashboard'
+    ? 'Financial Dashboard'
+    : activeView === 'splitkro'
+      ? 'Split Kro'
+      : navItems.find(item => item.id === activeView)?.label ?? 'Financial Dashboard';
 
   const CATEGORIES = ['Food & Dining', 'Transportation', 'Entertainment', 'Shopping', 'Bills', 'Healthcare', 'Other'];
 
   return (
-    <div className="min-h-screen text-white" style={{ background: '#000000', ...monoFont }}>
-      <StarField count={200} />
+    <div id="finmax-dashboard" className="min-h-screen text-white" style={{ background: '#0c100f', ...headingFont }}>
 
       {/* Mobile Sidebar Backdrop */}
       {sidebarOpen && (
@@ -488,7 +541,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
               <Menu className="size-5" />
             </button>
             <div>
-              <h1 className="text-2xl sm:text-4xl font-bold mb-1 text-white" style={headingFont}>Financial Dashboard</h1>
+              <h1 className="text-2xl sm:text-4xl font-bold mb-1 text-white" style={headingFont}>{viewTitle}</h1>
               <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Welcome back, <span style={{ color: TEAL }}>{userName || userEmail}</span></p>
             </div>
           </div>
@@ -536,18 +589,34 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         </motion.div>
 
         {/* Stat Cards Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 items-start">
-          <StatCard index={0} icon={DollarSign} iconColor={TEAL} label="Monthly Income" value={`${sym}${salary.toLocaleString()}`} delay={0.3} onEdit={() => setShowEditSalary(true)} />
-          <StatCard index={1} icon={TrendingDown} iconColor="#F87171" label="Total Expenses" value={`${sym}${totalExpenses.toLocaleString()}`} delay={0.4} />
-          <StatCard index={2} icon={PiggyBank} iconColor="#34D399" label="Total Savings" value={`${sym}${savings.toLocaleString()}`} delay={0.5} />
-          <StatCard index={3} icon={TrendingUp} iconColor="#60A5FA" label="Savings Rate" value={`${savingsRate}%`} delay={0.6} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 items-start">
+          <StatCard icon={DollarSign} iconColor={TEAL} label="Monthly Income" value={`${sym}${salary.toLocaleString()}`} onEdit={() => setShowEditSalary(true)} />
+          <StatCard icon={TrendingDown} iconColor="#F87171" label="Total Expenses" value={`${sym}${totalExpenses.toLocaleString()}`} />
+          <StatCard icon={PiggyBank} iconColor="#34D399" label="Total Savings" value={`${sym}${savings.toLocaleString()}`} />
+          <StatCard icon={TrendingUp} iconColor="#60A5FA" label="Savings Rate" value={`${savingsRate}%`} />
         </div>
 
         {/* Dashboard View Section */}
         {activeView === 'dashboard' && (
           <>
+            <div className="dashboard-mobile-toggle">
+              <div>
+                <span className="block text-sm font-semibold text-white">Dashboard overview</span>
+                <span className="block text-xs" style={{ color: '#97A29E' }}>Your key numbers at a glance</span>
+              </div>
+              <button
+                type="button"
+                aria-expanded={showMobileDashboardDetails}
+                onClick={() => setShowMobileDashboardDetails(open => !open)}
+                className="dashboard-mobile-toggle-button"
+              >
+                {showMobileDashboardDetails ? 'Hide details' : 'Full dashboard'}
+                {showMobileDashboardDetails ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+              </button>
+            </div>
+            {(isDesktop || showMobileDashboardDetails) && <div className="dashboard-detail-panels">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <GlassCard rounded="apple" className="flex flex-col min-h-[400px]" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
+              <GlassCard rounded="apple" className="dashboard-spending-category flex flex-col min-h-[400px]" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
                 <h2 className="text-2xl font-bold mb-6 text-white tracking-tight" style={headingFont}>Where your money goes</h2>
                 {expenses.length === 0 ? (
                   <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
@@ -585,7 +654,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                   </div>
                 </div>
               </div>
-              <div className="h-[320px] w-full">
+              <div className="dashboard-trend-chart h-[320px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={expenses.slice(-15).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())}>
                     <defs>
@@ -609,12 +678,12 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
             </GlassCard>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <GlassCard rounded="apple" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white tracking-tight" style={headingFont}>Recent Expenses</h2>
+              <GlassCard rounded="apple">
+                <div className="flex items-center justify-between mb-5">
+                  <h2 className="text-xl font-semibold text-white tracking-tight" style={headingFont}>Recent Expenses</h2>
                   <NeonButton size="sm" onClick={() => setShowAddExpense(true)}><Plus className="size-4" /> Add</NeonButton>
                 </div>
-                <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+                <div className="space-y-2 max-h-[320px] overflow-y-auto overscroll-contain pr-1">
                   {expenses.length === 0 ? (
                     <div className="py-12 text-center opacity-30" style={monoFont}>
                       <TrendingDown className="size-8 mx-auto mb-2" />
@@ -622,29 +691,24 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                     </div>
                   ) : expenses.slice(0, 5).map((expense, i) => (
                     <motion.div key={expense.id}
-                      className="flex items-center justify-between p-4 rounded-xl group relative overflow-hidden"
-                      style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.07)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)' }}
-                      initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
-                      whileHover={{ scale: 1.01, borderColor: 'rgba(0,242,234,0.2)' }}
+                      className="flex items-center justify-between gap-3 p-3 rounded-xl group border border-white/[0.08] bg-white/[0.025] transition-colors hover:bg-white/[0.05] hover:border-white/[0.14]"
+                      initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
                     >
-                      <div className="absolute inset-0 rounded-[inherit] pointer-events-none"
-                        style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)' }} />
-                      <div className="flex items-center gap-3 flex-1 relative">
-                        <div className="w-10 h-10 rounded-lg flex items-center justify-center relative"
-                          style={{ background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.2)', boxShadow: '0 4px 12px rgba(0,242,234,0.1), inset 0 1px 0 rgba(0,242,234,0.2)' }}>
-                          <DollarSign className="size-5" style={{ color: TEAL, filter: 'drop-shadow(0 0 5px #00F2EA)' }} />
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-white/[0.05] border border-white/[0.08]">
+                          <DollarSign className="size-4 text-neutral-300" />
                         </div>
-                        <div>
-                          <div className="font-semibold text-white text-sm" style={headingFont}>{expense.title}</div>
-                          <div className="text-xs" style={{ color: '#A1A1A1', ...monoFont }}>{expense.category}</div>
+                        <div className="min-w-0">
+                          <div className="font-medium text-white text-sm break-words" style={headingFont} title={expense.title}>{expense.title}</div>
+                          <div className="text-xs text-neutral-400 truncate" style={monoFont}>{expense.category}</div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 relative">
-                        <div className="text-right">
-                          <div className="font-bold text-red-400 text-sm" style={monoFont}>-{sym}{expense.amount}</div>
-                          <div className="text-xs" style={{ color: '#A1A1A1', ...monoFont }}>{new Date(expense.date).toLocaleDateString()}</div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="text-right tabular-nums">
+                          <div className="font-semibold text-rose-300 text-sm whitespace-nowrap" style={monoFont}>-{sym}{Number(expense.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                          <div className="text-xs text-neutral-500 whitespace-nowrap" style={monoFont}>{new Date(expense.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                         </div>
-                        <button onClick={() => deleteExpense(expense.id)} className="opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:text-red-300"><Trash2 className="size-4" /></button>
+                        <button onClick={() => deleteExpense(expense.id)} aria-label={`Delete ${expense.title}`} className="p-1 rounded text-neutral-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:text-rose-300"><Trash2 className="size-4" /></button>
                       </div>
                     </motion.div>
                   ))}
@@ -690,6 +754,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                 })}
               </div>
             </GlassCard>
+            </div>}
           </>
         )}
 
@@ -754,26 +819,26 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                 </div>
               ) : expenses.map((expense, i) => (
                 <motion.div key={expense.id}
-                  className="flex items-center justify-between p-5 rounded-2xl group relative overflow-hidden"
+                  className="flex items-center justify-between gap-3 p-3 sm:p-5 rounded-2xl group relative overflow-hidden"
                   style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.07)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)' }}
                   initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                   whileHover={{ scale: 1.01, borderColor: 'rgba(0,242,234,0.2)' }}
                 >
                   <div className="absolute inset-0 rounded-[inherit] pointer-events-none"
                     style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)' }} />
-                  <div className="flex items-center gap-4 relative">
+                  <div className="flex items-center gap-3 sm:gap-4 relative flex-1 min-w-0">
                     <div className="w-12 h-12 rounded-xl flex items-center justify-center"
                       style={{ background: 'rgba(0,242,234,0.1)', border: '1px solid rgba(0,242,234,0.2)', boxShadow: '0 4px 15px rgba(0,242,234,0.1)' }}>
                       <DollarSign className="size-6" style={{ color: TEAL }} />
                     </div>
-                    <div>
-                      <div className="font-bold text-white text-lg" style={headingFont}>{expense.title}</div>
-                      <div className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>{expense.category} • {new Date(expense.date).toLocaleDateString()}</div>
+                    <div className="min-w-0">
+                      <div className="font-bold text-white text-base sm:text-lg break-words" style={headingFont} title={expense.title}>{expense.title}</div>
+                      <div className="text-xs sm:text-sm break-words" style={{ color: '#A1A1A1', ...monoFont }}>{expense.category} • {new Date(expense.date).toLocaleDateString()}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-6 relative">
+                  <div className="flex items-center gap-1 sm:gap-4 relative shrink-0">
                     <div className="text-right">
-                      <div className="text-xl font-bold text-red-400" style={monoFont}>-{sym}{expense.amount.toLocaleString()}</div>
+                      <div className="text-sm sm:text-xl font-bold text-red-400 whitespace-nowrap" style={monoFont}>-{sym}{expense.amount.toLocaleString()}</div>
                     </div>
                     <button onClick={() => deleteExpense(expense.id)} className="p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:bg-red-400/10"><Trash2 className="size-5" /></button>
                   </div>
@@ -785,25 +850,32 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
 
         {/* Reminders View Section */}
         {activeView === 'reminders' && (
-          <GlassCard spacing="lg" className="min-h-[500px]">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-white tracking-tight" style={headingFont}>Reminders & Bills</h2>
-              <NeonButton onClick={() => setShowAddReminder(true)}><Plus className="size-5" /> New Reminder</NeonButton>
+          <GlassCard spacing="md" className="min-h-[320px]">
+            <div className="dashboard-reminders-header flex flex-wrap items-center justify-between gap-4 mb-7">
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight" style={headingFont}>Reminders & Bills</h2>
+                <p className="mt-1 text-sm" style={{ color: '#97A29E' }}>Keep upcoming payments in one place.</p>
+              </div>
+              <NeonButton className="w-full sm:w-auto" onClick={() => setShowAddReminder(true)}><Plus className="size-5" /> New Reminder</NeonButton>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {reminders.length === 0 ? (
-                <div className="col-span-full py-20 text-center opacity-30" style={monoFont}>
-                  <Bell className="size-12 mx-auto mb-4" />
-                  <p>No reminders found</p>
+                <div className="col-span-full flex min-h-[160px] flex-col items-center justify-center rounded-2xl border text-center px-5 py-8"
+                  style={{ background: 'rgba(255,255,255,0.018)', borderColor: 'rgba(255,255,255,0.07)' }}>
+                  <div className="mb-4 flex size-12 items-center justify-center rounded-2xl" style={{ background: 'rgba(69,200,161,0.1)', color: TEAL }}>
+                    <Bell className="size-5" />
+                  </div>
+                  <p className="font-semibold text-white" style={headingFont}>Nothing due right now</p>
+                  <p className="mt-1 text-sm" style={{ color: '#97A29E' }}>Add a reminder for a bill or payment date.</p>
                 </div>
               ) : reminders.map((r, i) => {
                 const completed = r.status === 'completed';
                 return (
                   <motion.div key={r.id}
-                    className="p-6 rounded-2xl group relative overflow-hidden"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,242,234,0.08)', backdropFilter: 'blur(12px)' }}
+                    className="p-5 sm:p-6 rounded-2xl group relative overflow-hidden"
+                    style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.08)' }}
                     initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }}
-                    whileHover={{ scale: 1.02, borderColor: 'rgba(0,242,234,0.3)' }}
+                    whileHover={{ y: -2, borderColor: 'rgba(69,200,161,0.25)' }}
                   >
                     <div className="flex items-start gap-4 relative">
                       <button onClick={() => toggleReminder(r.id)} style={{ color: completed ? TEAL : '#A1A1A1', marginTop: 4 }}>
