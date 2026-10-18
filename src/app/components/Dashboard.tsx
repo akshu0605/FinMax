@@ -212,6 +212,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
   const [showContactDeveloper, setShowContactDeveloper] = useState(false);
   const [showAddBudget, setShowAddBudget] = useState(false);
   const [showImportWizard, setShowImportWizard] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
 
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -918,12 +919,15 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
             ) : (
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
                 {topSpending.map((expense, index) => (
-                  <motion.div
+                  <motion.button
+                    type="button"
                     key={expense.id}
+                    onClick={() => setSelectedExpense(expense)}
                     className="dashboard-top-spending-row group relative flex items-center gap-3 rounded-xl p-3 sm:p-4"
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.025 }}
+                    aria-label={`View transaction details for ${expense.title}`}
                   >
                     <span className="dashboard-top-spending-rank shrink-0 text-[10px] font-semibold tabular-nums" style={monoFont}>
                       {String(index + 1).padStart(2, '0')}
@@ -941,7 +945,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                       <div className="font-semibold text-rose-300 text-sm whitespace-nowrap" style={monoFont}>-{sym}{Number(expense.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                       <div className="text-[10px] text-neutral-500" style={monoFont}>Expense</div>
                     </div>
-                  </motion.div>
+                  </motion.button>
                 ))}
               </div>
             )}
@@ -1107,6 +1111,47 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
       </div>
 
       {/* Modals Section */}
+      {selectedExpense && (
+        <ModalCard title="Transaction details" onClose={() => setSelectedExpense(null)}>
+          <div className="space-y-5">
+            <div className="rounded-xl border border-teal-300/[0.14] bg-teal-300/[0.05] p-4">
+              <p className="text-[11px] uppercase tracking-[0.14em] text-teal-200" style={monoFont}>Paid to</p>
+              <p className="mt-1 break-words text-lg font-semibold text-white" style={headingFont}>{selectedExpense.title}</p>
+              <p className="mt-2 text-2xl font-bold tabular-nums text-rose-300" style={monoFont}>
+                -{sym}{Number(selectedExpense.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
+                <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-500" style={monoFont}>Category</p>
+                <p className="mt-1 text-sm font-medium text-white" style={headingFont}>{selectedExpense.category}</p>
+              </div>
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
+                <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-500" style={monoFont}>Transaction date</p>
+                <p className="mt-1 text-sm font-medium text-white" style={headingFont}>{new Date(selectedExpense.date).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-500" style={monoFont}>Statement description</p>
+              <p className="mt-1 break-words text-sm leading-6 text-neutral-200" style={monoFont}>{selectedExpense.title}</p>
+            </div>
+
+            {selectedExpense.note && (
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.025] p-3">
+                <p className="text-[10px] uppercase tracking-[0.12em] text-neutral-500" style={monoFont}>Imported reference</p>
+                <p className="mt-1 break-words text-sm leading-6 text-neutral-200" style={monoFont}>{selectedExpense.note}</p>
+              </div>
+            )}
+
+            <p className="text-[11px] leading-5 text-neutral-500" style={monoFont}>
+              UPI or bank reference details appear here when they were included in the imported transaction record.
+            </p>
+          </div>
+        </ModalCard>
+      )}
+
       {showAddExpense && (
         <ModalCard title="Add Expense" onClose={() => setShowAddExpense(false)}>
           <form onSubmit={handleAddExpense} className="space-y-4">
