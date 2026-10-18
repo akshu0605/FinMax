@@ -336,6 +336,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
     if (ex) ex.value += e.amount; else acc.push({ name: e.category, value: e.amount });
     return acc;
   }, [] as { name: string; value: number }[]);
+  const topSpending = [...expenses].sort((a, b) => b.amount - a.amount).slice(0, 10);
 
   const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -800,6 +801,54 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                 </div>
               </GlassCard>
             </div>
+
+            <GlassCard rounded="lg" className="dashboard-top-spending p-4 sm:p-5">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-white tracking-tight" style={headingFont}>Top Spending</h2>
+                  <p className="text-xs text-neutral-400" style={monoFont}>Your 10 highest-value transactions</p>
+                </div>
+                {topSpending.length > 0 && (
+                  <span className="text-[11px] text-neutral-500 tabular-nums" style={monoFont}>{topSpending.length} transaction{topSpending.length === 1 ? '' : 's'}</span>
+                )}
+              </div>
+
+              {topSpending.length === 0 ? (
+                <div className="py-10 text-center text-neutral-500" style={monoFont}>
+                  <TrendingDown className="size-8 mx-auto mb-2 opacity-40" />
+                  <p className="text-xs">Add expenses to see your top spending.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-2.5">
+                  {topSpending.map((expense, index) => (
+                    <motion.div
+                      key={expense.id}
+                      className="dashboard-top-spending-row group relative flex items-center gap-3 rounded-xl p-3"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.025 }}
+                    >
+                      <span className="dashboard-top-spending-rank shrink-0 text-[10px] font-semibold tabular-nums" style={monoFont}>
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-teal-300/[0.06] border border-teal-300/[0.12]">
+                        <DollarSign className="size-4 text-teal-200" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium text-white text-xs sm:text-sm truncate" style={headingFont} title={expense.title}>{expense.title}</div>
+                        <div className="text-[11px] text-neutral-400 truncate" style={monoFont}>
+                          {expense.category} <span className="text-neutral-600 px-1">•</span>{new Date(expense.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0 tabular-nums">
+                        <div className="font-semibold text-rose-300 text-xs sm:text-sm whitespace-nowrap" style={monoFont}>-{sym}{Number(expense.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                        <div className="text-[10px] text-neutral-500" style={monoFont}>Expense</div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </GlassCard>
             </div>}
           </>
         )}
