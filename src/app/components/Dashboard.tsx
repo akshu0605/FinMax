@@ -80,18 +80,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 // Liquid glass modal
 function ModalCard({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
       style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(10px)' }}>
       <GlassCard
-        className="w-full max-w-md p-7"
+        className="w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-b-none p-5 sm:rounded-b-2xl sm:p-7"
         spacing="none"
         style={{
           boxShadow: '0 30px 80px rgba(0,0,0,0.8), 0 0 40px rgba(0,242,255,0.07)',
         }}
       >
-        <div className="p-7 relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-white" style={headingFont}>{title}</h3>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between gap-4 mb-5">
+            <h3 className="text-lg sm:text-xl font-bold text-white" style={headingFont}>{title}</h3>
             <button onClick={onClose} style={{ color: 'rgba(255,255,255,0.4)' }}
               className="hover:text-[var(--ns-cyan)] transition-colors"
             ><X className="size-5" /></button>
@@ -736,8 +736,18 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                       <p className="text-xs">No expenses yet</p>
                     </div>
                   ) : expenses.slice(0, 5).map((expense, i) => (
-                    <motion.div key={expense.id}
-                      className="flex items-center justify-between gap-3 p-2.5 rounded-xl group border border-white/[0.06] bg-white/[0.02] transition-colors hover:bg-white/[0.04] hover:border-white/[0.1]"
+                    <motion.div
+                      key={expense.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setSelectedExpense(expense)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          setSelectedExpense(expense);
+                        }
+                      }}
+                      className="expense-detail-trigger flex items-center justify-between gap-3 p-2.5 rounded-xl group border border-white/[0.06] bg-white/[0.02] transition-colors hover:bg-white/[0.04] hover:border-white/[0.1]"
                       initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
                     >
                       <div className="flex items-center gap-2.5 flex-1 min-w-0">
@@ -754,7 +764,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                           <div className="font-semibold text-rose-300 text-xs sm:text-sm whitespace-nowrap" style={monoFont}>-{sym}{Number(expense.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                           <div className="text-[10px] text-neutral-500 whitespace-nowrap" style={monoFont}>{new Date(expense.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</div>
                         </div>
-                        <button onClick={() => deleteExpense(expense.id)} aria-label={`Delete ${expense.title}`} className="p-1 rounded text-neutral-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:text-rose-300"><Trash2 className="size-3.5" /></button>
+                        <button onClick={(event) => { event.stopPropagation(); deleteExpense(expense.id); }} aria-label={`Delete ${expense.title}`} className="p-1 rounded text-neutral-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:text-rose-300"><Trash2 className="size-3.5" /></button>
                       </div>
                     </motion.div>
                   ))}
@@ -868,8 +878,18 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                   <p>No expenses recorded yet</p>
                 </div>
               ) : expenses.map((expense, i) => (
-                <motion.div key={expense.id}
-                  className="flex items-center justify-between gap-3 p-3 sm:p-5 rounded-2xl group relative overflow-hidden"
+                <motion.div
+                  key={expense.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedExpense(expense)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      setSelectedExpense(expense);
+                    }
+                  }}
+                  className="expense-detail-trigger flex items-center justify-between gap-3 p-3 sm:p-5 rounded-2xl group relative overflow-hidden"
                   style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.07)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)' }}
                   initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                   whileHover={{ scale: 1.01, borderColor: 'rgba(0,242,234,0.2)' }}
@@ -890,7 +910,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
                     <div className="text-right">
                       <div className="text-sm sm:text-xl font-bold text-red-400 whitespace-nowrap" style={monoFont}>-{sym}{expense.amount.toLocaleString()}</div>
                     </div>
-                    <button onClick={() => deleteExpense(expense.id)} className="p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:bg-red-400/10"><Trash2 className="size-5" /></button>
+                    <button onClick={(event) => { event.stopPropagation(); deleteExpense(expense.id); }} className="p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:bg-red-400/10"><Trash2 className="size-5" /></button>
                   </div>
                 </motion.div>
               ))}

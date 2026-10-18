@@ -155,6 +155,16 @@
   color: #8ce0bf;
 }
 
+#finmax-dashboard .expense-detail-trigger {
+  cursor: pointer;
+}
+
+#finmax-dashboard .expense-detail-trigger:focus-visible,
+#finmax-dashboard .dashboard-top-spending-row:focus-visible {
+  outline: 2px solid #45c8a1;
+  outline-offset: 2px;
+}
+
 /* Forms & inputs */
 #finmax-dashboard input,
 #finmax-dashboard select {
