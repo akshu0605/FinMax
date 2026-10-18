@@ -2,21 +2,20 @@ import { TrendingUp } from 'lucide-react';
 
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <div className="relative">
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--ns-cyan,#45c8a1)]/10 border border-[var(--ns-cyan,#45c8a1)]/25 shadow-sm">
         <TrendingUp
-          className="size-8"
+          className="size-5"
           style={{
-            color: '#00F2EA',
-            filter: 'drop-shadow(0 0 8px rgba(0, 242, 234, 0.7))',
+            color: 'var(--ns-cyan, #45c8a1)',
           }}
         />
       </div>
-      <span className="text-2xl font-bold" style={{ fontFamily: 'Inter, Geist, SF Pro, sans-serif' }}>
-        <span style={{ color: '#00F2EA', textShadow: '0 0 12px rgba(0,242,234,0.5)' }}>
+      <span className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif' }}>
+        <span style={{ color: 'var(--ns-cyan, #45c8a1)' }}>
           Fin
         </span>
-        <span className="text-white font-light">Max</span>
+        <span className="text-white font-medium">Max</span>
       </span>
     </div>
   );

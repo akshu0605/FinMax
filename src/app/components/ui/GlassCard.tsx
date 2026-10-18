@@ -43,15 +43,15 @@ export function GlassCard({
     // Map spacing prop to structural classes
     const paddingMap = {
         none: 'p-0',
-        sm: 'p-4 md:p-6',
-        md: 'p-6 md:p-8',
-        lg: 'p-8 md:p-12',
+        sm: 'p-3 md:p-4',
+        md: 'p-4 md:p-5 lg:p-6',
+        lg: 'p-6 md:p-8',
     };
 
     const roundedMap = {
-        md: 'rounded-xl',
-        lg: 'rounded-2xl md:rounded-3xl',
-        apple: 'rounded-[32px] md:rounded-[40px]',
+        md: 'rounded-lg',
+        lg: 'rounded-xl md:rounded-2xl',
+        apple: 'rounded-2xl md:rounded-3xl',
     };
 
     return (

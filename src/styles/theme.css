@@ -78,67 +78,74 @@
   --sidebar-ring: rgba(0, 242, 255, 0.3);
 }
 
-/* NightSec + Apple Minimalism Design System */
+/* FinMax Premium Design System */
 :root,
 .dark {
-  /* Color Palette */
-  --ns-bg: #000000;
-  --ns-bg-elevated: #0a0a0a;
-  --ns-bg-overlay: #111111;
+  /* Color Palette — deeper, richer blacks */
+  --ns-bg: #060807;
+  --ns-bg-elevated: #0E1210;
+  --ns-bg-overlay: #141917;
+  --ns-bg-card: #111514;
   --ns-cyan: #00f2ff;
   --ns-emerald: #10b981;
-  --ns-text-primary: #ffffff;
-  --ns-text-secondary: #a1a1aa;
-  --ns-text-muted: #52525b;
+  --ns-text-primary: #f0f2f1;
+  --ns-text-secondary: #8a918c;
+  --ns-text-muted: #4a524d;
 
-  /* Glassmorphism (spec-exact) */
-  --ns-glass-bg: rgba(255, 255, 255, 0.03);
-  --ns-glass-border: rgba(255, 255, 255, 0.1);
-  --ns-glass-blur: 15px;
-  --ns-glass-saturate: 180%;
-  --ns-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  /* Financial accent colors */
+  --ns-income: #2DD4A0;
+  --ns-expense: #F87171;
+  --ns-savings: #34D399;
+  --ns-rate: #60A5FA;
 
-  /* Glow — use ONLY on active states / key CTAs */
-  --ns-glow-cyan: 0 0 20px rgba(0, 242, 255, 0.2);
-  --ns-glow-cyan-strong: 0 0 40px rgba(0, 242, 255, 0.45);
-  --ns-glow-emerald: 0 0 20px rgba(16, 185, 129, 0.25);
+  /* Premium card surfaces */
+  --ns-glass-bg: rgba(255, 255, 255, 0.025);
+  --ns-glass-border: rgba(255, 255, 255, 0.07);
+  --ns-glass-blur: 12px;
+  --ns-glass-saturate: 160%;
+  --ns-glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
 
-  /* Apple-Minimal Spacing Scale */
-  --ns-space-xs: 8px;
-  --ns-space-sm: 16px;
-  --ns-space-md: 24px;
-  --ns-space-lg: 40px;
-  --ns-space-xl: 64px;
-  --ns-space-2xl: 96px;
-  --ns-space-3xl: 128px;
+  /* Glow — restrained, use on key elements only */
+  --ns-glow-cyan: 0 0 16px rgba(0, 242, 255, 0.15);
+  --ns-glow-cyan-strong: 0 0 28px rgba(0, 242, 255, 0.3);
+  --ns-glow-emerald: 0 0 16px rgba(16, 185, 129, 0.2);
+
+  /* Compact Spacing Scale */
+  --ns-space-xs: 6px;
+  --ns-space-sm: 12px;
+  --ns-space-md: 20px;
+  --ns-space-lg: 32px;
+  --ns-space-xl: 48px;
+  --ns-space-2xl: 72px;
+  --ns-space-3xl: 96px;
 
   /* Typography Scale */
-  --ns-text-xs: 0.75rem;
-  --ns-text-sm: 0.875rem;
-  --ns-text-base: 1rem;
-  --ns-text-lg: 1.125rem;
-  --ns-text-xl: 1.25rem;
-  --ns-text-2xl: 1.5rem;
-  --ns-text-3xl: 1.875rem;
-  --ns-text-4xl: 2.25rem;
-  --ns-text-5xl: 3rem;
-  --ns-text-6xl: 3.75rem;
-  --ns-text-7xl: 4.5rem;
+  --ns-text-xs: 0.6875rem;
+  --ns-text-sm: 0.8125rem;
+  --ns-text-base: 0.9375rem;
+  --ns-text-lg: 1.0625rem;
+  --ns-text-xl: 1.1875rem;
+  --ns-text-2xl: 1.375rem;
+  --ns-text-3xl: 1.75rem;
+  --ns-text-4xl: 2.125rem;
+  --ns-text-5xl: 2.75rem;
+  --ns-text-6xl: 3.5rem;
+  --ns-text-7xl: 4.25rem;
 
-  /* Border Radius */
-  --ns-radius-sm: 8px;
-  --ns-radius-md: 12px;
-  --ns-radius-lg: 16px;
-  --ns-radius-xl: 24px;
-  --ns-radius-2xl: 32px;
+  /* Border Radius — tighter, more premium */
+  --ns-radius-sm: 6px;
+  --ns-radius-md: 10px;
+  --ns-radius-lg: 14px;
+  --ns-radius-xl: 18px;
+  --ns-radius-2xl: 24px;
 
   /* Animation Timing */
   --ns-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ns-ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-  --ns-duration-fast: 150ms;
-  --ns-duration-base: 250ms;
-  --ns-duration-slow: 400ms;
-  --ns-duration-slower: 600ms;
+  --ns-duration-fast: 120ms;
+  --ns-duration-base: 200ms;
+  --ns-duration-slow: 350ms;
+  --ns-duration-slower: 500ms;
 }
 
 /* Utility Classes */
@@ -151,10 +158,10 @@
 }
 
 .ns-glass-active {
-  background: rgba(0, 242, 255, 0.04);
+  background: rgba(0, 242, 255, 0.03);
   backdrop-filter: blur(var(--ns-glass-blur)) saturate(var(--ns-glass-saturate));
   -webkit-backdrop-filter: blur(var(--ns-glass-blur)) saturate(var(--ns-glass-saturate));
-  border: 1px solid rgba(0, 242, 255, 0.15);
+  border: 1px solid rgba(0, 242, 255, 0.12);
   box-shadow: var(--ns-glass-shadow), var(--ns-glow-cyan);
 }
 
@@ -271,25 +278,25 @@
   }
 
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--ns-bg);
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 242, 255, 0.3);
+    background: rgba(0, 242, 255, 0.2);
   }
 
   ::selection {
-    background: rgba(0, 242, 255, 0.2);
+    background: rgba(0, 242, 255, 0.15);
     color: #ffffff;
   }
 }

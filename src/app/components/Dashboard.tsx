@@ -106,37 +106,63 @@ function ModalCard({ children, onClose, title }: { children: React.ReactNode; on
 // Stat Card Component
 function StatCard({ icon: Icon, iconColor, label, value, onEdit }:
   { icon: any; iconColor: string; label: string; value: string; onEdit?: () => void }) {
-  // Keep the income card on the dashboard's accent color.
   const actualColor = iconColor === TEAL ? TEAL : iconColor;
 
   return (
     <GlassCard
       interactive
-      rounded="apple"
-      spacing="sm"
+      rounded="lg"
+      spacing="none"
       active={iconColor === TEAL}
-      className="dashboard-stat-card flex flex-col"
-      style={{ minHeight: 140, boxShadow: '0 20px 50px -12px rgba(0,0,0,0.5)' }}
-      whileHover={{ y: -3, scale: 1.01, boxShadow: `0 12px 28px -12px ${actualColor}24` }}
+      className="dashboard-stat-card flex flex-col justify-between relative overflow-hidden"
+      style={{
+        boxShadow: '0 8px 24px -6px rgba(0,0,0,0.3)',
+      }}
+      whileHover={{ y: -2, scale: 1.01, boxShadow: `0 12px 28px -10px ${actualColor}28` }}
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="w-12 h-12 rounded-xl flex items-center justify-center"
+      {/* Top accent line */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[2px]"
+        style={{
+          background: `linear-gradient(90deg, ${actualColor} 0%, ${actualColor}22 100%)`,
+        }}
+      />
+
+      <div className="flex items-center justify-between mb-2.5">
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center"
           style={{
-            background: `rgba(${actualColor === TEAL ? '69,200,161' : actualColor === '#F87171' ? '248,113,113' : actualColor === '#34D399' ? '52,211,153' : '96,165,250'},0.1)`,
+            background: `${actualColor}18`,
             border: `1px solid ${actualColor}33`,
-            boxShadow: `0 4px 16px ${actualColor}22`,
-          }}>
-          <Icon className="size-6" style={{ color: actualColor, filter: `drop-shadow(0 0 7px ${actualColor})` }} />
+          }}
+        >
+          <Icon className="size-4" style={{ color: actualColor }} />
         </div>
         {onEdit && (
-          <button className="text-xs text-[var(--ns-text-secondary)] hover:text-[var(--ns-cyan)] transition-colors" style={monoFont}
+          <button
+            className="text-[11px] font-medium px-2 py-0.5 rounded text-neutral-400 hover:text-white hover:bg-white/5 transition-colors"
+            style={monoFont}
             onClick={onEdit}
-          >Edit</button>
+          >
+            Edit
+          </button>
         )}
       </div>
-      <motion.div className="text-2xl sm:text-3xl font-bold text-white mb-1 tracking-tight" style={headingFont}
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>{value}</motion.div>
-      <div className="text-sm font-medium" style={{ color: 'var(--ns-text-secondary)', ...monoFont }}>{label}</div>
+
+      <div>
+        <motion.div
+          className="text-xl sm:text-2xl font-bold text-white mb-0.5 tracking-tight tabular-nums"
+          style={monoFont}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.15 }}
+        >
+          {value}
+        </motion.div>
+        <div className="text-xs font-medium text-neutral-400" style={headingFont}>
+          {label}
+        </div>
+      </div>
     </GlassCard>
   );
 }
@@ -425,14 +451,14 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
       {/* Liquid Glass Sidebar */}
       {/* Desktop: always visible (lg:translate-x-0). Mobile: slides in from left. */}
       <aside
-        className="fixed left-0 top-0 bottom-0 w-64 flex flex-col z-30 transition-transform duration-300 ease-in-out"
+        className="fixed left-0 top-0 bottom-0 w-60 flex flex-col z-30 transition-transform duration-300 ease-in-out"
         style={{
           background: 'rgba(0,0,0,0.4)',
           backdropFilter: 'blur(32px) saturate(200%) brightness(1.06)',
           WebkitBackdropFilter: 'blur(32px) saturate(200%) brightness(1.06)',
           borderRight: '1px solid rgba(0,242,234,0.12)',
           boxShadow: 'inset -1px 0 0 rgba(255,255,255,0.04)',
-          padding: '24px 16px',
+          padding: '20px 14px',
           // Desktop: always visible. Mobile: visible only when open.
           transform: (isDesktop || sidebarOpen) ? 'translateX(0)' : 'translateX(-100%)',
         }}
@@ -452,7 +478,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
           <X className="size-5" />
         </button>
 
-        <div className="mb-10 px-2 relative z-10"><Logo /></div>
+        <div className="mb-6 px-2 relative z-10"><Logo /></div>
 
         <nav className="flex-1 space-y-1 relative z-10">
           {navItems.map(({ id, label, icon: Icon }) => {
@@ -538,10 +564,10 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
       </aside>
 
       {/* Main Content Section */}
-      {/* On mobile: no left margin (sidebar is hidden). On lg: ml-64. Extra bottom padding for mobile bottom nav. */}
-      <div className="lg:ml-64 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 relative z-10">
+      {/* On mobile: no left margin (sidebar is hidden). On lg: ml-60. Extra bottom padding for mobile bottom nav. */}
+      <div className="lg:ml-60 p-4 sm:p-5 lg:p-6 pb-24 lg:pb-8 relative z-10">
         {/* Header */}
-        <motion.div className="mb-8 flex items-start justify-between gap-3"
+        <motion.div className="mb-5 flex items-start justify-between gap-3"
           initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="flex items-center gap-3">
@@ -602,7 +628,7 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
         </motion.div>
 
         {/* Stat Cards Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-5 items-stretch">
           <StatCard icon={DollarSign} iconColor={TEAL} label="Monthly Income" value={`${sym}${salary.toLocaleString()}`} onEdit={() => setShowEditSalary(true)} />
           <StatCard icon={TrendingDown} iconColor="#F87171" label="Total Expenses" value={`${sym}${totalExpenses.toLocaleString()}`} />
           <StatCard icon={PiggyBank} iconColor="#34D399" label="Total Savings" value={`${sym}${savings.toLocaleString()}`} />
@@ -628,145 +654,152 @@ export function Dashboard({ userName, userEmail, userId, onLogout }: DashboardPr
               </button>
             </div>
             {(isDesktop || showMobileDashboardDetails) && <div className="dashboard-detail-panels">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <GlassCard rounded="apple" className="dashboard-spending-category flex flex-col min-h-[400px]" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
-                <h2 className="text-2xl font-bold mb-6 text-white tracking-tight" style={headingFont}>Where your money goes</h2>
+            {/* Charts Row: Side by Side on Desktop */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+              <GlassCard rounded="lg" className="dashboard-spending-category flex flex-col p-4 sm:p-5" style={{ minHeight: '340px' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-bold text-white tracking-tight" style={headingFont}>Where your money goes</h2>
+                  <span className="text-xs text-neutral-400" style={monoFont}>Breakdown</span>
+                </div>
                 {expenses.length === 0 ? (
-                  <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-                    <PieChart className="size-12 mb-4 opacity-20 text-[var(--ns-cyan)]" />
-                    <p className="text-sm opacity-50" style={monoFont}>Add expenses to see your spending breakdown.</p>
+                  <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
+                    <PieChart className="size-10 mb-3 opacity-20 text-[var(--ns-cyan)]" />
+                    <p className="text-xs opacity-50" style={monoFont}>Add expenses to see your spending breakdown.</p>
                   </div>
                 ) : (
-                  <div className="h-[300px] w-full">
-                    <ResponsiveContainer width="100%" height={300}>
+                  <div className="h-[260px] w-full">
+                    <ResponsiveContainer width="100%" height={260}>
                       <PieChart>
-                        <Pie data={categoryData} cx="50%" cy="50%" labelLine={false} outerRadius={100} dataKey="value" animationBegin={0} animationDuration={1000}>
+                        <Pie data={categoryData} cx="50%" cy="50%" labelLine={false} outerRadius={85} innerRadius={45} dataKey="value" animationBegin={0} animationDuration={800}>
                           {categoryData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                         </Pie>
                         <Tooltip content={<CustomTooltip />} />
-                        <Legend wrapperStyle={{ color: '#A1A1A1', ...monoFont }} iconType="circle" />
+                        <Legend wrapperStyle={{ color: '#A1A1A1', fontSize: '11px', ...monoFont }} iconType="circle" />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
                 )}
               </GlassCard>
+
+              <GlassCard rounded="lg" className="p-4 sm:p-5 flex flex-col" style={{ minHeight: '340px' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h2 className="text-lg font-bold text-white tracking-tight mb-0.5" style={headingFont}>Spending Trend</h2>
+                    <p className="text-xs text-neutral-400" style={monoFont}>Daily activity</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px]" style={monoFont}>
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Income
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 text-[11px]" style={monoFont}>
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500" /> Expenses
+                    </div>
+                  </div>
+                </div>
+                <div className="dashboard-trend-chart flex-1 h-[260px] w-full">
+                  <ResponsiveContainer width="100%" height={260}>
+                    <AreaChart data={expenses.slice(-15).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())}>
+                      <defs>
+                        <linearGradient id="colorExp" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#F87171" stopOpacity={0.25} />
+                          <stop offset="95%" stopColor="#F87171" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="date" hide />
+                      <YAxis hide domain={['auto', 'auto']} />
+                      <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }} />
+                      <Area type="monotone" dataKey="amount" stroke="#F87171" strokeWidth={2.5} fillOpacity={1} fill="url(#colorExp)" activeDot={{ r: 5, stroke: '#F87171', strokeWidth: 2, fill: '#080A09' }} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </GlassCard>
             </div>
 
-            <GlassCard rounded="apple" className="mb-8 p-6 lg:p-8" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-white tracking-tight mb-1" style={headingFont}>Spending Trend</h2>
-                  <p className="text-sm" style={{ color: '#A1A1A1', ...monoFont }}>Your recent daily activity</p>
-                </div>
-                <div className="flex gap-2">
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs" style={monoFont}>
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Income
+            {/* Bottom Row: Recent Expenses & Upcoming Bills Side by Side */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+              <GlassCard rounded="lg" className="p-4 sm:p-5 flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h2 className="text-lg font-bold text-white tracking-tight" style={headingFont}>Recent Expenses</h2>
+                    <p className="text-xs text-neutral-400" style={monoFont}>Latest transactions</p>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs" style={monoFont}>
-                    <div className="w-1.5 h-1.5 rounded-full bg-red-500" /> Total Expenses
-                  </div>
+                  <NeonButton size="sm" onClick={() => setShowAddExpense(true)}><Plus className="size-3.5" /> Add</NeonButton>
                 </div>
-              </div>
-              <div className="dashboard-trend-chart h-[320px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={expenses.slice(-15).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())}>
-                    <defs>
-                      <linearGradient id="colorExp" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#F87171" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#F87171" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="colorTeal" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={TEAL} stopOpacity={0.3} />
-                        <stop offset="95%" stopColor={TEAL} stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                    <XAxis dataKey="date" hide />
-                    <YAxis hide domain={['auto', 'auto']} />
-                    <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }} />
-                    <Area type="monotone" dataKey="amount" stroke="#F87171" strokeWidth={3} fillOpacity={1} fill="url(#colorExp)" activeDot={{ r: 6, stroke: '#F87171', strokeWidth: 2, fill: '#000' }} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </GlassCard>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <GlassCard rounded="apple">
-                <div className="flex items-center justify-between mb-5">
-                  <h2 className="text-xl font-semibold text-white tracking-tight" style={headingFont}>Recent Expenses</h2>
-                  <NeonButton size="sm" onClick={() => setShowAddExpense(true)}><Plus className="size-4" /> Add</NeonButton>
-                </div>
-                <div className="space-y-2 max-h-[320px] overflow-y-auto overscroll-contain pr-1">
+                <div className="space-y-2 max-h-[300px] overflow-y-auto overscroll-contain pr-1 flex-1">
                   {expenses.length === 0 ? (
-                    <div className="py-12 text-center opacity-30" style={monoFont}>
+                    <div className="py-10 text-center opacity-30" style={monoFont}>
                       <TrendingDown className="size-8 mx-auto mb-2" />
-                      <p>No expenses yet</p>
+                      <p className="text-xs">No expenses yet</p>
                     </div>
                   ) : expenses.slice(0, 5).map((expense, i) => (
                     <motion.div key={expense.id}
-                      className="flex items-center justify-between gap-3 p-3 rounded-xl group border border-white/[0.08] bg-white/[0.025] transition-colors hover:bg-white/[0.05] hover:border-white/[0.14]"
-                      initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+                      className="flex items-center justify-between gap-3 p-2.5 rounded-xl group border border-white/[0.06] bg-white/[0.02] transition-colors hover:bg-white/[0.04] hover:border-white/[0.1]"
+                      initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
                     >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-white/[0.05] border border-white/[0.08]">
-                          <DollarSign className="size-4 text-neutral-300" />
+                      <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-white/[0.04] border border-white/[0.08]">
+                          <DollarSign className="size-3.5 text-neutral-300" />
                         </div>
                         <div className="min-w-0">
-                          <div className="font-medium text-white text-sm break-words" style={headingFont} title={expense.title}>{expense.title}</div>
-                          <div className="text-xs text-neutral-400 truncate" style={monoFont}>{expense.category}</div>
+                          <div className="font-medium text-white text-xs sm:text-sm truncate" style={headingFont} title={expense.title}>{expense.title}</div>
+                          <div className="text-[11px] text-neutral-400 truncate" style={monoFont}>{expense.category}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <div className="text-right tabular-nums">
-                          <div className="font-semibold text-rose-300 text-sm whitespace-nowrap" style={monoFont}>-{sym}{Number(expense.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                          <div className="text-xs text-neutral-500 whitespace-nowrap" style={monoFont}>{new Date(expense.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                          <div className="font-semibold text-rose-300 text-xs sm:text-sm whitespace-nowrap" style={monoFont}>-{sym}{Number(expense.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                          <div className="text-[10px] text-neutral-500 whitespace-nowrap" style={monoFont}>{new Date(expense.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</div>
                         </div>
-                        <button onClick={() => deleteExpense(expense.id)} aria-label={`Delete ${expense.title}`} className="p-1 rounded text-neutral-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:text-rose-300"><Trash2 className="size-4" /></button>
+                        <button onClick={() => deleteExpense(expense.id)} aria-label={`Delete ${expense.title}`} className="p-1 rounded text-neutral-500 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity hover:text-rose-300"><Trash2 className="size-3.5" /></button>
                       </div>
                     </motion.div>
                   ))}
                 </div>
               </GlassCard>
-            </div>
 
-            {/* Reminders widget */}
-            <GlassCard rounded="apple" style={{ boxShadow: '0 40px 100px -20px rgba(0,0,0,0.8)' }}>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white tracking-tight" style={headingFont}>Upcoming Bills</h2>
-                <NeonButton size="sm" onClick={() => setShowAddReminder(true)}><Plus className="size-4" /> Add Reminder</NeonButton>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {reminders.length === 0 ? (
-                  <div className="col-span-full py-12 text-center glass rounded-xl opacity-30" style={monoFont}>
-                    <Bell className="size-8 mx-auto mb-2" />
-                    <p>No reminders set</p>
+              {/* Upcoming Bills side-by-side card */}
+              <GlassCard rounded="lg" className="p-4 sm:p-5 flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h2 className="text-lg font-bold text-white tracking-tight" style={headingFont}>Upcoming Bills</h2>
+                    <p className="text-xs text-neutral-400" style={monoFont}>Payment reminders</p>
                   </div>
-                ) : reminders.map((r, i) => {
-                  const completed = r.status === 'completed';
-                  return (
-                    <motion.div key={r.id} className="p-4 rounded-xl group relative overflow-hidden"
-                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,242,234,0.08)', backdropFilter: 'blur(12px)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07)' }}
-                      initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.1 }}
-                      whileHover={{ scale: 1.02, borderColor: 'rgba(0,242,234,0.22)' }}
-                    >
-                      <div className="absolute inset-0 rounded-[inherit] pointer-events-none"
-                        style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 60%)' }} />
-                      <div className="flex items-start gap-3 relative">
-                        <button onClick={() => toggleReminder(r.id)} style={{ color: completed ? TEAL : '#A1A1A1', marginTop: 2 }}
-                          onMouseEnter={(e) => (e.currentTarget.style.color = TEAL)}
-                          onMouseLeave={(e) => (e.currentTarget.style.color = completed ? TEAL : '#A1A1A1')}
-                        >{completed ? <CheckCircle2 className="size-5" /> : <Circle className="size-5" />}</button>
-                        <div className="flex-1">
-                          <div className="font-semibold mb-1 text-sm" style={{ color: completed ? '#A1A1A1' : '#fff', textDecoration: completed ? 'line-through' : 'none', ...headingFont }}>{r.title}</div>
-                          <div className="flex items-center gap-2 text-xs" style={{ color: '#A1A1A1', ...monoFont }}><Calendar className="size-3" />{new Date(r.dueDate).toLocaleDateString()}</div>
+                  <NeonButton size="sm" onClick={() => setShowAddReminder(true)}><Plus className="size-3.5" /> Reminder</NeonButton>
+                </div>
+                <div className="space-y-2 max-h-[300px] overflow-y-auto overscroll-contain pr-1 flex-1">
+                  {reminders.length === 0 ? (
+                    <div className="py-10 text-center opacity-30" style={monoFont}>
+                      <Bell className="size-8 mx-auto mb-2" />
+                      <p className="text-xs">No upcoming bills set</p>
+                    </div>
+                  ) : reminders.slice(0, 5).map((r, i) => {
+                    const completed = r.status === 'completed';
+                    return (
+                      <motion.div key={r.id} className="p-2.5 rounded-xl group relative overflow-hidden border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.1] transition-colors"
+                        initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.03 }}
+                      >
+                        <div className="flex items-center gap-2.5 relative">
+                          <button onClick={() => toggleReminder(r.id)} style={{ color: completed ? TEAL : '#A1A1A1' }}
+                            className="shrink-0 transition-colors"
+                            onMouseEnter={(e) => (e.currentTarget.style.color = TEAL)}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = completed ? TEAL : '#A1A1A1')}
+                          >{completed ? <CheckCircle2 className="size-4" /> : <Circle className="size-4" />}</button>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-xs sm:text-sm truncate" style={{ color: completed ? '#737373' : '#fff', textDecoration: completed ? 'line-through' : 'none', ...headingFont }}>{r.title}</div>
+                            <div className="flex items-center gap-1.5 text-[10px] text-neutral-400" style={monoFont}><Calendar className="size-3" />{new Date(r.dueDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</div>
+                          </div>
+                          {r.amount ? (
+                            <span className="text-xs font-semibold tabular-nums text-neutral-200" style={monoFont}>{sym}{Number(r.amount).toLocaleString()}</span>
+                          ) : null}
+                          <button onClick={() => deleteReminder(r.id)} className="opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:text-red-300 p-1"><Trash2 className="size-3.5" /></button>
                         </div>
-                        <button onClick={() => deleteReminder(r.id)} className="opacity-0 group-hover:opacity-100 transition-all text-red-400 hover:text-red-300"><Trash2 className="size-4" /></button>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </GlassCard>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </GlassCard>
+            </div>
             </div>}
           </>
         )}

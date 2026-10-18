@@ -89,7 +89,7 @@ export function LandingPage({ onGetStarted, onLogin }: LandingPageProps) {
     <div
       id="finmax-landing"
       className="min-h-screen text-white overflow-hidden relative"
-      style={{ background: '#0c100f', ...bodyFont }}
+      style={{ background: '#080A09', ...bodyFont }}
     >
       {/* NAVIGATION */}
       <motion.nav
